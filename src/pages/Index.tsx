@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Heart, Mail, Instagram } from 'lucide-react';
+import { ChevronDown, Heart, Mail, Instagram, ShoppingBag } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   return (
@@ -14,6 +14,10 @@ const Index = () => {
             <a href="#featured" className="hover:text-secondary transition-colors">Featured</a>
             <a href="#about" className="hover:text-secondary transition-colors">About</a>
             <a href="#contact" className="hover:text-secondary transition-colors">Contact</a>
+            <Link to="/order" className="flex items-center text-accent hover:text-accent/80 transition-colors">
+              <ShoppingBag className="w-4 h-4 mr-1" />
+              Order
+            </Link>
           </div>
         </div>
       </nav>
@@ -31,6 +35,14 @@ const Index = () => {
             <p className="font-inter text-lg md:text-xl text-primary-foreground/80 mb-8">
               Unique crochet pieces made with care and attention to every detail
             </p>
+            <div className="flex justify-center space-x-4 mb-12">
+              <a href="#featured" className="bg-secondary hover:bg-secondary/90 text-white py-2 px-6 rounded-full transition-colors inline-flex items-center">
+                <Heart className="mr-2 h-4 w-4" /> Our Creations
+              </a>
+              <Link to="/order" className="bg-accent hover:bg-accent/90 text-white py-2 px-6 rounded-full transition-colors inline-flex items-center">
+                <ShoppingBag className="mr-2 h-4 w-4" /> Place an Order
+              </Link>
+            </div>
             <a href="#featured" className="inline-flex items-center justify-center">
               <ChevronDown className="animate-bounce w-10 h-10" />
             </a>
