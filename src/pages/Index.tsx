@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Heart, Mail, Instagram, ShoppingBag } from 'lucide-react';
@@ -67,23 +66,71 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <h3 className="font-playfair text-4xl text-center mb-12">Featured Creations</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((item) => (
-              <motion.div
-                key={item}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="aspect-square bg-secondary/20"></div>
-                <div className="p-6">
-                  <h4 className="font-playfair text-xl mb-2">Handmade Item {item}</h4>
-                  <p className="font-inter text-primary-foreground/70">
-                    Beautifully crafted with premium materials
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+            {/* Brown and Pink Cardigan */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/292bcef9-b482-4906-b037-def69ad64fbf.png"
+                  alt="Brown and Pink Cardigan"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Cozy Two-Tone Cardigan</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Handcrafted cardigan in brown with pink accents, perfect for chilly evenings
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Blue Summer Set */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/d910cf04-5989-46cf-8bc7-a9bcb94356b4.png"
+                  alt="Blue Summer Set"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Summer Beach Set</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Stylish blue and white checkered set including a hat and accessories
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Cream Crop Top */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/3b8fc3fe-1891-426b-9f1c-7e6d61851ee4.png"
+                  alt="Cream Crop Top"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Ruffled Crop Top</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Delicate cream crop top with ruffle details and tie front
+                </p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
