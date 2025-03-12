@@ -159,7 +159,7 @@ const Index = () => {
               Interested in a custom piece or have questions? We'd love to hear from you!
             </p>
             <div className="flex justify-center space-x-6">
-              <a href="mailto:contact@everythinghooked.com" className="p-3 rounded-full bg-primary hover:bg-secondary transition-colors">
+              <a href="mailto:everythinghooked09.com" className="p-3 rounded-full bg-primary hover:bg-secondary transition-colors">
                 <Mail className="w-6 h-6" />
               </a>
               <a href="https://instagram.com/everything_hooked" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-primary hover:bg-secondary transition-colors">
