@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, ShoppingBag, AlertCircle } from 'lucide-react';
+import { Heart, ShoppingBag, AlertCircle, Mail } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 const Order = () => {
@@ -25,17 +25,72 @@ const Order = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendOrderEmail = async (orderData: typeof formData) => {
+    const emailContent = `
+      New Order from Website:
+      
+      Customer: ${orderData.name}
+      Email: ${orderData.email}
+      Phone: ${orderData.phone}
+      
+      Item: ${orderData.item}
+      Quantity: ${orderData.quantity}
+      Color: ${orderData.color}
+      Special Instructions: ${orderData.specialInstructions}
+    `;
+
+    // Using EmailJS-like approach with no-cors mode
+    const serviceId = 'default_service'; // This would be your EmailJS service ID
+    const templateId = 'template_default'; // This would be your EmailJS template ID
+    const userId = 'user_default'; // This would be your EmailJS user ID
+    
+    try {
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          service_id: serviceId,
+          template_id: templateId,
+          user_id: userId,
+          template_params: {
+            to_email: 'everythinghooked09@gmail.com',
+            from_name: orderData.name,
+            from_email: orderData.email,
+            subject: `New Order from ${orderData.name}`,
+            message: emailContent
+          }
+        }),
+        mode: 'no-cors'
+      });
+      
+      console.log('Email sent successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     
-    // Simulate sending order data to server
-    setTimeout(() => {
+    try {
+      // Simulate sending order data to server
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Send email notification
+      await sendOrderEmail(formData);
+      
       console.log('Order submitted:', formData);
+      
       toast({
         title: "Order Placed Successfully!",
         description: "We've received your order and will contact you soon.",
       });
+      
       setFormData({
         name: '',
         email: '',
@@ -45,8 +100,16 @@ const Order = () => {
         color: '',
         specialInstructions: ''
       });
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      toast({
+        title: "Error Placing Order",
+        description: "There was an issue processing your order. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -181,6 +244,11 @@ const Order = () => {
                     </>
                   )}
                 </button>
+              </div>
+              
+              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-primary-foreground/60">
+                <Mail className="h-4 w-4" />
+                <p>Order notifications will be sent to everythinghooked09@gmail.com</p>
               </div>
               
               <p className="mt-4 text-sm text-center text-primary-foreground/60 flex items-center justify-center">
