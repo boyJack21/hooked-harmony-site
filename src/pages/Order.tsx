@@ -39,8 +39,8 @@ const Order = () => {
       Special Instructions: ${orderData.specialInstructions}
     `;
 
-    // Using EmailJS-like approach with no-cors mode
-    const serviceId = 'default_service'; // This would be your EmailJS service ID
+    // Using the provided EmailJS service ID
+    const serviceId = 'service_vx09dhj'; // Updated to use the real service ID
     const templateId = 'template_default'; // This would be your EmailJS template ID
     const userId = 'user_default'; // This would be your EmailJS user ID
     
