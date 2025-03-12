@@ -67,7 +67,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <h3 className="font-playfair text-4xl text-center mb-12">Featured Creations</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Brown and Pink Cardigan */}
+            {/* Original Items */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -89,7 +89,6 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Blue Summer Set */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -111,7 +110,6 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Cream Crop Top */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -129,6 +127,175 @@ const Index = () => {
                 <h4 className="font-playfair text-xl mb-2">Ruffled Crop Top</h4>
                 <p className="font-inter text-primary-foreground/70">
                   Delicate cream crop top with ruffle details and tie front
+                </p>
+              </div>
+            </motion.div>
+
+            {/* New Items */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/8e8b348c-460f-4202-b822-cce533c16d65.png"
+                  alt="Beige Polo Shirt"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Classic Beige Polo</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Comfortable and breathable beige polo shirt, ideal for casual outings
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/5b1caa4b-5579-450f-84f4-c46a9c909ab8.png"
+                  alt="Beige and Brown Shirt"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Two-Tone Button Shirt</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Elegant beige and brown button-up shirt with contrasting detail
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/7c1dfbee-f9f7-4b62-8b0d-ab7c5d1d2990.png"
+                  alt="Color Block Cardigan"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Color Block Cardigan</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Stylish layered cardigan with cream, tan, brown and gray color blocks
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/e255fe3b-ce35-4980-87aa-3b593d0d626d.png"
+                  alt="Orange Bikini Set"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Vibrant Bikini Set</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Bright orange crochet bikini, perfect for beach days and pool parties
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/cca20f48-3399-428c-9418-804bf8a9c508.png"
+                  alt="Green Beanie"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Emerald Beanie</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Warm and stylish green beanie, perfect for cold winter days
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/2f2c964c-4ac4-47b6-8b6f-ed4fc2667b3c.png"
+                  alt="Baby Dress"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Baby Girl Dress</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Adorable gray crochet dress for babies, perfect for special occasions
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/d977b0bc-aa7a-49ea-9d6a-c37dbe6e71b9.png"
+                  alt="White Crop Top"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Summer Crop Top</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Elegant white crochet crop top with tie-back design, perfect for summer days
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-square relative">
+                <img 
+                  src="/lovable-uploads/68f87ec2-6bd6-4657-a718-151d2cecfa27.png"
+                  alt="Bucket Hats Collection"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h4 className="font-playfair text-xl mb-2">Bucket Hat Collection</h4>
+                <p className="font-inter text-primary-foreground/70">
+                  Stylish bucket hats in various colors, perfect for sun protection with a fashion twist
                 </p>
               </div>
             </motion.div>
