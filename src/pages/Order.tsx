@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, AlertCircle, Mail } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import emailjs from '@emailjs/browser';
 
 const Order = () => {
   const { toast } = useToast();
@@ -25,45 +27,49 @@ const Order = () => {
   };
 
   const sendOrderEmail = async (orderData: typeof formData) => {
-    const emailContent = `
-      New Order from Website:
-      
-      Customer: ${orderData.name}
-      Email: ${orderData.email}
-      Phone: ${orderData.phone}
-      
-      Item: ${orderData.item}
-      Quantity: ${orderData.quantity}
-      Color: ${orderData.color}
-      Special Instructions: ${orderData.specialInstructions}
-    `;
-
     // Using the provided EmailJS credentials
     const serviceId = 'service_vx09dhj';
     const templateId = 'template_v4jj8s3';
     const publicKey = 'WHVqM-qv55tJYHvid';
     
     try {
-      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          service_id: serviceId,
-          template_id: templateId,
-          user_id: publicKey,
-          template_params: {
-            to_email: 'everythinghooked09@gmail.com',
-            from_name: orderData.name,
-            from_email: orderData.email,
-            subject: `New Order from ${orderData.name}`,
-            message: emailContent
-          }
-        })
-      });
+      // Create a template parameters object
+      const templateParams = {
+        from_name: orderData.name,
+        from_email: orderData.email,
+        to_name: 'Everything Hooked',
+        to_email: 'everythinghooked09@gmail.com',
+        subject: `New Order from ${orderData.name}`,
+        customer_name: orderData.name,
+        customer_email: orderData.email,
+        customer_phone: orderData.phone,
+        item: orderData.item,
+        quantity: orderData.quantity,
+        color: orderData.color,
+        special_instructions: orderData.specialInstructions,
+        message: `
+          New Order from Website:
+          
+          Customer: ${orderData.name}
+          Email: ${orderData.email}
+          Phone: ${orderData.phone}
+          
+          Item: ${orderData.item}
+          Quantity: ${orderData.quantity}
+          Color: ${orderData.color}
+          Special Instructions: ${orderData.specialInstructions}
+        `
+      };
+
+      // Send the email directly using emailjs-com
+      const response = await emailjs.send(
+        serviceId,
+        templateId,
+        templateParams,
+        publicKey
+      );
       
-      console.log('Email sent successfully');
+      console.log('Email sent successfully:', response);
       return true;
     } catch (error) {
       console.error('Failed to send email:', error);
