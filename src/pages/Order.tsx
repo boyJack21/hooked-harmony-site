@@ -29,7 +29,7 @@ const Order = () => {
   const sendOrderEmail = async (orderData: typeof formData) => {
     // Using the provided EmailJS credentials
     const serviceId = 'service_vx09dhj';
-    const templateId = 'template_v4jj8s3';
+    const templateId = 'template_m4nkif1';
     const publicKey = 'WHVqM-qv55tJYHvid';
     
     try {
