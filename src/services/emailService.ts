@@ -18,13 +18,14 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
   const publicKey = 'WHVqM-qv55tJYHvid';
   
   try {
-    // Create a template parameters object - ensuring the recipient field is set
+    // Create a template parameters object
     const templateParams = {
       from_name: orderData.name,
       from_email: orderData.email,
       to_name: 'Everything Hooked',
-      to_email: 'everythinghooked09@gmail.com', // This is critical - make sure it's included
-      reply_to: orderData.email, // Important for replies
+      to_email: 'everythinghooked09@gmail.com', // Explicit setting of recipient
+      recipient: 'everythinghooked09@gmail.com', // Adding an additional recipient field that EmailJS might be looking for
+      reply_to: orderData.email,
       subject: `New Order from ${orderData.name}`,
       customer_name: orderData.name,
       customer_email: orderData.email,

@@ -5,9 +5,10 @@ import { OrderFormData } from '@/types/order';
 interface CustomerInfoFormProps {
   formData: OrderFormData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  errors: Record<string, string>;
 }
 
-export const CustomerInfoForm: React.FC<CustomerInfoFormProps> = ({ formData, handleChange }) => {
+export const CustomerInfoForm: React.FC<CustomerInfoFormProps> = ({ formData, handleChange, errors }) => {
   return (
     <>
       <div>
@@ -19,8 +20,11 @@ export const CustomerInfoForm: React.FC<CustomerInfoFormProps> = ({ formData, ha
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-secondary/30 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary"
+          className={`w-full px-4 py-2 border ${errors.name ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
         />
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+        )}
       </div>
       
       <div>
@@ -32,8 +36,11 @@ export const CustomerInfoForm: React.FC<CustomerInfoFormProps> = ({ formData, ha
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-secondary/30 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary"
+          className={`w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
         />
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+        )}
       </div>
       
       <div>
@@ -44,8 +51,11 @@ export const CustomerInfoForm: React.FC<CustomerInfoFormProps> = ({ formData, ha
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full px-4 py-2 border border-secondary/30 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary"
+          className={`w-full px-4 py-2 border ${errors.phone ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
         />
+        {errors.phone && (
+          <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+        )}
       </div>
     </>
   );

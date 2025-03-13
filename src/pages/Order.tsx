@@ -6,6 +6,7 @@ import { OrderForm } from '@/components/order/OrderForm';
 import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
 import { sendOrderEmail } from '@/services/emailService';
+import { validateOrderForm } from '@/services/validationService';
 import { OrderFormData } from '@/types/order';
 
 const Order = () => {
@@ -19,18 +20,49 @@ const Order = () => {
     color: '',
     specialInstructions: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    let processedValue: string | number = value;
+    
+    // Handle numeric inputs
+    if (name === 'quantity') {
+      processedValue = value === '' ? 1 : Number(value);
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: processedValue
     }));
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    const validationErrors = validateOrderForm(formData);
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast({
+        title: "Form Validation Error",
+        description: "Please check the form and fix the errors.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setSubmitting(true);
     
     try {
@@ -51,6 +83,7 @@ const Order = () => {
         description: "We've received your order and will contact you soon.",
       });
       
+      // Reset form data
       setFormData({
         name: '',
         email: '',
@@ -60,6 +93,9 @@ const Order = () => {
         color: '',
         specialInstructions: ''
       });
+      
+      // Clear any errors
+      setErrors({});
     } catch (error) {
       console.error('Error submitting order:', error);
       toast({
@@ -93,6 +129,7 @@ const Order = () => {
               handleChange={handleChange}
               handleSubmit={handleSubmit}
               submitting={submitting}
+              errors={errors}
             />
             
             <OrderFormFooter />

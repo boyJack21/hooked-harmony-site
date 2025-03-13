@@ -10,19 +10,21 @@ interface OrderFormProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   submitting: boolean;
+  errors: Record<string, string>;
 }
 
 export const OrderForm: React.FC<OrderFormProps> = ({
   formData,
   handleChange,
   handleSubmit,
-  submitting
+  submitting,
+  errors
 }) => {
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <div className="space-y-4">
-        <CustomerInfoForm formData={formData} handleChange={handleChange} />
-        <OrderDetailsForm formData={formData} handleChange={handleChange} />
+        <CustomerInfoForm formData={formData} handleChange={handleChange} errors={errors} />
+        <OrderDetailsForm formData={formData} handleChange={handleChange} errors={errors} />
       </div>
       
       <div className="mt-8">
