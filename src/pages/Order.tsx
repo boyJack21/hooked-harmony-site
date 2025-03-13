@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, AlertCircle, Mail } from 'lucide-react';
@@ -39,10 +38,10 @@ const Order = () => {
       Special Instructions: ${orderData.specialInstructions}
     `;
 
-    // Using the provided EmailJS service ID
-    const serviceId = 'service_vx09dhj'; // Updated to use the real service ID
-    const templateId = 'template_default'; // This would be your EmailJS template ID
-    const userId = 'user_default'; // This would be your EmailJS user ID
+    // Using the provided EmailJS credentials
+    const serviceId = 'service_vx09dhj';
+    const templateId = 'template_v4jj8s3';
+    const publicKey = 'WHVqM-qv55tJYHvid';
     
     try {
       const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -53,7 +52,7 @@ const Order = () => {
         body: JSON.stringify({
           service_id: serviceId,
           template_id: templateId,
-          user_id: userId,
+          user_id: publicKey,
           template_params: {
             to_email: 'everythinghooked09@gmail.com',
             from_name: orderData.name,
@@ -61,8 +60,7 @@ const Order = () => {
             subject: `New Order from ${orderData.name}`,
             message: emailContent
           }
-        }),
-        mode: 'no-cors'
+        })
       });
       
       console.log('Email sent successfully');
