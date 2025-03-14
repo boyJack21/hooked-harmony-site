@@ -23,8 +23,6 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
       from_name: orderData.name,
       from_email: orderData.email,
       to_name: 'Everything Hooked',
-      to_email: 'everythinghooked09@gmail.com', // Explicit setting of recipient
-      recipient: 'everythinghooked09@gmail.com', // Adding an additional recipient field that EmailJS might be looking for
       reply_to: orderData.email,
       subject: `New Order from ${orderData.name}`,
       customer_name: orderData.name,
