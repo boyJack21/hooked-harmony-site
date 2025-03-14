@@ -61,10 +61,15 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
     return true;
   } catch (error) {
     console.error('Failed to send email. Details:', error);
+    
+    // More detailed error logging to help diagnose the issue
     if (error instanceof Error) {
       console.error('Error name:', error.name);
       console.error('Error message:', error.message);
+    } else if (typeof error === 'object' && error !== null) {
+      console.error('Error object:', JSON.stringify(error));
     }
+    
     return false;
   }
 };
