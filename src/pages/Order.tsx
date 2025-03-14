@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
@@ -49,9 +48,11 @@ const Order = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission initiated with data:', formData);
     
     // Validate form
     const validationErrors = validateOrderForm(formData);
+    console.log('Validation results:', validationErrors);
     
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -66,17 +67,18 @@ const Order = () => {
     setSubmitting(true);
     
     try {
-      // Simulate sending order data to server
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Proceeding with form submission after validation passed');
       
-      // Send email notification with updated service
+      // Send email notification
+      console.log('Attempting to send email notification');
       const emailResult = await sendOrderEmail(formData);
       
       if (!emailResult) {
+        console.error('Email sending failed in Order component');
         throw new Error('Failed to send email notification');
       }
       
-      console.log('Order submitted:', formData);
+      console.log('Order submitted successfully:', formData);
       
       toast({
         title: "Order Placed Successfully!",
@@ -98,9 +100,16 @@ const Order = () => {
       setErrors({});
     } catch (error) {
       console.error('Error submitting order:', error);
+      
+      let errorMessage = "There was an issue processing your order. Please try again.";
+      if (error instanceof Error) {
+        errorMessage += ` Error: ${error.message}`;
+        console.error('Error details:', error.name, error.message);
+      }
+      
       toast({
         title: "Error Placing Order",
-        description: "There was an issue processing your order. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
