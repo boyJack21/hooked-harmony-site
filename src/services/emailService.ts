@@ -19,12 +19,11 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
   
   try {
     // Create a template parameters object
-    // NOTE: EmailJS expects recipient to be configured in the template/service settings,
-    // not as part of the parameters we're sending
     const templateParams = {
       from_name: orderData.name,
       from_email: orderData.email,
       reply_to: orderData.email,
+      to_email: 'everythinghooked09@gmail.com', // Adding recipient email directly
       subject: `New Order from ${orderData.name}`,
       customer_name: orderData.name,
       customer_email: orderData.email,
