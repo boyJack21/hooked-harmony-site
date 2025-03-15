@@ -11,6 +11,8 @@ interface OrderFormProps {
   handleSubmit: (e: React.FormEvent) => void;
   submitting: boolean;
   errors: Record<string, string>;
+  orderCount?: number;
+  maxOrders?: number;
 }
 
 export const OrderForm: React.FC<OrderFormProps> = ({
@@ -18,8 +20,12 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   handleChange,
   handleSubmit,
   submitting,
-  errors
+  errors,
+  orderCount = 0,
+  maxOrders = 2
 }) => {
+  const isLimitReached = orderCount >= maxOrders;
+  
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="space-y-4">
@@ -30,14 +36,18 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       <div className="mt-8">
         <button
           type="submit"
-          disabled={submitting}
-          className="w-full bg-secondary hover:bg-secondary/90 text-white py-3 px-6 rounded-md transition-colors flex items-center justify-center"
+          disabled={submitting || isLimitReached}
+          className={`w-full ${isLimitReached ? 'bg-gray-400 cursor-not-allowed' : 'bg-secondary hover:bg-secondary/90'} text-white py-3 px-6 rounded-md transition-colors flex items-center justify-center`}
         >
           {submitting ? (
             <div className="flex items-center">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
               Processing...
             </div>
+          ) : isLimitReached ? (
+            <>
+              Order Limit Reached
+            </>
           ) : (
             <>
               <Heart className="mr-2 h-5 w-5" />
@@ -45,6 +55,12 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             </>
           )}
         </button>
+        
+        {isLimitReached && (
+          <p className="mt-2 text-xs text-center text-amber-600">
+            You've reached the maximum of {maxOrders} orders. Please contact us via WhatsApp for additional orders.
+          </p>
+        )}
       </div>
     </form>
   );

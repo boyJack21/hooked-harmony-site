@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
 import { OrderForm } from '@/components/order/OrderForm';
@@ -7,6 +8,9 @@ import { OrderFormFooter } from '@/components/order/OrderFormFooter';
 import { sendOrderEmail } from '@/services/emailService';
 import { validateOrderForm } from '@/services/validationService';
 import { OrderFormData } from '@/types/order';
+
+const MAX_ORDERS_PER_SESSION = 2;
+const ORDER_LIMIT_KEY = 'everythinghooked_order_count';
 
 const Order = () => {
   const { toast } = useToast();
@@ -21,6 +25,15 @@ const Order = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [orderCount, setOrderCount] = useState(0);
+
+  // Load order count from localStorage on component mount
+  useEffect(() => {
+    const savedOrderCount = localStorage.getItem(ORDER_LIMIT_KEY);
+    if (savedOrderCount) {
+      setOrderCount(parseInt(savedOrderCount, 10));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -49,6 +62,16 @@ const Order = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submission initiated with data:', formData);
+    
+    // Check if user has reached order limit
+    if (orderCount >= MAX_ORDERS_PER_SESSION) {
+      toast({
+        title: "Order Limit Reached",
+        description: "You have reached the maximum number of orders (2) per session. Please contact us directly for additional orders.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     // Validate form
     const validationErrors = validateOrderForm(formData);
@@ -79,6 +102,11 @@ const Order = () => {
       }
       
       console.log('Order submitted successfully:', formData);
+      
+      // Increment order count and update localStorage
+      const newOrderCount = orderCount + 1;
+      setOrderCount(newOrderCount);
+      localStorage.setItem(ORDER_LIMIT_KEY, newOrderCount.toString());
       
       toast({
         title: "Order Placed Successfully!",
@@ -131,6 +159,11 @@ const Order = () => {
           <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
             <p className="mb-6 text-center font-inter text-primary-foreground/80">
               Please fill out the form below to place your custom crochet order.
+              {orderCount > 0 && (
+                <span className="block mt-2 text-xs text-amber-600 font-medium">
+                  You have placed {orderCount} of 2 allowed orders.
+                </span>
+              )}
             </p>
             
             <OrderForm 
@@ -139,6 +172,8 @@ const Order = () => {
               handleSubmit={handleSubmit}
               submitting={submitting}
               errors={errors}
+              orderCount={orderCount}
+              maxOrders={MAX_ORDERS_PER_SESSION}
             />
             
             <OrderFormFooter />
