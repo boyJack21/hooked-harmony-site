@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { OrderFormData } from '@/types/order';
+import { Plus, Minus } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OrderDetailsFormProps {
   formData: OrderFormData;
@@ -9,6 +11,21 @@ interface OrderDetailsFormProps {
 }
 
 export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ formData, handleChange, errors }) => {
+  const isMobile = useIsMobile();
+  
+  // Custom handler for quantity changes with buttons
+  const handleQuantityChange = (newValue: number) => {
+    // Create a synthetic event object that mimics the standard onChange event
+    const event = {
+      target: {
+        name: 'quantity',
+        value: newValue.toString()
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleChange(event);
+  };
+
   return (
     <>
       <div>
@@ -31,16 +48,41 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ formData, ha
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="quantity" className="block font-medium mb-1">Quantity</label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            min="1"
-            value={formData.quantity}
-            onChange={handleChange}
-            required
-            className={`w-full px-4 py-2 border ${errors.quantity ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
-          />
+          <div className="flex items-center">
+            <button 
+              type="button"
+              onClick={() => handleQuantityChange(Math.max(1, Number(formData.quantity) - 1))}
+              className="px-3 py-2 bg-secondary/10 rounded-l-md border border-secondary/30 hover:bg-secondary/20"
+              aria-label="Decrease quantity"
+            >
+              <Minus size={16} />
+            </button>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              min="1"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              className={`w-full px-4 py-2 border-y border-secondary/30 focus:outline-none focus:ring-1 focus:ring-secondary ${errors.quantity ? 'border-red-500' : ''} text-center`}
+              style={{ 
+                WebkitAppearance: 'none', 
+                MozAppearance: 'textfield',
+                appearance: 'textfield'
+              }}
+            />
+            <button 
+              type="button"
+              onClick={() => handleQuantityChange(Number(formData.quantity) + 1)}
+              className="px-3 py-2 bg-secondary/10 rounded-r-md border border-secondary/30 hover:bg-secondary/20"
+              aria-label="Increase quantity"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
           {errors.quantity && (
             <p className="mt-1 text-sm text-red-500">{errors.quantity}</p>
           )}
