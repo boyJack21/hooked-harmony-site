@@ -27,14 +27,15 @@ const Index = () => {
       <section 
         className="min-h-screen flex items-center justify-center pt-20 relative"
         style={{
-          backgroundImage: "url('/lovable-uploads/24ebb84a-3c09-49e0-a632-14e05de66896.png')",
+          backgroundImage: "url('/lovable-uploads/24ebb84a-3c09-49e0-a632-14e05de66896.png'), url('https://images.unsplash.com/photo-1517964603305-4d9d588af775?q=80&w=2000&auto=format&fit=crop')",
           backgroundSize: "cover",
           backgroundPosition: "center",
+          backgroundBlendMode: "overlay",
           backgroundRepeat: "no-repeat"
         }}
       >
         {/* Overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.div
