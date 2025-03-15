@@ -28,9 +28,9 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
       customer_name: orderData.name,
       customer_email: orderData.email,
       customer_phone: orderData.phone,
-      item: orderData.item,
-      quantity: orderData.quantity,
-      color: orderData.color,
+      item_ordered: orderData.item, // Renamed to be more explicit
+      item_quantity: orderData.quantity.toString(), // Convert to string and renamed
+      item_color: orderData.color, // Renamed to be more explicit
       special_instructions: orderData.specialInstructions,
       message: `
         New Order from Website:
