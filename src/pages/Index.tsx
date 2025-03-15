@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Heart, Mail, Instagram, ShoppingBag } from 'lucide-react';
@@ -27,15 +26,14 @@ const Index = () => {
       <section 
         className="min-h-screen flex items-center justify-center pt-20 relative"
         style={{
-          backgroundImage: "url('/lovable-uploads/24ebb84a-3c09-49e0-a632-14e05de66896.png'), url('https://images.unsplash.com/photo-1517964603305-4d9d588af775?q=80&w=2000&auto=format&fit=crop')",
+          backgroundImage: "url('https://images.unsplash.com/photo-1615529195746-a4837bacaf96?q=80&w=2000&auto=format&fit=crop')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundBlendMode: "overlay",
           backgroundRepeat: "no-repeat"
         }}
       >
         {/* Overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.div
@@ -68,7 +66,6 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <h3 className="font-playfair text-4xl text-center mb-12">Featured Creations</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Original Items */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -132,7 +129,6 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* New Items */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
