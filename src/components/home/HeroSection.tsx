@@ -7,16 +7,13 @@ import { Link } from 'react-router-dom';
 const HeroSection = () => {
   return (
     <section 
-      className="min-h-screen flex items-center justify-center pt-20 relative"
+      className="min-h-screen flex items-center justify-center pt-20 relative bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: "url('https://images.unsplash.com/photo-1615529195746-a4837bacaf96?q=80&w=2000&auto=format&fit=crop')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
       }}
     >
-      {/* Overlay to ensure text readability */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      {/* Overlay with reduced opacity for better image visibility */}
+      <div className="absolute inset-0 bg-black/30"></div>
       
       <div className="container mx-auto px-4 text-center relative z-10">
         <motion.div
