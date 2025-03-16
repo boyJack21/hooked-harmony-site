@@ -6,14 +6,17 @@ import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
   return (
-    <section 
-      className="min-h-screen flex items-center justify-center pt-20 relative bg-cover bg-center bg-no-repeat"
+    <div 
+      className="min-h-screen relative flex items-center justify-center"
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1615529195746-a4837bacaf96?q=80&w=2000&auto=format&fit=crop')",
+        backgroundImage: "url('https://images.unsplash.com/photo-1615529195746-a4837bacaf96?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2000&q=80')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
       }}
     >
-      {/* Overlay with reduced opacity for better image visibility */}
-      <div className="absolute inset-0 bg-black/30"></div>
+      {/* Darker overlay for better text contrast */}
+      <div className="absolute inset-0 bg-black/40" />
       
       <div className="container mx-auto px-4 text-center relative z-10">
         <motion.div
@@ -39,7 +42,7 @@ const HeroSection = () => {
           </a>
         </motion.div>
       </div>
-    </section>
+    </div>
   );
 };
 
