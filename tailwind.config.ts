@@ -29,16 +29,16 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#FDF5E6',
-          foreground: '#333333',
+          DEFAULT: '#FFFFFF', // White
+          foreground: '#333333', // Dark text for contrast
         },
         secondary: {
-          DEFAULT: '#D4A5A5',
-          foreground: '#ffffff',
+          DEFAULT: '#FFDEE2', // Light pink
+          foreground: '#333333', // Dark text for contrast
         },
         accent: {
-          DEFAULT: '#9CAF88',
-          foreground: '#ffffff',
+          DEFAULT: '#F1F0FB', // Soft grey with a hint of purple
+          foreground: '#333333', // Dark text for contrast
         },
       },
       fontFamily: {
