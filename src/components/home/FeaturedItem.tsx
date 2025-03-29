@@ -32,8 +32,11 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
         />
       </div>
       <div className="p-6">
-        <h4 className="font-playfair text-xl mb-2">{title}</h4>
-        <p className="font-inter text-primary-foreground/70">
+        <div className="flex justify-between items-center mb-2">
+          <h4 className="font-playfair text-xl text-black">{title}</h4>
+          <span className="font-inter font-semibold text-black">R0</span>
+        </div>
+        <p className="font-inter text-black/80">
           {description}
         </p>
       </div>

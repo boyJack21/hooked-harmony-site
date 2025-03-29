@@ -25,20 +25,20 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
           className="max-w-3xl mx-auto"
         >
-          <h2 className="font-playfair text-5xl md:text-7xl font-bold mb-6 text-primary">Handcrafted with Love</h2>
-          <p className="font-inter text-lg md:text-xl text-primary mb-8">
+          <h2 className="font-playfair text-5xl md:text-7xl font-bold mb-6 text-black">Handcrafted with Love</h2>
+          <p className="font-inter text-lg md:text-xl text-black mb-8">
             Unique crochet pieces made with care and attention to every detail
           </p>
           <div className="flex justify-center space-x-4 mb-12">
-            <a href="#featured" className="bg-secondary hover:bg-secondary/90 text-primary-foreground py-2 px-6 rounded-full transition-colors inline-flex items-center">
+            <a href="#featured" className="bg-secondary hover:bg-secondary/90 text-black py-2 px-6 rounded-full transition-colors inline-flex items-center">
               <Heart className="mr-2 h-4 w-4" /> Our Creations
             </a>
-            <Link to="/order" className="bg-accent hover:bg-accent/90 text-primary-foreground py-2 px-6 rounded-full transition-colors inline-flex items-center">
+            <Link to="/order" className="bg-accent hover:bg-accent/90 text-black py-2 px-6 rounded-full transition-colors inline-flex items-center">
               <ShoppingBag className="mr-2 h-4 w-4" /> Place an Order
             </Link>
           </div>
           <a href="#featured" className="inline-flex items-center justify-center">
-            <ChevronDown className="animate-bounce w-10 h-10 text-primary" />
+            <ChevronDown className="animate-bounce w-10 h-10 text-black" />
           </a>
         </motion.div>
       </div>
