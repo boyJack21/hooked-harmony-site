@@ -22,7 +22,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.5, delay }}
-      className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+      className="bg-primary rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full"
     >
       <div className="aspect-square relative">
         <img 
