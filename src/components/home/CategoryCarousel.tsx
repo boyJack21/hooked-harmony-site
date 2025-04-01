@@ -45,6 +45,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) 
                       imageAlt={item.imageAlt}
                       title={item.title}
                       description={item.description}
+                      category={category}
                     />
                   </CardContent>
                 </Card>
