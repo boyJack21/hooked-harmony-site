@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
@@ -159,7 +158,7 @@ const Order = () => {
         toast({
           title: "Email Notification Failed",
           description: "Your order was processed but we couldn't send a confirmation email. Please save your order reference.",
-          variant: "warning"
+          variant: "default"
         });
       }
       
