@@ -15,6 +15,12 @@ const Index = () => {
   // Apply the appropriate class to the main container
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark' : '';
+    // Ensure text color classes are applied
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [theme]);
   
   return (
