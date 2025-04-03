@@ -5,15 +5,33 @@ import { useToast } from "@/hooks/use-toast";
 import { OrderForm } from '@/components/order/OrderForm';
 import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
+import PaymentDetails from '@/components/order/PaymentDetails';
 import { sendOrderEmail } from '@/services/emailService';
 import { validateOrderForm } from '@/services/validationService';
 import { OrderFormData } from '@/types/order';
+import { processPayment, PaymentDetails as PaymentDetailsType, PaymentMethod } from '@/services/paymentService';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const MAX_ORDERS_PER_SESSION = 2;
 const ORDER_LIMIT_KEY = 'everythinghooked_order_count';
 
+// Mock function to calculate order total
+const calculateOrderTotal = (formData: OrderFormData): number => {
+  // Simplified pricing logic, would be more complex in a real app
+  const basePrice = formData.item.toLowerCase().includes('cardigan') ? 450 : 
+                    formData.item.toLowerCase().includes('top') ? 400 : 
+                    formData.item.toLowerCase().includes('beanie') ? 150 : 300;
+  
+  return basePrice * formData.quantity;
+};
+
 const Order = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  
   const [formData, setFormData] = useState<OrderFormData>({
     name: '',
     email: '',
@@ -23,9 +41,25 @@ const Order = () => {
     color: '',
     specialInstructions: ''
   });
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [orderTotal, setOrderTotal] = useState(0);
+  
+  // If product was passed from ProductDetail page, populate the form
+  useEffect(() => {
+    if (location.state?.product) {
+      const product = location.state.product;
+      setFormData(prev => ({
+        ...prev,
+        item: product.title || '',
+      }));
+    }
+  }, [location.state]);
 
   // Load order count from localStorage on component mount
   useEffect(() => {
@@ -87,18 +121,46 @@ const Order = () => {
       return;
     }
     
-    setSubmitting(true);
+    // If validation passed, calculate order total and show payment form
+    const total = calculateOrderTotal(formData);
+    setOrderTotal(total);
+    setShowPayment(true);
+    
+    // Scroll to payment section
+    setTimeout(() => {
+      const paymentElement = document.getElementById('payment-section');
+      if (paymentElement) {
+        paymentElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const handlePaymentSubmit = async (paymentDetails: PaymentDetailsType) => {
+    setPaymentProcessing(true);
+    setPaymentError(null);
     
     try {
-      console.log('Proceeding with form submission after validation passed');
+      console.log('Processing payment with details:', paymentDetails);
       
-      // Send email notification
-      console.log('Attempting to send email notification');
+      // Process payment
+      const paymentResult = await processPayment(formData, paymentDetails);
+      
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.message);
+      }
+      
+      // Send order notification email
+      console.log('Payment processed successfully, sending email notification');
       const emailResult = await sendOrderEmail(formData);
       
       if (!emailResult) {
         console.error('Email sending failed in Order component');
-        throw new Error('Failed to send email notification');
+        // Continue even if email fails - we already have the payment
+        toast({
+          title: "Email Notification Failed",
+          description: "Your order was processed but we couldn't send a confirmation email. Please save your order reference.",
+          variant: "warning"
+        });
       }
       
       console.log('Order submitted successfully:', formData);
@@ -108,12 +170,13 @@ const Order = () => {
       setOrderCount(newOrderCount);
       localStorage.setItem(ORDER_LIMIT_KEY, newOrderCount.toString());
       
+      // Show success message
       toast({
         title: "Order Placed Successfully!",
-        description: "We've received your order and will contact you soon.",
+        description: `We've received your order #${paymentResult.orderId} and will contact you soon.`,
       });
       
-      // Reset form data
+      // Reset form and state
       setFormData({
         name: '',
         email: '',
@@ -123,25 +186,32 @@ const Order = () => {
         color: '',
         specialInstructions: ''
       });
-      
-      // Clear any errors
+      setShowPayment(false);
       setErrors({});
-    } catch (error) {
-      console.error('Error submitting order:', error);
       
-      let errorMessage = "There was an issue processing your order. Please try again.";
+      // Navigate to home page after short delay
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      
+      let errorMessage = "There was an issue processing your payment. Please try again.";
       if (error instanceof Error) {
-        errorMessage += ` Error: ${error.message}`;
+        errorMessage = error.message;
         console.error('Error details:', error.name, error.message);
       }
       
+      setPaymentError(errorMessage);
+      
       toast({
-        title: "Error Placing Order",
+        title: "Payment Failed",
         description: errorMessage,
         variant: "destructive"
       });
     } finally {
-      setSubmitting(false);
+      setPaymentProcessing(false);
     }
   };
 
@@ -166,15 +236,44 @@ const Order = () => {
               )}
             </p>
             
-            <OrderForm 
-              formData={formData}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              submitting={submitting}
-              errors={errors}
-              orderCount={orderCount}
-              maxOrders={MAX_ORDERS_PER_SESSION}
-            />
+            {!showPayment ? (
+              <OrderForm 
+                formData={formData}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                submitting={submitting}
+                errors={errors}
+                orderCount={orderCount}
+                maxOrders={MAX_ORDERS_PER_SESSION}
+              />
+            ) : (
+              <div id="payment-section">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <PaymentDetails 
+                    onPaymentSubmit={handlePaymentSubmit}
+                    isProcessing={paymentProcessing}
+                    error={paymentError}
+                    totalAmount={orderTotal}
+                  />
+                  
+                  {/* Button to go back to order form */}
+                  <div className="mt-4 text-center">
+                    <button
+                      type="button"
+                      className="text-sm text-blue-500 hover:text-blue-700"
+                      onClick={() => setShowPayment(false)}
+                      disabled={paymentProcessing}
+                    >
+                      ← Back to order details
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
             
             <OrderFormFooter />
           </div>
