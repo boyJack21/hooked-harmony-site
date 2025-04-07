@@ -6,10 +6,10 @@ import FeaturedSection from '@/components/home/FeaturedSection';
 import AboutSection from '@/components/home/AboutSection';
 import ContactSection from '@/components/home/ContactSection';
 import FAQSection from '@/components/home/FAQSection';
-import TestimonialsSection from '@/components/home/TestimonialsSection';
 import Footer from '@/components/home/Footer';
 import SearchFilters, { FilterOptions } from '@/components/search/SearchFilters';
 import { useState, useEffect } from 'react';
+import BackgroundAnimation from '@/components/home/BackgroundAnimation';
 
 // Define products interface
 interface Product {
@@ -61,25 +61,27 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen bg-primary text-primary-foreground transition-colors duration-300">
-      <Navbar />
-      <HeroSection />
-      
-      <div className="container mx-auto px-4 py-8">
-        <SearchFilters 
-          onSearch={handleSearch}
-          onFilter={handleFilter}
-          categories={availableCategories}
-          activeFilters={activeFilters}
-        />
+    <div className="min-h-screen bg-primary text-primary-foreground relative">
+      <BackgroundAnimation />
+      <div className="relative z-10">
+        <Navbar />
+        <HeroSection />
+        
+        <div className="container mx-auto px-4 py-8">
+          <SearchFilters 
+            onSearch={handleSearch}
+            onFilter={handleFilter}
+            categories={availableCategories}
+            activeFilters={activeFilters}
+          />
+        </div>
+        
+        <FeaturedSection />
+        <AboutSection />
+        <FAQSection />
+        <ContactSection />
+        <Footer />
       </div>
-      
-      <FeaturedSection />
-      <TestimonialsSection />
-      <AboutSection />
-      <FAQSection />
-      <ContactSection />
-      <Footer />
     </div>
   );
 };
