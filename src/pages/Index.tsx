@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Navbar from '@/components/home/Navbar';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedSection from '@/components/home/FeaturedSection';
@@ -8,8 +8,8 @@ import ContactSection from '@/components/home/ContactSection';
 import FAQSection from '@/components/home/FAQSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import Footer from '@/components/home/Footer';
-import { useTheme } from '@/hooks/use-theme';
 import SearchFilters, { FilterOptions } from '@/components/search/SearchFilters';
+import { useState, useEffect } from 'react';
 
 // Define products interface
 interface Product {
@@ -21,24 +21,12 @@ interface Product {
 }
 
 const Index = () => {
-  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({
     categories: [],
     priceRange: null
   });
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
-  
-  // Apply the appropriate class to the main container
-  useEffect(() => {
-    document.body.className = theme === 'dark' ? 'dark' : '';
-    // Ensure text color classes are applied
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
   
   // Extract unique categories from featured products
   useEffect(() => {
@@ -73,7 +61,7 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen bg-primary text-primary-foreground transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-primary text-primary-foreground transition-colors duration-300">
       <Navbar />
       <HeroSection />
       

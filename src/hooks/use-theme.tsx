@@ -1,21 +1,15 @@
 
 import * as React from "react";
 
-type Theme = "dark" | "light" | "system";
-
 interface ThemeProviderProps {
   children: React.ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
 }
 
 interface ThemeProviderState {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  setTheme: () => void;
 }
 
 const initialState: ThemeProviderState = {
-  theme: "system",
   setTheme: () => null,
 };
 
@@ -23,58 +17,21 @@ const ThemeProviderContext = React.createContext<ThemeProviderState>(initialStat
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
-  storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
-
+  // Set up light theme by default
   React.useEffect(() => {
     const root = window.document.documentElement;
-    
-    root.classList.remove("light", "dark");
-    
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-      
-      root.classList.add(systemTheme);
-      return;
-    }
-    
-    root.classList.add(theme);
-  }, [theme]);
-
-  // Listen for system theme changes
-  React.useEffect(() => {
-    if (theme !== 'system') return;
-    
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = () => {
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      root.classList.add(
-        mediaQuery.matches ? "dark" : "light"
-      );
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
+    root.classList.remove("dark");
+  }, []);
 
   const value = React.useMemo(
     () => ({
-      theme,
-      setTheme: (theme: Theme) => {
-        localStorage.setItem(storageKey, theme);
-        setTheme(theme);
+      setTheme: () => {
+        // No-op function since we're removing theming
       },
     }),
-    [theme, storageKey]
+    []
   );
 
   return (

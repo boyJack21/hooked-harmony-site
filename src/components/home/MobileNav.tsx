@@ -1,18 +1,12 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingBag, Moon, Sun } from 'lucide-react';
+import { Menu, X, ShoppingBag } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
 import { useTheme } from '@/hooks/use-theme';
 
-interface MobileNavProps {
-  onThemeToggle: () => void;
-  isDarkMode: boolean;
-}
-
-const MobileNav: React.FC<MobileNavProps> = ({ onThemeToggle, isDarkMode }) => {
+const MobileNav: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -47,20 +41,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ onThemeToggle, isDarkMode }) => {
                 Order
               </Link>
             </nav>
-            
-            <div className="mt-auto pb-8">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Dark Mode</span>
-                <div className="flex items-center">
-                  <Sun className="h-4 w-4 mr-2" />
-                  <Switch 
-                    checked={isDarkMode}
-                    onCheckedChange={onThemeToggle}
-                  />
-                  <Moon className="h-4 w-4 ml-2" />
-                </div>
-              </div>
-            </div>
           </div>
         </SheetContent>
       </Sheet>
