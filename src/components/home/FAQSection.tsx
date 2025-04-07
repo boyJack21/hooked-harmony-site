@@ -19,8 +19,8 @@ const FAQSection = () => {
       answer: "We accept EFT payments. Once your order is confirmed, we'll send you our banking details to complete the payment."
     },
     {
-      question: "How long does shipping take?",
-      answer: "Shipping typically takes 3-7 business days within South Africa, depending on your location. International shipping may take 10-14 business days."
+      question: "How long does delivery take?",
+      answer: "Delivery typically takes 2-4 weeks within South Africa, depending on the item and current order volume."
     },
     {
       question: "Do you offer returns or exchanges?",
