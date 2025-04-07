@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import FeaturedItem from './FeaturedItem';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface ProductItem {
   imageSrc: string;
@@ -24,6 +25,8 @@ interface CategoryCarouselProps {
 }
 
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="mb-16">
       <h3 className="font-playfair text-3xl text-black mb-6">{category}</h3>
@@ -31,12 +34,15 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) 
         opts={{
           align: "start",
           loop: true,
+          dragFree: false, // Disable drag free for more controlled sliding
+          watchDrag: true, // Watch drag interactions to prevent glitches
+          skipSnaps: false, // Disable skipping snaps for smoother experience
         }}
         className="w-full"
       >
-        <CarouselContent>
+        <CarouselContent className="pb-4">
           {items.map((item, index) => (
-            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+            <CarouselItem key={index} className={isMobile ? "basis-full" : "md:basis-1/2 lg:basis-1/3"}>
               <div className="p-1">
                 <Card>
                   <CardContent className="p-0">
