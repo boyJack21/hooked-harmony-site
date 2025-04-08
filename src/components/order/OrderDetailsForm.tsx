@@ -3,8 +3,7 @@ import React from 'react';
 import { OrderFormData } from '@/types/order';
 import { Plus, Minus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { motion } from 'framer-motion';
 
 interface OrderDetailsFormProps {
   formData: OrderFormData;
@@ -34,7 +33,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
     handleChange(event);
   };
 
-  // Custom handler for size radio buttons
+  // Custom handler for size toggle buttons
   const handleSizeChange = (value: string) => {
     const event = {
       target: {
@@ -126,24 +125,52 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
       
       <div>
         <div className="block font-medium mb-2">Size</div>
-        <RadioGroup 
-          value={formData.size} 
-          onValueChange={handleSizeChange}
-          className="flex gap-6 mb-4"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="S" id="size-s" />
-            <Label htmlFor="size-s">Small</Label>
+        <div className="relative flex rounded-lg p-1 bg-gray-50 dark:bg-gray-800 border border-secondary/20 shadow-sm">
+          {/* Size Toggle Group */}
+          <div className="grid grid-cols-3 w-full relative">
+            {/* Background Slider - animates position based on selected value */}
+            {formData.size && (
+              <motion.div
+                className="absolute top-0 bottom-0 rounded-md bg-secondary/40 shadow-sm z-0"
+                initial={false}
+                animate={{
+                  left: formData.size === 'S' ? '0%' : formData.size === 'M' ? '33.333%' : '66.666%',
+                  width: '33.333%'
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            )}
+            
+            {/* Size Buttons */}
+            <button
+              type="button"
+              onClick={() => handleSizeChange('S')}
+              className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
+                formData.size === 'S' ? 'font-medium text-secondary-foreground' : 'hover:bg-secondary/10'
+              }`}
+            >
+              Small
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSizeChange('M')}
+              className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
+                formData.size === 'M' ? 'font-medium text-secondary-foreground' : 'hover:bg-secondary/10'
+              }`}
+            >
+              Medium
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSizeChange('L')}
+              className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
+                formData.size === 'L' ? 'font-medium text-secondary-foreground' : 'hover:bg-secondary/10'
+              }`}
+            >
+              Large
+            </button>
           </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="M" id="size-m" />
-            <Label htmlFor="size-m">Medium</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="L" id="size-l" />
-            <Label htmlFor="size-l">Large</Label>
-          </div>
-        </RadioGroup>
+        </div>
         {errors.size && (
           <p className="mt-1 text-sm text-red-500">{errors.size}</p>
         )}
