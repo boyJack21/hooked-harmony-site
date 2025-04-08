@@ -33,18 +33,6 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
     handleChange(event);
   };
 
-  // Custom handler for size toggle buttons
-  const handleSizeChange = (value: string) => {
-    const event = {
-      target: {
-        name: 'size',
-        value
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
-    
-    handleChange(event);
-  };
-
   return (
     <>
       <div>
@@ -124,68 +112,22 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
       </div>
       
       <div>
-        <div className="block font-medium mb-2">Size</div>
-        <div className="relative flex rounded-lg p-1 bg-gray-50 dark:bg-gray-800 border border-secondary/20 shadow-sm">
-          {/* Size Toggle Group */}
-          <div className="grid grid-cols-3 w-full relative">
-            {/* Background Slider - animates position based on selected value */}
-            {formData.size && (
-              <motion.div
-                className="absolute top-0 bottom-0 rounded-md bg-black text-white shadow-sm z-0"
-                initial={false}
-                animate={{
-                  left: formData.size === 'S' ? '0%' : formData.size === 'M' ? '33.333%' : '66.666%',
-                  width: '33.333%'
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            )}
-            
-            {/* Size Buttons */}
-            <button
-              type="button"
-              onClick={() => handleSizeChange('S')}
-              className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
-                formData.size === 'S' ? 'font-medium text-white' : 'hover:bg-secondary/10'
-              }`}
-            >
-              Small
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSizeChange('M')}
-              className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
-                formData.size === 'M' ? 'font-medium text-white' : 'hover:bg-secondary/10'
-              }`}
-            >
-              Medium
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSizeChange('L')}
-              className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
-                formData.size === 'L' ? 'font-medium text-white' : 'hover:bg-secondary/10'
-              }`}
-            >
-              Large
-            </button>
-          </div>
-        </div>
-        {errors.size && (
-          <p className="mt-1 text-sm text-red-500">{errors.size}</p>
-        )}
-      </div>
-      
-      <div>
         <label htmlFor="specialInstructions" className="block font-medium mb-1">Special Instructions</label>
-        <textarea
-          id="specialInstructions"
-          name="specialInstructions"
-          value={formData.specialInstructions}
-          onChange={handleChange}
-          rows={4}
-          className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
-        ></textarea>
+        <div className="relative">
+          <textarea
+            id="specialInstructions"
+            name="specialInstructions"
+            value={formData.specialInstructions}
+            onChange={handleChange}
+            rows={4}
+            className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
+          ></textarea>
+          {!formData.specialInstructions && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400 opacity-60 px-4">
+              Include your size (S, M, L)
+            </div>
+          )}
+        </div>
         {errors.specialInstructions && (
           <p className="mt-1 text-sm text-red-500">{errors.specialInstructions}</p>
         )}
