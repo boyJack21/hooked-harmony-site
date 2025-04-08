@@ -131,7 +131,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
             {/* Background Slider - animates position based on selected value */}
             {formData.size && (
               <motion.div
-                className="absolute top-0 bottom-0 rounded-md bg-secondary/40 shadow-sm z-0"
+                className="absolute top-0 bottom-0 rounded-md bg-black text-white shadow-sm z-0"
                 initial={false}
                 animate={{
                   left: formData.size === 'S' ? '0%' : formData.size === 'M' ? '33.333%' : '66.666%',
@@ -146,7 +146,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
               type="button"
               onClick={() => handleSizeChange('S')}
               className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
-                formData.size === 'S' ? 'font-medium text-secondary-foreground' : 'hover:bg-secondary/10'
+                formData.size === 'S' ? 'font-medium text-white' : 'hover:bg-secondary/10'
               }`}
             >
               Small
@@ -155,7 +155,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
               type="button"
               onClick={() => handleSizeChange('M')}
               className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
-                formData.size === 'M' ? 'font-medium text-secondary-foreground' : 'hover:bg-secondary/10'
+                formData.size === 'M' ? 'font-medium text-white' : 'hover:bg-secondary/10'
               }`}
             >
               Medium
@@ -164,7 +164,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
               type="button"
               onClick={() => handleSizeChange('L')}
               className={`py-2 px-4 rounded-md relative z-10 transition-colors ${
-                formData.size === 'L' ? 'font-medium text-secondary-foreground' : 'hover:bg-secondary/10'
+                formData.size === 'L' ? 'font-medium text-white' : 'hover:bg-secondary/10'
               }`}
             >
               Large
