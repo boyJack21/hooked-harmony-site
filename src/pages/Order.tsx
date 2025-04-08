@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
@@ -24,13 +24,20 @@ const Order = () => {
     item: product ? product.title : '',
     quantity: 1,
     color: '',
-    size: '',
+    size: selectedSize || '',
     specialInstructions: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
+  
+  // Set the initial size from the URL parameter if available
+  useEffect(() => {
+    if (selectedSize && !formData.size) {
+      setFormData(prev => ({ ...prev, size: selectedSize }));
+    }
+  }, [selectedSize]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

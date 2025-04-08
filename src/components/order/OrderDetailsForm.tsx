@@ -20,21 +20,6 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
   initialSize
 }) => {
   const isMobile = useIsMobile();
-  
-  // Use React.useEffect to set the initial size when the component mounts
-  React.useEffect(() => {
-    if (initialSize && !formData.size) {
-      // Create a synthetic event object that mimics the standard onChange event
-      const event = {
-        target: {
-          name: 'size',
-          value: initialSize
-        }
-      } as React.ChangeEvent<HTMLInputElement>;
-      
-      handleChange(event);
-    }
-  }, [initialSize, formData.size, handleChange]);
 
   // Custom handler for quantity changes with buttons
   const handleQuantityChange = (newValue: number) => {
