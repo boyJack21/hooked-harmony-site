@@ -3,16 +3,39 @@ import React from 'react';
 import { OrderFormData } from '@/types/order';
 import { Plus, Minus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface OrderDetailsFormProps {
   formData: OrderFormData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   errors: Record<string, string>;
+  initialSize?: string;
 }
 
-export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ formData, handleChange, errors }) => {
+export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ 
+  formData, 
+  handleChange, 
+  errors,
+  initialSize
+}) => {
   const isMobile = useIsMobile();
   
+  // Use React.useEffect to set the initial size when the component mounts
+  React.useEffect(() => {
+    if (initialSize && !formData.size) {
+      // Create a synthetic event object that mimics the standard onChange event
+      const event = {
+        target: {
+          name: 'size',
+          value: initialSize
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      
+      handleChange(event);
+    }
+  }, [initialSize, formData.size, handleChange]);
+
   // Custom handler for quantity changes with buttons
   const handleQuantityChange = (newValue: number) => {
     // Create a synthetic event object that mimics the standard onChange event
@@ -20,6 +43,18 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ formData, ha
       target: {
         name: 'quantity',
         value: newValue.toString()
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleChange(event);
+  };
+
+  // Custom handler for size radio buttons
+  const handleSizeChange = (value: string) => {
+    const event = {
+      target: {
+        name: 'size',
+        value
       }
     } as React.ChangeEvent<HTMLInputElement>;
     
@@ -45,7 +80,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ formData, ha
         )}
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="quantity" className="block font-medium mb-1">Quantity</label>
           <div className="flex items-center">
@@ -102,6 +137,31 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({ formData, ha
             <p className="mt-1 text-sm text-red-500">{errors.color}</p>
           )}
         </div>
+      </div>
+      
+      <div>
+        <div className="block font-medium mb-2">Size</div>
+        <RadioGroup 
+          value={formData.size} 
+          onValueChange={handleSizeChange}
+          className="flex gap-6 mb-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="S" id="size-s" />
+            <Label htmlFor="size-s">Small</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="M" id="size-m" />
+            <Label htmlFor="size-m">Medium</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="L" id="size-l" />
+            <Label htmlFor="size-l">Large</Label>
+          </div>
+        </RadioGroup>
+        {errors.size && (
+          <p className="mt-1 text-sm text-red-500">{errors.size}</p>
+        )}
       </div>
       
       <div>

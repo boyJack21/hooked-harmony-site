@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -10,6 +10,7 @@ import Footer from '@/components/home/Footer';
 import { useToast } from '@/components/ui/use-toast';
 import RecommendedProducts from '@/components/product/RecommendedProducts';
 import { useIsMobile } from '@/hooks/use-mobile';
+import SizeSelector, { SizeOption } from '@/components/product/SizeSelector';
 
 interface ProductDetailProps {}
 
@@ -18,6 +19,7 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
   
   const product = location.state?.product;
   
@@ -31,15 +33,43 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
     );
   }
 
+  // Determine available sizes based on category
+  const getAvailableSizes = (): SizeOption[] => {
+    if (product.category === "Cardigans" || product.category === "Tops") {
+      return ['S', 'M', 'L'];
+    } else if (product.category === "Accessories") {
+      if (product.title.includes("Beanie")) {
+        return ['S', 'M'];
+      }
+      return ['S', 'M', 'L'];
+    }
+    return ['S', 'M', 'L']; // Default all sizes
+  };
+
   const handleOrderNow = () => {
+    if (!selectedSize && product.category !== "Accessories") {
+      toast({
+        title: "Size Selection Required",
+        description: "Please select a size before ordering",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+    
     toast({
       title: "Order initiated",
       description: "You'll be redirected to our order form",
       duration: 3000,
     });
     
-    // Navigate to the order page with the product information
-    navigate('/order', { state: { product } });
+    // Navigate to the order page with the product information and selected size
+    navigate('/order', { 
+      state: { 
+        product,
+        selectedSize 
+      } 
+    });
   };
   
   const handleAddToWishlist = () => {
@@ -100,6 +130,18 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
                 </div>
               </div>
             </Card>
+
+            {/* Size Selector - not showing for certain accessories */}
+            {!product.title?.toLowerCase().includes('beanie') && 
+              product.category !== "Accessories" && (
+              <Card className="p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <SizeSelector 
+                  selectedSize={selectedSize}
+                  onSizeChange={setSelectedSize}
+                  availableSizes={getAvailableSizes()}
+                />
+              </Card>
+            )}
 
             <div>
               <h3 className="text-xl mb-3 font-semibold dark:text-white">Description</h3>

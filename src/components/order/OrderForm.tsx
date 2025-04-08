@@ -13,6 +13,7 @@ interface OrderFormProps {
   errors: Record<string, string>;
   orderCount?: number;
   maxOrders?: number;
+  initialSize?: string;
 }
 
 export const OrderForm: React.FC<OrderFormProps> = ({
@@ -22,7 +23,8 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   submitting,
   errors,
   orderCount = 0,
-  maxOrders = 2
+  maxOrders = 2,
+  initialSize
 }) => {
   const isLimitReached = orderCount >= maxOrders;
   
@@ -30,7 +32,12 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     <form onSubmit={handleSubmit} noValidate>
       <div className="space-y-4">
         <CustomerInfoForm formData={formData} handleChange={handleChange} errors={errors} />
-        <OrderDetailsForm formData={formData} handleChange={handleChange} errors={errors} />
+        <OrderDetailsForm 
+          formData={formData} 
+          handleChange={handleChange} 
+          errors={errors} 
+          initialSize={initialSize}
+        />
       </div>
       
       <div className="mt-8">

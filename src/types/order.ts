@@ -6,5 +6,6 @@ export interface OrderFormData {
   item: string;
   quantity: number;
   color: string;
+  size: string;
   specialInstructions: string;
 }
