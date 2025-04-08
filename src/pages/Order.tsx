@@ -8,7 +8,7 @@ import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
 import { useToast } from '@/components/ui/use-toast';
 import { OrderFormData } from '@/types/order';
-import { validateForm } from '@/services/validationService';
+import { validateOrderForm } from '@/services/validationService';
 import { sendOrderEmail } from '@/services/emailService';
 
 const Order = () => {
@@ -50,7 +50,7 @@ const Order = () => {
     e.preventDefault();
     
     // Validate form
-    const formErrors = validateForm(formData);
+    const formErrors = validateOrderForm(formData);
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       toast({
