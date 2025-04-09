@@ -122,11 +122,9 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
             rows={4}
             className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
           ></textarea>
-          {!formData.specialInstructions && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400 opacity-60 px-4">
-              Include your size (S, M, L)
-            </div>
-          )}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400 opacity-60 px-4">
+            Include your size (S, M, L)
+          </div>
         </div>
         {errors.specialInstructions && (
           <p className="mt-1 text-sm text-red-500">{errors.specialInstructions}</p>
