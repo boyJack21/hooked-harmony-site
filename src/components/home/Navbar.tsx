@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import MobileNav from './MobileNav';
@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 const Navbar = () => {
   const { setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,12 +36,14 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <MobileNav />
-          <h1 className="font-playfair text-2xl font-semibold text-black">everything_hooked</h1>
+          <Link to="/" className="font-playfair text-2xl font-semibold text-black">
+            everything_hooked
+          </Link>
         </div>
         
         <div className="space-x-6 hidden md:flex items-center">
           <motion.a 
-            href="#featured" 
+            href="/#featured" 
             className="text-black hover:text-secondary transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -48,7 +51,7 @@ const Navbar = () => {
             Featured
           </motion.a>
           <motion.a 
-            href="#about" 
+            href="/#about" 
             className="text-black hover:text-secondary transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -56,7 +59,7 @@ const Navbar = () => {
             About
           </motion.a>
           <motion.a 
-            href="#contact" 
+            href="/#contact" 
             className="text-black hover:text-secondary transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -64,7 +67,7 @@ const Navbar = () => {
             Contact
           </motion.a>
           <motion.a 
-            href="#faq" 
+            href="/#faq" 
             className="text-black hover:text-secondary transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
