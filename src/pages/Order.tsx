@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
 import { OrderForm } from '@/components/order/OrderForm';
@@ -13,6 +13,7 @@ import { sendOrderEmail } from '@/services/emailService';
 
 const Order = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const product = location.state?.product;
   const selectedSize = location.state?.selectedSize;
