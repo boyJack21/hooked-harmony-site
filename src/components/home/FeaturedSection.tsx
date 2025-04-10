@@ -61,6 +61,13 @@ const FeaturedSection = () => {
       category: "Shirts"
     },
     {
+      imageSrc: "/lovable-uploads/08cd791a-6b34-44fb-abb5-b8b113488695.png",
+      imageAlt: "Sky Blue Crochet Polo",
+      title: "Sky Blue Crochet Polo",
+      description: "Lightweight and breathable sky blue crochet polo shirt, perfect for summer days",
+      category: "Shirts"
+    },
+    {
       imageSrc: "/lovable-uploads/e255fe3b-ce35-4980-87aa-3b593d0d626d.png",
       imageAlt: "Orange Bikini Set",
       title: "Vibrant Bikini Set",

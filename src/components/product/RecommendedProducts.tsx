@@ -57,6 +57,13 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       title: "Ruffled Crop Top",
       description: "Delicate cream crop top with ruffle details and tie front",
       category: "Tops"
+    },
+    {
+      imageSrc: "/lovable-uploads/08cd791a-6b34-44fb-abb5-b8b113488695.png",
+      imageAlt: "Sky Blue Crochet Polo",
+      title: "Sky Blue Crochet Polo",
+      description: "Lightweight and breathable sky blue crochet polo shirt, perfect for summer days",
+      category: "Shirts"
     }
   ];
 
