@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Heart, ShoppingBag, Share2, Facebook, Twitter, Instagram, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,6 +20,8 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [shareMenuOpen, setShareMenuOpen] = useState(false);
   
   const product = location.state?.product;
   
@@ -83,6 +86,40 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
     });
   };
 
+  const handleShare = (platform: string) => {
+    const shareUrl = window.location.href;
+    let shareLink = '';
+    
+    if (platform === 'facebook') {
+      shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    } else if (platform === 'twitter') {
+      shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=Check out this amazing ${product.title}`;
+    } else if (platform === 'instagram') {
+      // Instagram doesn't support direct sharing via URL, but we'll show a toast with instructions
+      toast({
+        title: "Instagram Sharing",
+        description: "Copy the link and share it on your Instagram story!",
+        duration: 3000,
+      });
+      navigator.clipboard.writeText(shareUrl);
+      setShareMenuOpen(false);
+      return;
+    }
+    
+    // Open share link in new window
+    if (shareLink) {
+      window.open(shareLink, '_blank');
+    }
+    
+    setShareMenuOpen(false);
+    
+    toast({
+      title: "Shared Successfully",
+      description: `Product shared on ${platform}`,
+      duration: 3000,
+    });
+  };
+
   // Should we show size selector?
   const showSizeSelector = !product.title.includes("Beanie") && 
                           !product.title.includes("Bucket Hat") && 
@@ -102,18 +139,26 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
         </Button>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Product Image */}
+          {/* Product Image with Zoom */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="aspect-square rounded-lg overflow-hidden"
+            className={`relative aspect-square rounded-lg overflow-hidden ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+            onClick={() => setIsZoomed(!isZoomed)}
           >
-            <img 
-              src={product.imageSrc} 
-              alt={product.imageAlt} 
-              className="w-full h-full object-cover"
-            />
+            <div className={`w-full h-full transition-all duration-300 ${isZoomed ? 'scale-150' : 'scale-100'}`}>
+              <img 
+                src={product.imageSrc} 
+                alt={product.imageAlt} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* Zoom indicator */}
+            <div className="absolute top-3 left-3 bg-black/60 text-white p-2 rounded-full">
+              <Maximize2 size={16} />
+            </div>
           </motion.div>
 
           {/* Product Details */}
@@ -123,10 +168,59 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="space-y-6"
           >
-            <div>
-              <h1 className="font-playfair text-3xl text-black dark:text-white">{product.title}</h1>
-              <div className="mt-2 font-inter text-sm text-gray-500 dark:text-gray-400">
-                Category: {product.category || "Uncategorized"}
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="font-playfair text-3xl text-black dark:text-white">{product.title}</h1>
+                <div className="mt-2 font-inter text-sm text-gray-500 dark:text-gray-400">
+                  Category: {product.category || "Uncategorized"}
+                </div>
+              </div>
+              
+              {/* Social Share Button */}
+              <div className="relative">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2"
+                  onClick={() => setShareMenuOpen(!shareMenuOpen)}
+                >
+                  <Share2 size={16} /> Share
+                </Button>
+                
+                {shareMenuOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute right-0 mt-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-2 z-10 w-44"
+                  >
+                    <div className="flex flex-col space-y-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center justify-start gap-2"
+                        onClick={() => handleShare('facebook')}
+                      >
+                        <Facebook size={16} className="text-blue-600" /> Facebook
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center justify-start gap-2"
+                        onClick={() => handleShare('twitter')}
+                      >
+                        <Twitter size={16} className="text-blue-400" /> Twitter
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center justify-start gap-2"
+                        onClick={() => handleShare('instagram')}
+                      >
+                        <Instagram size={16} className="text-pink-600" /> Instagram
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </div>
 
