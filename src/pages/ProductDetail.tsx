@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingBag } from 'lucide-react';
@@ -33,21 +32,25 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
     );
   }
 
-  // Determine available sizes based on category
+  // Determine available sizes based on category and title
   const getAvailableSizes = (): SizeOption[] => {
-    if (product.category === "Cardigans" || product.category === "Tops") {
-      return ['S', 'M', 'L'];
-    } else if (product.category === "Accessories") {
-      if (product.title.includes("Beanie")) {
-        return ['S', 'M'];
+    if (product.category === "Accessories") {
+      if (product.title.includes("Beanie") || product.title.includes("Bucket Hat")) {
+        return [];
       }
       return ['S', 'M', 'L'];
+    } else if (product.title.includes("Crop Cardigan")) {
+      return ['S', 'M'];
     }
     return ['S', 'M', 'L']; // Default all sizes
   };
 
   const handleOrderNow = () => {
-    if (!selectedSize && product.category !== "Accessories") {
+    const needsSize = !product.title.includes("Beanie") && 
+                      !product.title.includes("Bucket Hat") && 
+                      product.category !== "Accessories";
+                      
+    if (!selectedSize && needsSize) {
       toast({
         title: "Size Selection Required",
         description: "Please select a size before ordering",
@@ -79,6 +82,11 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
       duration: 3000,
     });
   };
+
+  // Should we show size selector?
+  const showSizeSelector = !product.title.includes("Beanie") && 
+                          !product.title.includes("Bucket Hat") && 
+                          product.category !== "Accessories";
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -131,9 +139,8 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
               </div>
             </Card>
 
-            {/* Size Selector - not showing for certain accessories */}
-            {!product.title?.toLowerCase().includes('beanie') && 
-              product.category !== "Accessories" && (
+            {/* Size Selector - only show when needed */}
+            {showSizeSelector && (
               <Card className="p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
                 <SizeSelector 
                   selectedSize={selectedSize}

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -25,23 +24,28 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
 }) => {
   const navigate = useNavigate();
   
-  // Define prices based on category
+  // Define prices based on category and title
   const getPriceDisplay = () => {
-    switch(category) {
-      case "Shirts":
-        return "S: R280 | M: R330 | L: R340";
-      case "Cardigans":
-        return "S/M: R450 | L: R550";
-      case "Tops":
-        return "S/M: R400 | L: R500";
-      case "Accessories":
-        if (title.includes("Beanie")) {
-          return "R150";
-        }
-        return "Price on request";
-      default:
-        return "Price on request";
+    if (category === "Shirts" || title.includes("Polo")) {
+      return "S: R280 | M: R320 | L: R360";
+    } else if (title.includes("Crop Cardigan")) {
+      return "S: R350 | M: R400";
+    } else if (category === "Cardigans") {
+      if (title.includes("Long")) {
+        return "S: R450 | M: R520 | L: R600";
+      }
+      return "S: R400 | M: R450 | L: R500";
+    } else if (title.includes("Crop Top") || title.includes("Ruffled")) {
+      return "S: R200 | M: R250 | L: R280";
+    } else if (title.includes("Bikini")) {
+      return "S: R170 | M: R200 | L: R230";
+    } else if (category === "Accessories") {
+      if (title.includes("Beanie") || title.includes("Bucket Hat")) {
+        return "R150";
+      }
+      return "Price on request";
     }
+    return "Price on request";
   };
 
   const handleItemClick = () => {
