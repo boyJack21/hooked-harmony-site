@@ -4,6 +4,7 @@ import { OrderFormData } from '@/types/order';
 import { Plus, Minus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { motion } from 'framer-motion';
+import { Textarea } from '@/components/ui/textarea';
 
 interface OrderDetailsFormProps {
   formData: OrderFormData;
@@ -34,8 +35,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
   };
 
   // Price information for the placeholder
-  const getPriceInfo = () => {
-    return `
+  const priceInfo = `
 Include your size (S, M, L) and select from our pricing:
 - Beanie/Bucket Hat: R150
 - Polo Shirt: S=R280, M=R320, L=R360
@@ -44,8 +44,7 @@ Include your size (S, M, L) and select from our pricing:
 - Long Cardigan: S=R450, M=R520, L=R600
 - Ruffled Crop Top: S=R200, M=R250, L=R280
 - Bikini Set: S=R170, M=R200, L=R230
-    `;
-  };
+  `;
 
   return (
     <>
@@ -134,9 +133,23 @@ Include your size (S, M, L) and select from our pricing:
             value={formData.specialInstructions}
             onChange={handleChange}
             rows={6}
-            placeholder={getPriceInfo()}
+            placeholder={priceInfo}
             className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
           ></textarea>
+          
+          {/* Price guide that stays visible */}
+          <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-md border border-secondary/20 text-xs text-gray-600 dark:text-gray-300">
+            <p className="font-semibold mb-1">Pricing Guide:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>Beanie/Bucket Hat: R150</li>
+              <li>Polo Shirt: S=R280, M=R320, L=R360</li>
+              <li>Crop Cardigan: S=R350, M=R400</li>
+              <li>Cardigan: S=R400, M=R450, L=R500</li>
+              <li>Long Cardigan: S=R450, M=R520, L=R600</li>
+              <li>Ruffled Crop Top: S=R200, M=R250, L=R280</li>
+              <li>Bikini Set: S=R170, M=R200, L=R230</li>
+            </ul>
+          </div>
         </div>
         {errors.specialInstructions && (
           <p className="mt-1 text-sm text-red-500">{errors.specialInstructions}</p>
