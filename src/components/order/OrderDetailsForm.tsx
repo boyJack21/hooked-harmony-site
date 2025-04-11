@@ -115,13 +115,16 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
       <div>
         <label htmlFor="specialInstructions" className="block font-medium mb-1">Special Instructions</label>
         <div className="relative">
+          <div className="absolute inset-0 flex items-start pt-3 px-4 pointer-events-none text-gray-400">
+            {!formData.specialInstructions && "Include your size"}
+          </div>
           <textarea
             id="specialInstructions"
             name="specialInstructions"
             value={formData.specialInstructions}
             onChange={handleChange}
             rows={6}
-            className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
+            className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary relative bg-transparent`}
           ></textarea>
           
           {/* Price guide that stays visible */}
