@@ -34,18 +34,6 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
     handleChange(event);
   };
 
-  // Price information for the placeholder
-  const priceInfo = `
-Include your size (S, M, L) and select from our pricing:
-- Beanie/Bucket Hat: R150
-- Polo Shirt: S=R280, M=R320, L=R360
-- Crop Cardigan: S=R350, M=R400
-- Cardigan: S=R400, M=R450, L=R500
-- Long Cardigan: S=R450, M=R520, L=R600
-- Ruffled Crop Top: S=R200, M=R250, L=R280
-- Bikini Set: S=R170, M=R200, L=R230
-  `;
-
   return (
     <>
       <div>
@@ -133,7 +121,6 @@ Include your size (S, M, L) and select from our pricing:
             value={formData.specialInstructions}
             onChange={handleChange}
             rows={6}
-            placeholder={priceInfo}
             className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
           ></textarea>
           
