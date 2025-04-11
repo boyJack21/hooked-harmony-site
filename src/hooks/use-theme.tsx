@@ -1,15 +1,19 @@
 
 import * as React from "react";
 
+type Theme = "light" | "dark" | "system";
+
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
 interface ThemeProviderState {
-  setTheme: () => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
 const initialState: ThemeProviderState = {
+  theme: "light",
   setTheme: () => null,
 };
 
@@ -19,19 +23,29 @@ export function ThemeProvider({
   children,
   ...props
 }: ThemeProviderProps) {
-  // Set up light theme by default
+  const [theme, setTheme] = React.useState<Theme>("light");
+
+  // Apply theme class to document
   React.useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("dark");
-  }, []);
+    
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      if (systemTheme === "dark") {
+        root.classList.add("dark");
+      }
+    }
+  }, [theme]);
 
   const value = React.useMemo(
     () => ({
-      setTheme: () => {
-        // No-op function since we're removing theming
-      },
+      theme,
+      setTheme,
     }),
-    []
+    [theme]
   );
 
   return (

@@ -30,7 +30,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       <div className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 mb-4">
         {icon}
       </div>
-      <h2 className="text-xl font-semibold text-primary-foreground dark:text-white mb-2">{title}</h2>
+      <h2 className="text-xl font-semibold mb-2">{title}</h2>
       <p className="text-gray-500 dark:text-gray-400 mb-6">{description}</p>
       <Button onClick={() => navigate(actionPath)}>
         {actionText}
