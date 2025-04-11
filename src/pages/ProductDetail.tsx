@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingBag, Share2, Facebook, Twitter, Instagram, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import RecommendedProducts from '@/components/product/RecommendedProducts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import SizeSelector, { SizeOption } from '@/components/product/SizeSelector';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 interface ProductDetailProps {}
 
@@ -22,6 +23,8 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
   const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
+  
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   
   const product = location.state?.product;
   
@@ -78,12 +81,30 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
     });
   };
   
-  const handleAddToWishlist = () => {
-    toast({
-      title: "Added to Wishlist",
-      description: `${product.title} has been added to your wishlist`,
-      duration: 3000,
-    });
+  const handleWishlistToggle = () => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      toast({
+        title: "Removed from Wishlist",
+        description: `${product.title} has been removed from your wishlist`,
+        duration: 3000,
+      });
+    } else {
+      addToWishlist({
+        id: product.id,
+        imageSrc: product.imageSrc,
+        imageAlt: product.imageAlt,
+        title: product.title,
+        description: product.description,
+        category: product.category,
+        priceDisplay: product.priceDisplay
+      });
+      toast({
+        title: "Added to Wishlist",
+        description: `${product.title} has been added to your wishlist`,
+        duration: 3000,
+      });
+    }
   };
 
   const handleShare = (platform: string) => {
@@ -124,6 +145,8 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
   const showSizeSelector = !product.title.includes("Beanie") && 
                           !product.title.includes("Bucket Hat") && 
                           product.category !== "Accessories";
+
+  const isProductInWishlist = isInWishlist(product.id);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -261,11 +284,12 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
                 
                 <Button 
                   size="lg"
-                  variant="outline"
+                  variant={isProductInWishlist ? "secondary" : "outline"}
                   className={`${isMobile ? 'w-full' : 'w-auto'}`}
-                  onClick={handleAddToWishlist}
+                  onClick={handleWishlistToggle}
                 >
-                  <Heart className="mr-2 h-4 w-4" /> Add to Wishlist
+                  <Heart className={`mr-2 h-4 w-4 ${isProductInWishlist ? 'fill-current' : ''}`} />
+                  {isProductInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
                 </Button>
               </div>
             </div>

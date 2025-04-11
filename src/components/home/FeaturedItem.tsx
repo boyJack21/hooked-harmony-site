@@ -3,7 +3,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Heart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useToast } from '@/components/ui/use-toast';
 
 interface FeaturedItemProps {
   imageSrc: string;
@@ -26,6 +30,8 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
 }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { toast } = useToast();
   
   // Define prices based on category and title
   const getPriceDisplay = () => {
@@ -51,7 +57,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
     return "Price on request";
   };
 
-  const handleItemClick = () => {
+  const handleItemClick = (e: React.MouseEvent) => {
     navigate(`/product/${id}`, { 
       state: { 
         product: {
@@ -66,6 +72,38 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
       }
     });
   };
+  
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent item click event
+    
+    const product = {
+      id,
+      imageSrc,
+      imageAlt,
+      title,
+      description,
+      category,
+      priceDisplay: getPriceDisplay()
+    };
+    
+    if (isInWishlist(id)) {
+      removeFromWishlist(id);
+      toast({
+        title: "Removed from Wishlist",
+        description: `${title} has been removed from your wishlist`,
+        duration: 2000,
+      });
+    } else {
+      addToWishlist(product);
+      toast({
+        title: "Added to Wishlist",
+        description: `${title} has been added to your wishlist`,
+        duration: 2000,
+      });
+    }
+  };
+  
+  const isItemInWishlist = isInWishlist(id);
 
   return (
     <motion.div
@@ -98,6 +136,14 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
             {category}
           </Badge>
         )}
+        <Button
+          variant={isItemInWishlist ? "secondary" : "outline"}
+          size="icon"
+          className="absolute top-3 left-3 h-8 w-8 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 rounded-full"
+          onClick={handleWishlistToggle}
+        >
+          <Heart className={`h-4 w-4 ${isItemInWishlist ? 'fill-current text-red-500' : ''}`} />
+        </Button>
       </div>
       <div className={`p-${isMobile ? '4' : '6'}`}>
         <div className="flex flex-col mb-3">
