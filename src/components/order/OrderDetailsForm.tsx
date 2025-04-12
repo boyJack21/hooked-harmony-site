@@ -1,10 +1,17 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrderFormData } from '@/types/order';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, Clock } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { motion } from 'framer-motion';
 import { Textarea } from '@/components/ui/textarea';
+import { 
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface OrderDetailsFormProps {
   formData: OrderFormData;
@@ -20,6 +27,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
   initialSize
 }) => {
   const isMobile = useIsMobile();
+  const [estimatedDays, setEstimatedDays] = useState<number | null>(null);
 
   // Custom handler for quantity changes with buttons
   const handleQuantityChange = (newValue: number) => {
@@ -33,6 +41,57 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
     
     handleChange(event);
   };
+
+  // Custom handler for size changes
+  const handleSizeChange = (value: string) => {
+    // Create a synthetic event object that mimics the standard onChange event
+    const event = {
+      target: {
+        name: 'size',
+        value: value
+      }
+    } as React.ChangeEvent<HTMLSelectElement>;
+    
+    handleChange(event);
+  };
+
+  // Project duration estimation logic
+  useEffect(() => {
+    if (!formData.item) {
+      setEstimatedDays(null);
+      return;
+    }
+
+    // Base duration estimation logic
+    let baseDays = 7; // Default: 1 week
+    const item = formData.item.toLowerCase();
+    
+    if (item.includes('beanie') || item.includes('hat')) {
+      baseDays = 3;
+    } else if (item.includes('crop top') || item.includes('bikini')) {
+      baseDays = 5;
+    } else if (item.includes('cardigan')) {
+      baseDays = 12;
+      if (item.includes('long')) {
+        baseDays = 16;
+      }
+    } else if (item.includes('blanket')) {
+      baseDays = 20;
+    } else if (item.includes('amigurumi')) {
+      baseDays = 7;
+    }
+    
+    // Adjust for quantity
+    const quantity = Number(formData.quantity) || 1;
+    let finalDays = baseDays * quantity;
+    
+    // Cap at reasonable maximum
+    if (finalDays > 60) {
+      finalDays = 60;
+    }
+    
+    setEstimatedDays(finalDays);
+  }, [formData.item, formData.quantity]);
 
   return (
     <>
@@ -53,7 +112,19 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
         )}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {estimatedDays !== null && (
+        <div className="bg-secondary/10 p-4 rounded-md border border-secondary/20 flex items-center gap-3">
+          <Clock className="text-secondary h-5 w-5" />
+          <div>
+            <p className="font-medium">Estimated Completion Time</p>
+            <p className="text-sm">
+              This item typically takes <span className="font-semibold">{estimatedDays} days</span> to complete.
+            </p>
+          </div>
+        </div>
+      )}
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label htmlFor="quantity" className="block font-medium mb-1">Quantity</label>
           <div className="flex items-center">
@@ -97,6 +168,30 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
         </div>
         
         <div>
+          <label htmlFor="size" className="block font-medium mb-1">Size</label>
+          <Select
+            value={formData.size}
+            onValueChange={handleSizeChange}
+          >
+            <SelectTrigger className={`w-full ${errors.size ? 'border-red-500' : 'border-secondary/30'}`}>
+              <SelectValue placeholder="Select size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="S">Small (S)</SelectItem>
+                <SelectItem value="M">Medium (M)</SelectItem>
+                <SelectItem value="L">Large (L)</SelectItem>
+                <SelectItem value="XL">Extra Large (XL)</SelectItem>
+                <SelectItem value="Custom">Custom (specify in instructions)</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {errors.size && (
+            <p className="mt-1 text-sm text-red-500">{errors.size}</p>
+          )}
+        </div>
+        
+        <div>
           <label htmlFor="color" className="block font-medium mb-1">Color Preference</label>
           <input
             type="text"
@@ -115,22 +210,15 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
       <div>
         <label htmlFor="specialInstructions" className="block font-medium mb-1">Special Instructions</label>
         <div className="relative">
-          <div className="absolute inset-0 flex items-start pt-3 px-4 pointer-events-none text-gray-400">
-            {"Include your size"}
-          </div>
-          <textarea
+          <Textarea
             id="specialInstructions"
             name="specialInstructions"
             value={formData.specialInstructions}
             onChange={handleChange}
             rows={6}
-            className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary relative bg-transparent`}
-            style={{ 
-              backgroundColor: 'transparent',
-              position: 'relative',
-              zIndex: 1
-            }}
-          ></textarea>
+            placeholder="Add any special requirements or customizations here..."
+            className={`w-full px-4 py-2 border ${errors.specialInstructions ? 'border-red-500' : 'border-secondary/30'} rounded-md focus:outline-none focus:ring-1 focus:ring-secondary`}
+          />
           
           {/* Price guide that stays visible */}
           <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-md border border-secondary/20 text-xs text-gray-600 dark:text-gray-300">
