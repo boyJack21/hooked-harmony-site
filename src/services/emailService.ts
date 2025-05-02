@@ -8,6 +8,7 @@ interface OrderData {
   item: string;
   quantity: number;
   color: string;
+  size: string;
   specialInstructions: string;
 }
 
@@ -31,6 +32,7 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
       item_ordered: orderData.item, // Renamed to be more explicit
       item_quantity: orderData.quantity.toString(), // Convert to string and renamed
       item_color: orderData.color, // Renamed to be more explicit
+      item_size: orderData.size, // Adding size field
       special_instructions: orderData.specialInstructions,
       message: `
         New Order from Website:
@@ -42,6 +44,7 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
         Item: ${orderData.item}
         Quantity: ${orderData.quantity}
         Color: ${orderData.color}
+        Size: ${orderData.size}
         Special Instructions: ${orderData.specialInstructions}
       `
     };
