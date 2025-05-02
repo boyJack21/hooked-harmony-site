@@ -6,50 +6,54 @@ const TABLET_BREAKPOINT = 1024
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop'
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean>(false)
-
+// Using a single, shared resize handler to improve performance
+const useResizeObserver = () => {
+  const [windowSize, setWindowSize] = React.useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  });
+  
   React.useEffect(() => {
-    const checkDeviceSize = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
+    // Debounced resize handler to prevent excessive re-renders
+    let timeoutId: ReturnType<typeof setTimeout>;
     
-    // Initial check
-    checkDeviceSize()
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }, 100); // 100ms debounce
+    };
     
-    // Add event listener for window resize
-    window.addEventListener('resize', checkDeviceSize)
+    window.addEventListener('resize', handleResize);
     
-    // Cleanup
-    return () => window.removeEventListener('resize', checkDeviceSize)
-  }, [])
+    // Call handler right away to update initial size
+    handleResize();
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+  
+  return windowSize;
+}
 
-  return isMobile
+export function useIsMobile() {
+  const { width } = useResizeObserver();
+  return width < MOBILE_BREAKPOINT;
 }
 
 export function useDeviceType(): DeviceType {
-  const [deviceType, setDeviceType] = React.useState<DeviceType>('desktop')
-
-  React.useEffect(() => {
-    const checkDeviceType = () => {
-      if (window.innerWidth < MOBILE_BREAKPOINT) {
-        setDeviceType('mobile')
-      } else if (window.innerWidth < TABLET_BREAKPOINT) {
-        setDeviceType('tablet')
-      } else {
-        setDeviceType('desktop')
-      }
-    }
-    
-    // Initial check
-    checkDeviceType()
-    
-    // Add event listener for window resize
-    window.addEventListener('resize', checkDeviceType)
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', checkDeviceType)
-  }, [])
-
-  return deviceType
+  const { width } = useResizeObserver();
+  
+  if (width < MOBILE_BREAKPOINT) {
+    return 'mobile';
+  } else if (width < TABLET_BREAKPOINT) {
+    return 'tablet';
+  } else {
+    return 'desktop';
+  }
 }

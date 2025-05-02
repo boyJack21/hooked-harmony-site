@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +32,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
   const isMobile = useIsMobile();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
+  const isItemInWishlist = isInWishlist(id);
   
   // Define prices based on category and title
   const getPriceDisplay = () => {
@@ -58,7 +60,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
     return "Price on request";
   };
 
-  const handleItemClick = (e: React.MouseEvent) => {
+  const handleItemClick = () => {
     navigate(`/product/${id}`, { 
       state: { 
         product: {
@@ -87,7 +89,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
       priceDisplay: getPriceDisplay()
     };
     
-    if (isInWishlist(id)) {
+    if (isItemInWishlist) {
       removeFromWishlist(id);
       toast({
         title: "Removed from Wishlist",
@@ -103,35 +105,39 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
       });
     }
   };
-  
-  const isItemInWishlist = isInWishlist(id);
+
+  // Use simpler animations for mobile to reduce performance impact
+  const animationProps = isMobile ? {
+    initial: { opacity: 0 },
+    whileInView: { opacity: 1 },
+    transition: { duration: 0.3 },
+    viewport: { once: true },
+  } : {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay },
+    viewport: { once: true },
+    whileHover: { 
+      scale: 1.03,
+      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)" 
+    },
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-      viewport={{ once: true }}
-      whileHover={{ 
-        scale: 1.03,
-        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)" 
-      }}
-      className={`bg-primary dark:bg-slate-900 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full cursor-pointer ${isMobile ? 'pb-2' : ''}`}
+      {...animationProps}
+      className={`bg-primary dark:bg-slate-900 rounded-lg overflow-hidden shadow-sm transition-all duration-300 h-full cursor-pointer ${isMobile ? 'pb-2' : ''}`}
       onClick={handleItemClick}
     >
       <div className={`relative overflow-hidden ${isMobile ? 'aspect-square' : 'aspect-square'}`}>
-        <motion.div
-          className="w-full h-full"
-          whileHover={{ scale: 1.1 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div className="w-full h-full">
           <img 
             src={imageSrc}
             alt={imageAlt}
             className="w-full h-full object-cover"
             loading="lazy"
           />
-        </motion.div>
+        </div>
         {category && (
           <Badge className="absolute top-3 right-3 bg-black/70 dark:bg-white/80 dark:text-black hover:bg-black/80 dark:hover:bg-white/90">
             {category}
@@ -149,14 +155,11 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
       <div className={`p-${isMobile ? '4' : '6'}`}>
         <div className="flex flex-col mb-3">
           <h4 className={`font-playfair ${isMobile ? 'text-lg' : 'text-xl'} text-black dark:text-white mb-1`}>{title}</h4>
-          <motion.div 
-            className="mt-2 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-md shadow-sm"
-            whileHover={{ scale: 1.02 }}
-          >
+          <div className="mt-2 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-md shadow-sm">
             <span className={`font-inter font-semibold text-black dark:text-white ${isMobile ? 'text-xs' : 'text-sm'} block`}>
               {getPriceDisplay()}
             </span>
-          </motion.div>
+          </div>
         </div>
         <p className={`font-inter text-black/80 dark:text-white/80 ${isMobile ? 'text-xs line-clamp-2' : 'text-sm'}`}>
           {description}

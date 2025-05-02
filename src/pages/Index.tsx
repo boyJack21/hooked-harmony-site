@@ -8,8 +8,11 @@ import ContactSection from '@/components/home/ContactSection';
 import FAQSection from '@/components/home/FAQSection';
 import Footer from '@/components/home/Footer';
 import SearchFilters, { FilterOptions } from '@/components/search/SearchFilters';
-import { useState, useEffect } from 'react';
-import BackgroundAnimation from '@/components/home/BackgroundAnimation';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+// Lazy load the background animation to improve initial load time
+const BackgroundAnimation = lazy(() => import('@/components/home/BackgroundAnimation'));
 
 // Define products interface
 interface Product {
@@ -27,6 +30,7 @@ const Index = () => {
     priceRange: null
   });
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const isMobile = useIsMobile();
   
   // Extract unique categories from featured products
   useEffect(() => {
@@ -46,23 +50,27 @@ const Index = () => {
   // Handler for search
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    // In a real app, this would filter products based on the search term
-    console.log('Searching for:', term);
     
     // Scroll to the featured section where results would appear
-    document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
+    // Use a more efficient smooth scroll implementation
+    const featuredSection = document.getElementById('featured');
+    if (featuredSection) {
+      const yOffset = -80; // header offset
+      const y = featuredSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   };
 
   // Handler for filter
   const handleFilter = (filters: FilterOptions) => {
     setActiveFilters(filters);
-    // In a real app, this would filter products based on the filters
-    console.log('Filtering with:', filters);
   };
   
   return (
     <div className="min-h-screen bg-primary text-primary-foreground relative">
-      <BackgroundAnimation />
+      <Suspense fallback={null}>
+        <BackgroundAnimation />
+      </Suspense>
       <div className="relative z-10">
         <Navbar />
         <HeroSection />
