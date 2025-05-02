@@ -11,9 +11,9 @@ const AvailableNowSection = () => {
     navigate('/order', { 
       state: { 
         product: {
-          id: 'pink-floral-hat',
-          title: 'Pink Floral Hat',
-          priceDisplay: 'R150'
+          id: 'pink-ruffle-hat',
+          title: 'Pink Ruffle Hat',
+          priceDisplay: 'R200'
         }
       }
     });
@@ -30,20 +30,20 @@ const AvailableNowSection = () => {
         >
           <img 
             src="/lovable-uploads/3d200bb5-6fc3-434c-babc-f4df8d2f6f3f.png"
-            alt="Pink Floral Hat"
+            alt="Pink Ruffle Hat"
             className="w-full h-full object-cover"
             loading="lazy"
           />
         </motion.div>
         
         <div className="flex flex-col space-y-4">
-          <h4 className="font-playfair text-2xl font-semibold">Pink Floral Hat</h4>
+          <h4 className="font-playfair text-2xl font-semibold">Pink Ruffle Hat</h4>
           <p className="text-gray-700">
             Adorable handcrafted pink hat with beautiful decorative flowers. Perfect for spring and summer outings. This charming pink crochet hat features delicate floral embellishments in varying shades of pink.
           </p>
           <div className="bg-white p-4 rounded-md shadow-sm">
             <span className="font-semibold block mb-1">Price:</span>
-            <span className="text-xl font-playfair">R150</span>
+            <span className="text-xl font-playfair">R200</span>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
