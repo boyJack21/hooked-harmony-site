@@ -1,6 +1,7 @@
 
 import React from 'react';
 import CategoryCarousel, { ProductItem } from './CategoryCarousel';
+import AvailableNowSection from './AvailableNowSection';
 
 const FeaturedSection = () => {
   const featuredItems: ProductItem[] = [
@@ -117,6 +118,8 @@ const FeaturedSection = () => {
     <section id="featured" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <h3 className="font-playfair text-4xl text-center mb-12">Featured Creations</h3>
+        
+        <AvailableNowSection />
         
         {sortedCategories.map((category) => (
           <CategoryCarousel 
