@@ -227,6 +227,7 @@ export const OrderDetailsForm: React.FC<OrderDetailsFormProps> = ({
               <li>Beanie/Bucket Hat: R150</li>
               <li>Polo Shirt: S=R280, M=R320, L=R360</li>
               <li>Crop Cardigan: S=R350, M=R400</li>
+              <li>Color Block Cardigan: S=R500, M=R540, L=R600</li>
               <li>Cardigan: S=R400, M=R450, L=R500</li>
               <li>Long Cardigan: S=R450, M=R520, L=R600</li>
               <li>Ruffled Crop Top: S=R200, M=R250, L=R280</li>

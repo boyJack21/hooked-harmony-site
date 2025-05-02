@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -40,7 +39,9 @@ const FeaturedItem: React.FC<FeaturedItemProps> = ({
     } else if (title.includes("Crop Cardigan")) {
       return "S: R350 | M: R400";
     } else if (category === "Cardigans") {
-      if (title.includes("Long")) {
+      if (title.includes("Color Block")) {
+        return "S: R500 | M: R540 | L: R600";
+      } else if (title.includes("Long")) {
         return "S: R450 | M: R520 | L: R600";
       }
       return "S: R400 | M: R450 | L: R500";
