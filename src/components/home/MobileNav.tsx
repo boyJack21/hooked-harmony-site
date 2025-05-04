@@ -6,14 +6,34 @@ import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/components/ModeToggle";
 import { useWishlist } from "@/contexts/WishlistContext";
 
+// Pure component for better performance
+const MobileNavLink = React.memo(({ 
+  to, 
+  isActive, 
+  children 
+}: { 
+  to: string; 
+  isActive: boolean; 
+  children: React.ReactNode 
+}) => (
+  <Link 
+    to={to} 
+    className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive ? 'bg-accent' : ''}`}
+  >
+    {children}
+  </Link>
+));
+
+MobileNavLink.displayName = "MobileNavLink";
+
 // Memoized MobileNav component to prevent unnecessary renders
 const MobileNav = React.memo(() => {
   const { wishlistItems } = useWishlist();
   const location = useLocation();
   
-  const isActive = (path: string) => {
+  const isActive = React.useCallback((path: string) => {
     return location.pathname === path || location.hash === path;
-  };
+  }, [location.pathname, location.hash]);
   
   return (
     <div className="flex flex-col h-full py-6">
@@ -23,21 +43,21 @@ const MobileNav = React.memo(() => {
       </div>
       
       <nav className="flex flex-col space-y-4">
-        <Link to="/" className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive('/') ? 'bg-accent' : ''}`}>
+        <MobileNavLink to="/" isActive={isActive('/')}>
           Home
-        </Link>
-        <Link to="/#featured" className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive('/#featured') ? 'bg-accent' : ''}`}>
+        </MobileNavLink>
+        <MobileNavLink to="/#featured" isActive={isActive('/#featured')}>
           Shop
-        </Link>
-        <Link to="/#about" className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive('/#about') ? 'bg-accent' : ''}`}>
+        </MobileNavLink>
+        <MobileNavLink to="/#about" isActive={isActive('/#about')}>
           About
-        </Link>
-        <Link to="/#faq" className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive('/#faq') ? 'bg-accent' : ''}`}>
+        </MobileNavLink>
+        <MobileNavLink to="/#faq" isActive={isActive('/#faq')}>
           FAQ
-        </Link>
-        <Link to="/#contact" className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive('/#contact') ? 'bg-accent' : ''}`}>
+        </MobileNavLink>
+        <MobileNavLink to="/#contact" isActive={isActive('/#contact')}>
           Contact
-        </Link>
+        </MobileNavLink>
       </nav>
       
       <Separator className="my-6" />

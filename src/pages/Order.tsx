@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
@@ -18,7 +18,8 @@ const Order = () => {
   const product = location.state?.product;
   const selectedSize = location.state?.selectedSize;
   
-  const [formData, setFormData] = useState<OrderFormData>({
+  // Using lazy state initialization for better performance
+  const [formData, setFormData] = useState<OrderFormData>(() => ({
     name: '',
     email: '',
     phone: '',
@@ -27,7 +28,7 @@ const Order = () => {
     color: '',
     size: selectedSize || '',
     specialInstructions: '',
-  });
+  }));
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -40,19 +41,19 @@ const Order = () => {
     }
   }, [selectedSize]);
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Optimize the form change handler with memoization
+  const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
     // Clear error for this field when user makes changes
-    if (errors[name]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
-  };
+    setErrors(prev => {
+      if (!prev[name]) return prev;
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
+  }, []);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,11 +110,11 @@ const Order = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 py-8 md:py-16">
         <div className="max-w-3xl mx-auto">
           <OrderFormHeader />
           
-          <div className="my-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8">
+          <div className="my-6 md:my-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-8">
             <OrderForm 
               formData={formData}
               handleChange={handleChange}
@@ -134,4 +135,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default React.memo(Order);
