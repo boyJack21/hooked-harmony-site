@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertCircle, Mail, Truck, Clock } from 'lucide-react';
+import { AlertCircle, Mail, Truck } from 'lucide-react';
 
 export const OrderFormFooter: React.FC = () => {
   return (
@@ -41,17 +41,7 @@ export const OrderFormFooter: React.FC = () => {
           <Truck className="h-4 w-4" />
           <p>Local delivery available across South Africa</p>
         </div>
-        
-        <div className="flex items-center justify-center gap-2 text-sm text-primary-foreground/60">
-          <Clock className="h-4 w-4" />
-          <p>Orders typically take 2-4 weeks to complete depending on the item and current order volume</p>
-        </div>
       </div>
-      
-      <p className="mt-4 text-sm text-center text-primary-foreground/60 flex items-center justify-center">
-        <AlertCircle className="h-4 w-4 mr-1" />
-        We'll contact you with pricing and timeline after receiving your order details.
-      </p>
       
       <div className="mt-3 text-xs text-center text-amber-600">
         <p>Limited to 2 orders per session to ensure we can serve everyone.</p>
