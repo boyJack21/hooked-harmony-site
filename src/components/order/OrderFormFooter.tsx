@@ -43,6 +43,10 @@ export const OrderFormFooter: React.FC = () => {
       <div className="mt-3 text-xs text-center text-amber-600">
         <p>Limited to 2 orders per session to ensure we can serve everyone.</p>
       </div>
+      
+      <div className="mt-3 text-xs text-center text-muted-foreground">
+        <p>All payments are processed securely. Our payment system utilizes strong encryption to protect your information.</p>
+      </div>
     </>
   );
 };
