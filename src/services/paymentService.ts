@@ -1,4 +1,3 @@
-
 import { OrderFormData } from '@/types/order';
 import { toast } from '@/hooks/use-toast';
 
@@ -67,17 +66,15 @@ async function processYocoPayment(
     // Calculate the order total in cents (Yoco requires amount in cents)
     const amountInCents = Math.round(calculateOrderTotal(orderData) * 100);
     
-    // In production, you should make an API call to your backend endpoint
-    // which will securely call the Yoco Charge API
-    // The frontend should never directly call the Charge API as it requires your secret key
-    
-    const response = await fetch('/api/process-yoco-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+    // Use the provided Supabase Edge Function endpoint
+    const response = await fetch("https://idgsbwbioxdnjazmtedc.supabase.co/functions/v1/swift-api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         token: paymentDetails.yocoToken,
         amountInCents,
-        currency: 'ZAR',
         customerEmail: paymentDetails.email,
         metadata: {
           orderDetails: JSON.stringify({
@@ -90,17 +87,16 @@ async function processYocoPayment(
       })
     });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Payment processing failed');
-    }
-    
     const data = await response.json();
+    
+    if (!response.ok || !data.id) {
+      throw new Error(data.error?.message || 'Payment processing failed');
+    }
     
     return {
       success: true,
       message: 'Payment processed successfully',
-      orderId: data.id || `YCO-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderId: data.id,
     };
   } catch (error) {
     console.error('Yoco payment processing error:', error);
