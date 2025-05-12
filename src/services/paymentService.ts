@@ -16,6 +16,7 @@ export interface PaymentDetails {
   method: PaymentMethod;
   email: string;
   reference?: string;
+  yocoToken?: string;
 }
 
 // Simulated payment processing service
@@ -26,9 +27,12 @@ export async function processPayment(
   try {
     console.log('Processing payment with details:', { orderData, paymentDetails });
     
-    // In a real implementation, this would make an API call to a payment gateway
-    // For now, we simulate a successful payment with a delay
+    // If this is a credit card payment with Yoco token, process it
+    if (paymentDetails.method === 'credit_card' && paymentDetails.yocoToken) {
+      return await processYocoPayment(orderData, paymentDetails);
+    }
     
+    // For other payment methods or if no Yoco token provided
     return new Promise((resolve) => {
       setTimeout(() => {
         // Generate a random order ID
@@ -48,6 +52,50 @@ export async function processPayment(
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to process payment',
+    };
+  }
+}
+
+// Process payment with Yoco token
+// In a real implementation, this would make an API call to your backend,
+// which would then call Yoco's Charge API
+async function processYocoPayment(
+  orderData: OrderFormData,
+  paymentDetails: PaymentDetails
+): Promise<PaymentResponse> {
+  try {
+    console.log('Processing Yoco payment with token:', paymentDetails.yocoToken);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, MOCK_PAYMENT_DELAY));
+    
+    // In a real implementation, you would call your backend API here:
+    // const response = await fetch('/api/process-yoco-payment', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ 
+    //     token: paymentDetails.yocoToken,
+    //     amountInCents: Math.round(calculateOrderTotal(orderData) * 100),
+    //     currency: 'ZAR',
+    //     customerEmail: paymentDetails.email
+    //   })
+    // });
+    // const data = await response.json();
+    
+    // Generate a random order ID for simulation
+    const orderId = `YCO-${Math.floor(100000 + Math.random() * 900000)}`;
+    
+    // Simulate successful payment
+    return {
+      success: true,
+      message: 'Yoco payment processed successfully',
+      orderId,
+    };
+  } catch (error) {
+    console.error('Yoco payment processing error:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to process Yoco payment',
     };
   }
 }

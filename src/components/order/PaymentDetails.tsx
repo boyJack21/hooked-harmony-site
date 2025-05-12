@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, CreditCard, AlertCircle } from 'lucide-react';
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ interface PaymentDetailsProps {
     method: PaymentMethod;
     email: string;
     reference?: string;
+    yocoToken?: string;
   }) => void;
   isProcessing: boolean;
   error?: string | null;
@@ -32,14 +33,61 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   const [email, setEmail] = useState('');
   const [reference, setReference] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showYocoForm, setShowYocoForm] = useState(false);
+  const [yocoToken, setYocoToken] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Initialize Yoco SDK
+  useEffect(() => {
+    if (paymentMethod === 'credit_card' && !window.yoco) {
+      const script = document.createElement('script');
+      script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
+      script.async = true;
+      script.onload = initializeYoco;
+      document.body.appendChild(script);
+      
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [paymentMethod]);
+
+  const initializeYoco = () => {
+    if (window.yoco) {
+      setShowYocoForm(true);
+    }
+  };
+
+  const processYocoPayment = () => {
+    if (!window.yoco) {
+      setValidationError('Payment processor not loaded. Please refresh the page.');
+      return;
+    }
+
+    window.yoco.showPopup({
+      amountInCents: Math.round(totalAmount * 100),
+      currency: 'ZAR',
+      name: 'Everything Hooked',
+      description: 'Online Order Payment',
+      publicKey: 'pk_live_3400a58b1W4z8Wd00594',
+      callback: (result: any) => {
+        if (result.error) {
+          setValidationError(result.error.message);
+        } else {
+          setYocoToken(result.id);
+          handleSubmit(null, result.id);
+        }
+      }
+    });
+  };
+
+  const handleSubmit = (e?: React.FormEvent, token?: string) => {
+    if (e) e.preventDefault();
     
     const paymentDetails = {
       method: paymentMethod,
       email,
-      reference: reference || undefined
+      reference: reference || undefined,
+      yocoToken: token || undefined
     };
     
     // Validate payment details
@@ -110,7 +158,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="credit_card" id="credit_card" />
                   <Label htmlFor="credit_card" className="flex items-center cursor-pointer">
-                    Credit Card
+                    Credit Card (Yoco)
                   </Label>
                 </div>
                 
@@ -173,22 +221,42 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Button 
-                  type="submit" 
-                  size="lg"
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? (
-                    <span className="flex items-center">
-                      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                      Processing...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      Complete Payment <CheckCircle className="ml-2 h-4 w-4" />
-                    </span>
-                  )}
-                </Button>
+                {paymentMethod === 'credit_card' ? (
+                  <Button 
+                    type="button" 
+                    size="lg"
+                    disabled={isProcessing}
+                    onClick={processYocoPayment}
+                  >
+                    {isProcessing ? (
+                      <span className="flex items-center">
+                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        Processing...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        Pay with Card <CheckCircle className="ml-2 h-4 w-4" />
+                      </span>
+                    )}
+                  </Button>
+                ) : (
+                  <Button 
+                    type="submit" 
+                    size="lg"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <span className="flex items-center">
+                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        Processing...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        Complete Payment <CheckCircle className="ml-2 h-4 w-4" />
+                      </span>
+                    )}
+                  </Button>
+                )}
               </motion.div>
             </div>
           </CardContent>
@@ -197,5 +265,21 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
     </div>
   );
 };
+
+// Add TypeScript declaration for Yoco SDK
+declare global {
+  interface Window {
+    yoco: {
+      showPopup: (options: {
+        amountInCents: number;
+        currency: string;
+        name: string;
+        description: string;
+        publicKey: string;
+        callback: (result: { error?: { message: string }; id?: string }) => void;
+      }) => void;
+    };
+  }
+}
 
 export default PaymentDetails;

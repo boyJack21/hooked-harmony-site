@@ -45,7 +45,7 @@ export const OrderFormFooter: React.FC = () => {
       </div>
       
       <div className="mt-3 text-xs text-center text-muted-foreground">
-        <p>All payments are processed securely. Our payment system utilizes strong encryption to protect your information.</p>
+        <p>All payments are processed securely through Yoco. Our payment system utilizes strong encryption to protect your information.</p>
       </div>
     </>
   );
