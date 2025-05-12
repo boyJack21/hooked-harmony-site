@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PaymentMethod, validatePaymentDetails } from '@/services/paymentService';
+import { useToast } from '@/hooks/use-toast';
 
 interface PaymentDetailsProps {
   onPaymentSubmit: (paymentDetails: {
@@ -33,33 +34,53 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   const [email, setEmail] = useState('');
   const [reference, setReference] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [showYocoForm, setShowYocoForm] = useState(false);
   const [yocoToken, setYocoToken] = useState<string | null>(null);
+  const [yocoLoaded, setYocoLoaded] = useState(false);
+  const [loadingYoco, setLoadingYoco] = useState(false);
+  const { toast } = useToast();
 
   // Initialize Yoco SDK
   useEffect(() => {
-    if (paymentMethod === 'credit_card' && !window.yoco) {
+    if (paymentMethod === 'credit_card' && !window.yoco && !loadingYoco) {
+      setLoadingYoco(true);
+      
       const script = document.createElement('script');
       script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
       script.async = true;
-      script.onload = initializeYoco;
+      
+      script.onload = () => {
+        console.log('Yoco SDK loaded successfully');
+        setYocoLoaded(true);
+        setLoadingYoco(false);
+      };
+      
+      script.onerror = () => {
+        console.error('Failed to load Yoco SDK');
+        setValidationError('Failed to load payment processor. Please try again later.');
+        setLoadingYoco(false);
+      };
+      
       document.body.appendChild(script);
       
       return () => {
-        document.body.removeChild(script);
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
       };
     }
-  }, [paymentMethod]);
-
-  const initializeYoco = () => {
-    if (window.yoco) {
-      setShowYocoForm(true);
-    }
-  };
+  }, [paymentMethod, loadingYoco]);
 
   const processYocoPayment = () => {
+    // Clear any previous validation errors
+    setValidationError(null);
+    
     if (!window.yoco) {
       setValidationError('Payment processor not loaded. Please refresh the page.');
+      toast({
+        title: "Payment Error",
+        description: "Payment processor not loaded. Please try refreshing the page.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -72,6 +93,11 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       callback: (result: any) => {
         if (result.error) {
           setValidationError(result.error.message);
+          toast({
+            title: "Payment Error",
+            description: result.error.message,
+            variant: "destructive",
+          });
         } else {
           setYocoToken(result.id);
           handleSubmit(null, result.id);
@@ -225,13 +251,18 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
                   <Button 
                     type="button" 
                     size="lg"
-                    disabled={isProcessing}
+                    disabled={isProcessing || loadingYoco}
                     onClick={processYocoPayment}
                   >
                     {isProcessing ? (
                       <span className="flex items-center">
                         <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                         Processing...
+                      </span>
+                    ) : loadingYoco ? (
+                      <span className="flex items-center">
+                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        Loading payment provider...
                       </span>
                     ) : (
                       <span className="flex items-center">
