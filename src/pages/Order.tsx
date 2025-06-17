@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
@@ -10,8 +10,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
 import { sendOrderEmail } from '@/services/emailService';
-import PaymentDetails from '@/components/order/PaymentDetails';
-import { PaymentDetails as PaymentDetailsType, processPayment, calculateOrderTotal } from '@/services/paymentService';
 
 const Order = () => {
   const location = useLocation();
@@ -36,24 +34,12 @@ const Order = () => {
   const [submitting, setSubmitting] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
   
-  // Payment state
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [orderTotal, setOrderTotal] = useState(0);
-  
   // Set the initial size from the URL parameter if available
   useEffect(() => {
     if (selectedSize && !formData.size) {
       setFormData(prev => ({ ...prev, size: selectedSize }));
     }
   }, [selectedSize]);
-  
-  // Calculate order total whenever form data changes
-  useEffect(() => {
-    const total = calculateOrderTotal(formData);
-    setOrderTotal(total);
-  }, [formData]);
   
   // Optimize the form change handler with memoization
   const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -84,71 +70,45 @@ const Order = () => {
       return;
     }
     
-    // Show the payment component
-    setShowPayment(true);
-    
-    // Scroll to the payment section
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-      });
-    }, 100);
-  };
-  
-  const handlePaymentSubmit = async (paymentDetails: PaymentDetailsType) => {
-    setPaymentProcessing(true);
-    setPaymentError(null);
+    setSubmitting(true);
     
     try {
-      // Process payment
-      const result = await processPayment(formData, paymentDetails);
+      // Send order email
+      await sendOrderEmail(formData);
       
-      if (result.success) {
-        // Send order email
-        await sendOrderEmail(formData);
-        
-        // Show success toast
-        toast({
-          title: "Payment Successful!",
-          description: `Your order #${result.orderId} has been placed. Thank you for your purchase!`,
-        });
-        
-        // Reset form and payment view
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          item: '',
-          quantity: 1,
-          color: '',
-          size: '',
-          specialInstructions: '',
-        });
-        setShowPayment(false);
-        setOrderCount(prev => prev + 1);
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        // Show payment error
-        setPaymentError(result.message);
-        toast({
-          title: "Payment Failed",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'There was a problem processing your payment';
-      setPaymentError(errorMessage);
+      // Generate a simple order ID
+      const orderId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+      
+      // Show success toast
       toast({
-        title: "Payment Error",
+        title: "Order Submitted!",
+        description: `Your order #${orderId} has been submitted. We'll contact you soon to arrange payment and delivery.`,
+      });
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        item: '',
+        quantity: 1,
+        color: '',
+        size: '',
+        specialInstructions: '',
+      });
+      setOrderCount(prev => prev + 1);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'There was a problem submitting your order';
+      toast({
+        title: "Order Submission Failed",
         description: errorMessage,
         variant: "destructive",
       });
     } finally {
-      setPaymentProcessing(false);
+      setSubmitting(false);
     }
   };
 
@@ -165,20 +125,11 @@ const Order = () => {
               formData={formData}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
-              submitting={showPayment || paymentProcessing}
+              submitting={submitting}
               errors={errors}
               orderCount={orderCount}
               initialSize={selectedSize}
             />
-            
-            {showPayment && (
-              <PaymentDetails 
-                onPaymentSubmit={handlePaymentSubmit}
-                isProcessing={paymentProcessing}
-                error={paymentError}
-                totalAmount={orderTotal}
-              />
-            )}
           </div>
           
           <OrderFormFooter />
