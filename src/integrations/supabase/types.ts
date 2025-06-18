@@ -9,7 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          color: string | null
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          item: string
+          quantity: number
+          size: string | null
+          special_instructions: string | null
+          status: string
+          total_amount: number
+          updated_at: string
+          yoco_payment_id: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          item: string
+          quantity?: number
+          size?: string | null
+          special_instructions?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string
+          yoco_payment_id?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          item?: string
+          quantity?: number
+          size?: string | null
+          special_instructions?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          yoco_payment_id?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          order_id: string
+          payment_method: string | null
+          status: string
+          updated_at: string
+          yoco_payment_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id: string
+          payment_method?: string | null
+          status: string
+          updated_at?: string
+          yoco_payment_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string
+          payment_method?: string | null
+          status?: string
+          updated_at?: string
+          yoco_payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
