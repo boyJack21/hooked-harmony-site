@@ -47,41 +47,16 @@ serve(async (req) => {
 
     console.log('Order created successfully:', order.id)
 
-    // Create payment intent with Yoco
-    const yocoResponse = await fetch('https://online.yoco.com/v1/charges/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('YOCO_SECRET_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        amount: amount,
-        currency: 'ZAR',
-        metadata: {
-          order_id: order.id,
-          customer_email: orderData.email,
-          customer_name: orderData.name,
-        }
-      })
-    })
-
-    if (!yocoResponse.ok) {
-      const errorText = await yocoResponse.text()
-      console.error('Yoco API error:', errorText)
-      throw new Error('Failed to create payment with Yoco')
-    }
-
-    const yocoData = await yocoResponse.json()
-    console.log('Yoco payment created:', yocoData.id)
-
-    // Create payment record
+    // For Yoco, we don't need to create a payment intent on the server
+    // The payment will be handled entirely on the frontend with the public key
+    // We just need to create a payment record to track it
     const { error: paymentError } = await supabase
       .from('payments')
       .insert({
         order_id: order.id,
-        yoco_payment_id: yocoData.id,
         amount: amount,
-        status: 'pending'
+        status: 'pending',
+        currency: 'ZAR'
       })
 
     if (paymentError) {
@@ -91,7 +66,6 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       order_id: order.id,
-      payment_id: yocoData.id,
       public_key: Deno.env.get('YOCO_PUBLIC_KEY')
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

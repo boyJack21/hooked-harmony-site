@@ -29,14 +29,17 @@ serve(async (req) => {
       const status = type === 'payment.succeeded' ? 'successful' : 'failed'
       const orderId = payload.metadata?.order_id
 
+      console.log(`Processing webhook for payment ${paymentId}, order ${orderId}, status: ${status}`)
+
       // Update payment status
       const { error: paymentError } = await supabase
         .from('payments')
         .update({ 
           status,
-          payment_method: payload.source?.type || 'card'
+          payment_method: payload.source?.type || 'card',
+          yoco_payment_id: paymentId
         })
-        .eq('yoco_payment_id', paymentId)
+        .eq('order_id', orderId)
 
       if (paymentError) {
         console.error('Error updating payment:', paymentError)

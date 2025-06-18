@@ -55,7 +55,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     setIsProcessing(true);
 
     try {
-      // Create payment intent
+      // Create order and get public key
       const paymentResponse = await createPayment({
         orderData: formData,
         amount
@@ -65,9 +65,9 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         throw new Error(paymentResponse.error || 'Failed to create payment');
       }
 
-      const { public_key, payment_id, order_id } = paymentResponse;
+      const { public_key, order_id } = paymentResponse;
 
-      if (!public_key || !payment_id || !order_id) {
+      if (!public_key || !order_id) {
         throw new Error('Invalid payment response');
       }
 
@@ -84,7 +84,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         description: `Order for ${formData.item}`,
         metadata: {
           order_id: order_id,
-          payment_id: payment_id
+          customer_email: formData.email,
+          customer_name: formData.name
         }
       }, (result: any) => {
         if (result.error) {
