@@ -58,7 +58,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           ) : (
             <>
               <Heart className="mr-2 h-5 w-5" />
-              Place Order
+              Continue to Payment
             </>
           )}
         </button>

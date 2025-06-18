@@ -1,57 +1,45 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { OrderFormData } from '@/types/order';
 
-// Calculate order total based on item and quantity
-export function calculateOrderTotal(orderData: OrderFormData): number {
-  // This is a simplified pricing model - in a real app, this would likely
-  // call an API or use data from a database
-  const itemPrices: Record<string, number> = {
-    'Beanie': 150,
-    'Bucket Hat': 150,
-    'Polo Shirt': 320,
-    'Crop Cardigan': 400,
-    'Color Block Cardigan': 540,
-    'Cardigan': 450,
-    'Long Cardigan': 520,
-    'Ruffled Crop Top': 250,
-    'Bikini Set': 200
-  };
-  
-  // Get base price - default to 300 if item not found in price list
-  let basePrice = 300;
-  
-  // Try to match item name with our price list
-  for (const [itemName, price] of Object.entries(itemPrices)) {
-    if (orderData.item.toLowerCase().includes(itemName.toLowerCase())) {
-      basePrice = price;
-      break;
-    }
-  }
-  
-  // Adjust for size if applicable
-  if (orderData.size) {
-    switch(orderData.size) {
-      case 'S':
-        // Small size uses the base price
-        break;
-      case 'M':
-        // Medium size costs 10% more
-        basePrice *= 1.1;
-        break;
-      case 'L':
-        // Large size costs 20% more
-        basePrice *= 1.2;
-        break;
-      case 'XL':
-        // XL size costs 30% more
-        basePrice *= 1.3;
-        break;
-    }
-  }
-  
-  // Multiply by quantity
-  const total = basePrice * (orderData.quantity || 1);
-  
-  // Round to 2 decimal places
-  return Math.round(total * 100) / 100;
+export interface PaymentRequest {
+  orderData: OrderFormData;
+  amount: number; // Amount in cents
 }
+
+export interface PaymentResponse {
+  success: boolean;
+  order_id?: string;
+  payment_id?: string;
+  public_key?: string;
+  error?: string;
+}
+
+export const createPayment = async (request: PaymentRequest): Promise<PaymentResponse> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('create-payment', {
+      body: request
+    });
+
+    if (error) {
+      console.error('Payment creation error:', error);
+      return { success: false, error: error.message };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Payment service error:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Payment processing failed'
+    };
+  }
+};
+
+export const calculateOrderAmount = (formData: OrderFormData): number => {
+  // Base price calculation - you can customize this based on your pricing structure
+  const basePrice = 25000; // R250.00 in cents
+  const quantityMultiplier = formData.quantity || 1;
+  
+  return basePrice * quantityMultiplier;
+};

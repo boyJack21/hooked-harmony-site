@@ -1,1 +1,8 @@
+
 project_id = "idgsbwbioxdnjazmtedc"
+
+[functions.create-payment]
+verify_jwt = false
+
+[functions.yoco-webhook]
+verify_jwt = false
