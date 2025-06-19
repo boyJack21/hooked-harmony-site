@@ -38,52 +38,72 @@ export const createPayment = async (request: PaymentRequest): Promise<PaymentRes
 
 export const calculateOrderAmount = (formData: OrderFormData): number => {
   const item = formData.item.toLowerCase();
-  const size = formData.size;
+  const size = formData.size?.toLowerCase() || '';
   const quantity = formData.quantity || 1;
+  
+  console.log('Calculating price for:', { item, size, quantity });
   
   let basePrice = 0; // Price in cents
   
-  // Product-specific pricing
-  if (item.includes('pink ruffle hat') || item.includes('beanie') || item.includes('bucket hat')) {
+  // Product-specific pricing with more specific matching
+  if (item.includes('pink ruffle hat') || item.includes('ruffle hat')) {
     basePrice = 15000; // R150.00
-  } else if (item.includes('polo shirt')) {
-    if (size === 'S') basePrice = 28000; // R280.00
-    else if (size === 'M') basePrice = 32000; // R320.00
-    else if (size === 'L') basePrice = 36000; // R360.00
+    console.log('Pink ruffle hat detected - base price:', basePrice);
+  } else if (item.includes('beanie')) {
+    basePrice = 15000; // R150.00
+    console.log('Beanie detected - base price:', basePrice);
+  } else if (item.includes('bucket hat')) {
+    basePrice = 15000; // R150.00
+    console.log('Bucket hat detected - base price:', basePrice);
+  } else if (item.includes('polo shirt') || item.includes('polo')) {
+    if (size === 's') basePrice = 28000; // R280.00
+    else if (size === 'm') basePrice = 32000; // R320.00
+    else if (size === 'l') basePrice = 36000; // R360.00
     else basePrice = 28000; // Default to S
+    console.log('Polo shirt detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('crop cardigan')) {
-    if (size === 'S') basePrice = 35000; // R350.00
-    else if (size === 'M') basePrice = 40000; // R400.00
+    if (size === 's') basePrice = 35000; // R350.00
+    else if (size === 'm') basePrice = 40000; // R400.00
     else basePrice = 35000; // Default to S
+    console.log('Crop cardigan detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('color block cardigan')) {
-    if (size === 'S') basePrice = 50000; // R500.00
-    else if (size === 'M') basePrice = 54000; // R540.00
-    else if (size === 'L') basePrice = 60000; // R600.00
+    if (size === 's') basePrice = 50000; // R500.00
+    else if (size === 'm') basePrice = 54000; // R540.00
+    else if (size === 'l') basePrice = 60000; // R600.00
     else basePrice = 50000; // Default to S
+    console.log('Color block cardigan detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('long cardigan')) {
-    if (size === 'S') basePrice = 45000; // R450.00
-    else if (size === 'M') basePrice = 52000; // R520.00
-    else if (size === 'L') basePrice = 60000; // R600.00
+    if (size === 's') basePrice = 45000; // R450.00
+    else if (size === 'm') basePrice = 52000; // R520.00
+    else if (size === 'l') basePrice = 60000; // R600.00
     else basePrice = 45000; // Default to S
+    console.log('Long cardigan detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('cardigan') && !item.includes('crop') && !item.includes('long') && !item.includes('color block')) {
-    if (size === 'S') basePrice = 40000; // R400.00
-    else if (size === 'M') basePrice = 45000; // R450.00
-    else if (size === 'L') basePrice = 50000; // R500.00
+    if (size === 's') basePrice = 40000; // R400.00
+    else if (size === 'm') basePrice = 45000; // R450.00
+    else if (size === 'l') basePrice = 50000; // R500.00
     else basePrice = 40000; // Default to S
-  } else if (item.includes('ruffled crop top')) {
-    if (size === 'S') basePrice = 20000; // R200.00
-    else if (size === 'M') basePrice = 25000; // R250.00
-    else if (size === 'L') basePrice = 28000; // R280.00
+    console.log('Regular cardigan detected - base price:', basePrice, 'for size:', size);
+  } else if (item.includes('ruffled crop top') || item.includes('crop top')) {
+    if (size === 's') basePrice = 20000; // R200.00
+    else if (size === 'm') basePrice = 25000; // R250.00
+    else if (size === 'l') basePrice = 28000; // R280.00
     else basePrice = 20000; // Default to S
+    console.log('Ruffled crop top detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('bikini')) {
-    if (size === 'S') basePrice = 17000; // R170.00
-    else if (size === 'M') basePrice = 20000; // R200.00
-    else if (size === 'L') basePrice = 23000; // R230.00
+    if (size === 's') basePrice = 17000; // R170.00
+    else if (size === 'm') basePrice = 20000; // R200.00
+    else if (size === 'l') basePrice = 23000; // R230.00
     else basePrice = 17000; // Default to S
+    console.log('Bikini detected - base price:', basePrice, 'for size:', size);
   } else {
     // Default pricing for custom items
     basePrice = 25000; // R250.00
+    console.log('Default/custom item - base price:', basePrice);
   }
   
-  return basePrice * quantity;
+  const totalAmount = basePrice * quantity;
+  console.log('Final calculated amount:', totalAmount, 'cents (R' + (totalAmount / 100).toFixed(2) + ')');
+  
+  return totalAmount;
 };

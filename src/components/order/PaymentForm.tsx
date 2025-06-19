@@ -28,8 +28,14 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const [sdkError, setSdkError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Calculate amount dynamically and log for debugging
   const amount = calculateOrderAmount(formData);
   const displayAmount = (amount / 100).toFixed(2);
+
+  // Log the calculation for mobile debugging
+  console.log('PaymentForm - Form data:', formData);
+  console.log('PaymentForm - Calculated amount:', amount, 'cents');
+  console.log('PaymentForm - Display amount: R' + displayAmount);
 
   useEffect(() => {
     // Check if Yoco SDK is already loaded
@@ -149,10 +155,10 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
   if (sdkError) {
     return (
-      <div className="mt-6 p-4 border rounded-lg bg-red-50 border-red-200">
+      <div className="mt-4 md:mt-6 p-3 md:p-4 border rounded-lg bg-red-50 border-red-200">
         <div className="text-red-600 text-center">
-          <p className="font-medium">Payment System Error</p>
-          <p className="text-sm mt-1">{sdkError}</p>
+          <p className="font-medium text-sm md:text-base">Payment System Error</p>
+          <p className="text-xs md:text-sm mt-1">{sdkError}</p>
           <Button 
             onClick={() => window.location.reload()} 
             variant="outline" 
@@ -167,41 +173,41 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   }
 
   return (
-    <div className="mt-6 p-4 border rounded-lg bg-white dark:bg-gray-800">
-      <h3 className="text-lg font-semibold mb-4">Payment Details</h3>
+    <div className="mt-4 md:mt-6 p-3 md:p-4 border rounded-lg bg-white dark:bg-gray-800">
+      <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">Payment Details</h3>
       
-      <div className="space-y-3 mb-4">
+      <div className="space-y-2 md:space-y-3 mb-3 md:mb-4 text-sm md:text-base">
         <div className="flex justify-between">
           <span>Item:</span>
-          <span>{formData.item}</span>
+          <span className="font-medium">{formData.item}</span>
         </div>
         <div className="flex justify-between">
           <span>Quantity:</span>
-          <span>{formData.quantity}</span>
+          <span className="font-medium">{formData.quantity}</span>
         </div>
         {formData.size && (
           <div className="flex justify-between">
             <span>Size:</span>
-            <span>{formData.size}</span>
+            <span className="font-medium">{formData.size}</span>
           </div>
         )}
         {formData.color && (
           <div className="flex justify-between">
             <span>Color:</span>
-            <span>{formData.color}</span>
+            <span className="font-medium">{formData.color}</span>
           </div>
         )}
-        <hr />
-        <div className="flex justify-between font-semibold text-lg">
+        <hr className="my-2 md:my-3" />
+        <div className="flex justify-between font-semibold text-lg md:text-xl">
           <span>Total:</span>
-          <span>R{displayAmount}</span>
+          <span className="text-green-600">R{displayAmount}</span>
         </div>
       </div>
 
       <Button 
         onClick={handlePayment}
         disabled={isProcessing || !yocoLoaded}
-        className="w-full"
+        className="w-full text-sm md:text-base"
         size="lg"
       >
         {isProcessing ? (
