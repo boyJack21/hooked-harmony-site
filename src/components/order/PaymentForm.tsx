@@ -55,11 +55,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     setIsProcessing(true);
 
     try {
+      console.log('Creating payment for order:', formData);
+      
       // Create order and get public key
       const paymentResponse = await createPayment({
         orderData: formData,
         amount
       });
+
+      console.log('Payment response received:', paymentResponse);
 
       if (!paymentResponse.success) {
         throw new Error(paymentResponse.error || 'Failed to create payment');
@@ -67,9 +71,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
       const { public_key, order_id } = paymentResponse;
 
-      if (!public_key || !order_id) {
-        throw new Error('Invalid payment response');
+      if (!public_key) {
+        throw new Error('Missing public key in payment response');
       }
+
+      if (!order_id) {
+        throw new Error('Missing order ID in payment response');
+      }
+
+      console.log('Initializing Yoco SDK with public key');
 
       // Initialize Yoco SDK
       const yoco = new window.YocoSDK({
