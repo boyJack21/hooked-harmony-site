@@ -25,31 +25,46 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [yocoLoaded, setYocoLoaded] = useState(false);
+  const [sdkError, setSdkError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const amount = calculateOrderAmount(formData);
   const displayAmount = (amount / 100).toFixed(2);
 
   useEffect(() => {
+    // Check if Yoco SDK is already loaded
+    if (window.YocoSDK) {
+      console.log('Yoco SDK already available');
+      setYocoLoaded(true);
+      return;
+    }
+
     // Load Yoco SDK
     const script = document.createElement('script');
     script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
+    script.async = true;
+    
     script.onload = () => {
       console.log('Yoco SDK loaded successfully');
       setYocoLoaded(true);
+      setSdkError(null);
     };
-    script.onerror = () => {
-      console.error('Failed to load Yoco SDK');
-      onPaymentError('Failed to load payment system. Please check your internet connection and try again.');
+    
+    script.onerror = (error) => {
+      console.error('Failed to load Yoco SDK:', error);
+      setSdkError('Failed to load payment system. Please check your internet connection.');
+      setYocoLoaded(false);
     };
+    
     document.head.appendChild(script);
 
     return () => {
+      // Only remove if we added it
       if (document.head.contains(script)) {
         document.head.removeChild(script);
       }
     };
-  }, [onPaymentError]);
+  }, []);
 
   const handlePayment = async () => {
     if (!yocoLoaded || !window.YocoSDK) {
@@ -94,6 +109,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         publicKey: public_key
       });
 
+      console.log('Opening Yoco payment popup');
+
       // Open Yoco popup
       yoco.showPopup({
         amountInCents: amount,
@@ -106,6 +123,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           customer_name: formData.name
         }
       }, (result: any) => {
+        console.log('Yoco popup result:', result);
+        
         if (result.error) {
           console.error('Yoco payment error:', result.error);
           onPaymentError(result.error.message || 'Payment failed. Please try again.');
@@ -128,6 +147,25 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   };
 
+  if (sdkError) {
+    return (
+      <div className="mt-6 p-4 border rounded-lg bg-red-50 border-red-200">
+        <div className="text-red-600 text-center">
+          <p className="font-medium">Payment System Error</p>
+          <p className="text-sm mt-1">{sdkError}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            variant="outline" 
+            size="sm" 
+            className="mt-2"
+          >
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-6 p-4 border rounded-lg bg-white dark:bg-gray-800">
       <h3 className="text-lg font-semibold mb-4">Payment Details</h3>
@@ -141,14 +179,18 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           <span>Quantity:</span>
           <span>{formData.quantity}</span>
         </div>
-        <div className="flex justify-between">
-          <span>Size:</span>
-          <span>{formData.size}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Color:</span>
-          <span>{formData.color}</span>
-        </div>
+        {formData.size && (
+          <div className="flex justify-between">
+            <span>Size:</span>
+            <span>{formData.size}</span>
+          </div>
+        )}
+        {formData.color && (
+          <div className="flex justify-between">
+            <span>Color:</span>
+            <span>{formData.color}</span>
+          </div>
+        )}
         <hr />
         <div className="flex justify-between font-semibold text-lg">
           <span>Total:</span>
