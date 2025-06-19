@@ -37,9 +37,53 @@ export const createPayment = async (request: PaymentRequest): Promise<PaymentRes
 };
 
 export const calculateOrderAmount = (formData: OrderFormData): number => {
-  // Base price calculation - you can customize this based on your pricing structure
-  const basePrice = 25000; // R250.00 in cents
-  const quantityMultiplier = formData.quantity || 1;
+  const item = formData.item.toLowerCase();
+  const size = formData.size;
+  const quantity = formData.quantity || 1;
   
-  return basePrice * quantityMultiplier;
+  let basePrice = 0; // Price in cents
+  
+  // Product-specific pricing
+  if (item.includes('pink ruffle hat') || item.includes('beanie') || item.includes('bucket hat')) {
+    basePrice = 15000; // R150.00
+  } else if (item.includes('polo shirt')) {
+    if (size === 'S') basePrice = 28000; // R280.00
+    else if (size === 'M') basePrice = 32000; // R320.00
+    else if (size === 'L') basePrice = 36000; // R360.00
+    else basePrice = 28000; // Default to S
+  } else if (item.includes('crop cardigan')) {
+    if (size === 'S') basePrice = 35000; // R350.00
+    else if (size === 'M') basePrice = 40000; // R400.00
+    else basePrice = 35000; // Default to S
+  } else if (item.includes('color block cardigan')) {
+    if (size === 'S') basePrice = 50000; // R500.00
+    else if (size === 'M') basePrice = 54000; // R540.00
+    else if (size === 'L') basePrice = 60000; // R600.00
+    else basePrice = 50000; // Default to S
+  } else if (item.includes('long cardigan')) {
+    if (size === 'S') basePrice = 45000; // R450.00
+    else if (size === 'M') basePrice = 52000; // R520.00
+    else if (size === 'L') basePrice = 60000; // R600.00
+    else basePrice = 45000; // Default to S
+  } else if (item.includes('cardigan') && !item.includes('crop') && !item.includes('long') && !item.includes('color block')) {
+    if (size === 'S') basePrice = 40000; // R400.00
+    else if (size === 'M') basePrice = 45000; // R450.00
+    else if (size === 'L') basePrice = 50000; // R500.00
+    else basePrice = 40000; // Default to S
+  } else if (item.includes('ruffled crop top')) {
+    if (size === 'S') basePrice = 20000; // R200.00
+    else if (size === 'M') basePrice = 25000; // R250.00
+    else if (size === 'L') basePrice = 28000; // R280.00
+    else basePrice = 20000; // Default to S
+  } else if (item.includes('bikini')) {
+    if (size === 'S') basePrice = 17000; // R170.00
+    else if (size === 'M') basePrice = 20000; // R200.00
+    else if (size === 'L') basePrice = 23000; // R230.00
+    else basePrice = 17000; // Default to S
+  } else {
+    // Default pricing for custom items
+    basePrice = 25000; // R250.00
+  }
+  
+  return basePrice * quantity;
 };

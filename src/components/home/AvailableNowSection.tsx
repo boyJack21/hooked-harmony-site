@@ -13,7 +13,7 @@ const AvailableNowSection = () => {
         product: {
           id: 'pink-ruffle-hat',
           title: 'Pink Ruffle Hat',
-          priceDisplay: 'R200'
+          priceDisplay: 'R150'
         }
       }
     });
@@ -24,38 +24,39 @@ const AvailableNowSection = () => {
       <h3 className="font-playfair text-3xl text-black mb-6">Available for Purchase</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gradient-to-r from-pink-50 to-pink-100 p-6 rounded-lg shadow-sm">
         <motion.div 
-          className="aspect-square relative overflow-hidden rounded-lg"
+          className="aspect-square relative overflow-hidden rounded-lg shadow-md"
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
           <img 
             src="/lovable-uploads/3d200bb5-6fc3-434c-babc-f4df8d2f6f3f.png"
             alt="Pink Ruffle Hat"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
             loading="lazy"
           />
         </motion.div>
         
-        <div className="flex flex-col space-y-4">
-          <h4 className="font-playfair text-2xl font-semibold">Pink Ruffle Hat</h4>
-          <p className="text-gray-700">
-            Adorable handcrafted pink hat with beautiful decorative flowers. Perfect for spring and summer outings. This charming pink crochet hat features delicate floral embellishments in varying shades of pink.
-          </p>
-          <div className="bg-white p-4 rounded-md shadow-sm">
-            <span className="font-semibold block mb-1">Price:</span>
-            <span className="text-xl font-playfair">R200</span>
+        <div className="flex flex-col space-y-6">
+          <h4 className="font-playfair text-3xl font-semibold text-gray-800">Pink Ruffle Hat</h4>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-pink-200">
+            <span className="font-semibold block mb-2 text-gray-700">Price:</span>
+            <span className="text-3xl font-playfair text-pink-600 font-bold">R150</span>
           </div>
+          
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               onClick={handleOrderClick}
-              className="bg-primary hover:bg-secondary transition-colors"
+              className="bg-pink-500 hover:bg-pink-600 text-white transition-colors shadow-md"
+              size="lg"
             >
               Order Now
             </Button>
             <Button 
               variant="outline"
               onClick={() => navigate('/order')}
-              className="border-primary text-primary hover:bg-primary/10"
+              className="border-pink-500 text-pink-600 hover:bg-pink-50 transition-colors"
+              size="lg"
             >
               Custom Order
             </Button>

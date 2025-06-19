@@ -34,21 +34,26 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     // Load Yoco SDK
     const script = document.createElement('script');
     script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
-    script.onload = () => setYocoLoaded(true);
+    script.onload = () => {
+      console.log('Yoco SDK loaded successfully');
+      setYocoLoaded(true);
+    };
     script.onerror = () => {
       console.error('Failed to load Yoco SDK');
-      onPaymentError('Failed to load payment system');
+      onPaymentError('Failed to load payment system. Please check your internet connection and try again.');
     };
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, [onPaymentError]);
 
   const handlePayment = async () => {
     if (!yocoLoaded || !window.YocoSDK) {
-      onPaymentError('Payment system not ready');
+      onPaymentError('Payment system not ready. Please wait a moment and try again.');
       return;
     }
 
@@ -56,6 +61,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
     try {
       console.log('Creating payment for order:', formData);
+      console.log('Calculated amount:', amount, 'cents (R' + displayAmount + ')');
       
       // Create order and get public key
       const paymentResponse = await createPayment({
@@ -72,11 +78,13 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       const { public_key, order_id } = paymentResponse;
 
       if (!public_key) {
-        throw new Error('Missing public key in payment response');
+        console.error('Missing public key in response:', paymentResponse);
+        throw new Error('Payment configuration error. Please contact support.');
       }
 
       if (!order_id) {
-        throw new Error('Missing order ID in payment response');
+        console.error('Missing order ID in response:', paymentResponse);
+        throw new Error('Order creation failed. Please try again.');
       }
 
       console.log('Initializing Yoco SDK with public key');
@@ -100,7 +108,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       }, (result: any) => {
         if (result.error) {
           console.error('Yoco payment error:', result.error);
-          onPaymentError(result.error.message || 'Payment failed');
+          onPaymentError(result.error.message || 'Payment failed. Please try again.');
         } else {
           console.log('Payment successful:', result);
           toast({
@@ -114,7 +122,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
     } catch (error) {
       console.error('Payment error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
+      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed. Please try again.';
       onPaymentError(errorMessage);
       setIsProcessing(false);
     }
@@ -158,6 +166,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           <div className="flex items-center">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Processing Payment...
+          </div>
+        ) : !yocoLoaded ? (
+          <div className="flex items-center">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Loading Payment System...
           </div>
         ) : (
           <div className="flex items-center">
