@@ -7,21 +7,13 @@ import AboutSection from '@/components/home/AboutSection';
 import ContactSection from '@/components/home/ContactSection';
 import FAQSection from '@/components/home/FAQSection';
 import Footer from '@/components/home/Footer';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
 import SearchFilters, { FilterOptions } from '@/components/search/SearchFilters';
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Lazy load the background animation to improve initial load time
 const BackgroundAnimation = lazy(() => import('@/components/home/BackgroundAnimation'));
-
-// Define products interface
-interface Product {
-  imageSrc: string;
-  imageAlt: string;
-  title: string;
-  description: string;
-  category: string;
-}
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,10 +26,9 @@ const Index = () => {
   
   // Extract unique categories from featured products
   useEffect(() => {
-    // This would typically come from an API in a real app
     const categories = [
       "Cardigans",
-      "Tops",
+      "Tops", 
       "Shirts",
       "Summer Sets",
       "Accessories",
@@ -52,7 +43,6 @@ const Index = () => {
     setSearchTerm(term);
     
     // Scroll to the featured section where results would appear
-    // Use a more efficient smooth scroll implementation
     const featuredSection = document.getElementById('featured');
     if (featuredSection) {
       const yOffset = -80; // header offset
@@ -67,7 +57,7 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen bg-primary text-primary-foreground relative">
+    <div className="min-h-screen bg-white text-gray-900 relative overflow-hidden">
       <Suspense fallback={null}>
         <BackgroundAnimation />
       </Suspense>
@@ -85,6 +75,7 @@ const Index = () => {
         </div>
         
         <FeaturedSection />
+        <TestimonialsSection />
         <AboutSection />
         <FAQSection />
         <ContactSection />

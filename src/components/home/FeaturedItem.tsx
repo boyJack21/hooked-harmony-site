@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -22,30 +22,29 @@ interface FeaturedItemProps {
 // Create a memoized price display function outside component
 const getPriceDisplay = (category?: string, title?: string) => {
   if (category === "Shirts" || title?.includes("Polo")) {
-    return "S: R280 | M: R320 | L: R360";
+    return "From R280";
   } else if (title?.includes("Crop Cardigan")) {
-    return "S: R350 | M: R400";
+    return "From R350";
   } else if (category === "Cardigans") {
     if (title?.includes("Color Block")) {
-      return "S: R500 | M: R540 | L: R600";
+      return "From R500";
     } else if (title?.includes("Long")) {
-      return "S: R450 | M: R520 | L: R600";
+      return "From R450";
     }
-    return "S: R400 | M: R450 | L: R500";
+    return "From R400";
   } else if (title?.includes("Crop Top") || title?.includes("Ruffled")) {
-    return "S: R200 | M: R250 | L: R280";
+    return "From R200";
   } else if (title?.includes("Bikini")) {
-    return "S: R170 | M: R200 | L: R230";
+    return "From R170";
   } else if (category === "Accessories") {
     if (title?.includes("Beanie") || title?.includes("Bucket Hat")) {
       return "R150";
     }
-    return "Price on request";
+    return "Custom pricing";
   }
-  return "Price on request";
+  return "Custom pricing";
 };
 
-// Optimized featured item using React.memo to prevent unnecessary re-renders
 const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({ 
   imageSrc, 
   imageAlt, 
@@ -53,7 +52,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
   description, 
   delay = 0,
   category,
-  id = Math.random().toString(36).substring(7) // Generate a random ID if none provided
+  id = Math.random().toString(36).substring(7)
 }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -61,7 +60,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
   const { toast } = useToast();
   const isItemInWishlist = isInWishlist(id);
   
-  // Memoize price display to avoid recalculation on re-renders
   const priceDisplay = React.useMemo(() => 
     getPriceDisplay(category, title), [category, title]);
   
@@ -82,7 +80,7 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
   }, [id, imageSrc, imageAlt, title, description, category, priceDisplay, navigate]);
   
   const handleWishlistToggle = React.useCallback((e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent item click event
+    e.stopPropagation();
     
     const product = {
       id,
@@ -111,69 +109,129 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
     }
   }, [id, imageSrc, imageAlt, title, description, category, priceDisplay, isItemInWishlist, addToWishlist, removeFromWishlist, toast]);
 
-  // Extremely simplified animations for mobile to reduce performance impact
-  const animationProps = isMobile ? {
-    initial: { opacity: 0.9 },
-    whileInView: { opacity: 1 },
-    transition: { duration: 0.2 },
-    viewport: { once: true },
-  } : {
-    initial: { opacity: 0, y: 20 },
-    whileInView: { opacity: 1, y: 0 },
-    transition: { duration: 0.5, delay },
-    viewport: { once: true },
-    whileHover: { 
-      scale: 1.03,
-      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)" 
-    },
-  };
+  const handleQuickOrder = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate('/order', { 
+      state: { 
+        product: {
+          id,
+          title,
+          priceDisplay
+        }
+      }
+    });
+  }, [id, title, priceDisplay, navigate]);
+
+  // Determine if item is popular/bestseller
+  const isPopular = category === "Cardigans" || title.includes("Crop Top");
 
   return (
     <motion.div
-      {...animationProps}
-      className={`bg-primary dark:bg-slate-900 rounded-lg overflow-hidden shadow-sm transition-all duration-300 h-full cursor-pointer ${isMobile ? 'pb-2' : ''}`}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+      viewport={{ once: true }}
+      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 h-full cursor-pointer border border-gray-100 hover:border-pink-200"
       onClick={handleItemClick}
     >
-      <div className={`relative overflow-hidden ${isMobile ? 'aspect-square' : 'aspect-square'}`}>
-        <div className="w-full h-full">
-          <img 
-            src={imageSrc}
-            alt={imageAlt}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            width={400}
-            height={400}
-            decoding="async"
-          />
+      {/* Image Container */}
+      <div className="relative overflow-hidden aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
+        <img 
+          src={imageSrc}
+          alt={imageAlt}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
+          width={400}
+          height={400}
+          decoding="async"
+        />
+        
+        {/* Gradient overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {category && (
+            <Badge className="bg-white/90 text-gray-700 hover:bg-white shadow-lg backdrop-blur-sm">
+              {category}
+            </Badge>
+          )}
+          {isPopular && (
+            <Badge className="bg-gradient-to-r from-orange-400 to-red-500 text-white shadow-lg flex items-center gap-1">
+              <Star className="w-3 h-3 fill-current" />
+              Hot
+            </Badge>
+          )}
         </div>
-        {category && (
-          <Badge className="absolute top-3 right-3 bg-black/70 dark:bg-white/80 dark:text-black hover:bg-black/80 dark:hover:bg-white/90">
-            {category}
-          </Badge>
-        )}
-        <Button
-          variant={isItemInWishlist ? "secondary" : "outline"}
-          size="icon"
-          className="absolute top-3 left-3 h-8 w-8 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 rounded-full"
-          onClick={handleWishlistToggle}
-        >
-          <Heart className={`h-4 w-4 ${isItemInWishlist ? 'fill-current text-red-500' : ''}`} />
-        </Button>
+
+        {/* Action Buttons */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+          <Button
+            variant={isItemInWishlist ? "default" : "secondary"}
+            size="icon"
+            className={`h-10 w-10 rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 ${
+              isItemInWishlist 
+                ? 'bg-red-500 hover:bg-red-600 text-white' 
+                : 'bg-white/90 hover:bg-white text-gray-700 hover:text-red-500'
+            }`}
+            onClick={handleWishlistToggle}
+          >
+            <Heart className={`h-4 w-4 ${isItemInWishlist ? 'fill-current' : ''}`} />
+          </Button>
+          
+          <Button
+            size="icon"
+            className="h-10 w-10 rounded-full bg-pink-500 hover:bg-pink-600 text-white shadow-lg transition-all duration-300"
+            onClick={handleQuickOrder}
+          >
+            <ShoppingBag className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-      <div className={`p-${isMobile ? '3' : '4'}`}>
-        <div className="flex flex-col mb-2">
-          <h4 className={`font-playfair ${isMobile ? 'text-base' : 'text-xl'} text-black dark:text-white mb-1`}>{title}</h4>
-          <div className="mt-2 px-3 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-md shadow-sm">
-            <span className={`font-inter font-semibold text-black dark:text-white ${isMobile ? 'text-xs' : 'text-sm'} block`}>
+
+      {/* Content */}
+      <div className="p-4 md:p-6 space-y-3">
+        <div className="space-y-2">
+          <h4 className="font-playfair text-lg md:text-xl font-semibold text-gray-900 group-hover:text-pink-600 transition-colors duration-300 line-clamp-1">
+            {title}
+          </h4>
+          
+          {!isMobile && (
+            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+              {description}
+            </p>
+          )}
+        </div>
+
+        {/* Price Display */}
+        <div className="flex items-center justify-between">
+          <div className="bg-gradient-to-r from-pink-50 to-purple-50 px-3 py-2 rounded-lg">
+            <span className="font-semibold text-pink-600 text-sm md:text-base">
               {priceDisplay}
             </span>
           </div>
+          
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                className="w-3 h-3 text-yellow-400 fill-current"
+              />
+            ))}
+            <span className="text-xs text-gray-500 ml-1">(4.9)</span>
+          </div>
         </div>
-        {!isMobile && (
-          <p className="font-inter text-black/80 dark:text-white/80 text-sm">
-            {description}
-          </p>
-        )}
+
+        {/* Quick Actions */}
+        <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Button
+            size="sm"
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+            onClick={handleQuickOrder}
+          >
+            Quick Order
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

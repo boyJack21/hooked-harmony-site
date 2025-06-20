@@ -1,5 +1,6 @@
-
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, TrendingUp } from 'lucide-react';
 import CategoryCarousel, { ProductItem } from './CategoryCarousel';
 import AvailableNowSection from './AvailableNowSection';
 
@@ -115,19 +116,59 @@ const FeaturedSection = () => {
   });
 
   return (
-    <section id="featured" className="py-20 bg-white">
-      <div className="container mx-auto px-4">
-        <h3 className="font-playfair text-4xl text-center mb-12">Featured Creations</h3>
+    <section id="featured" className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div className="absolute top-20 right-10 w-32 h-32 bg-pink-100 rounded-full blur-3xl opacity-30"></div>
+        <div className="absolute bottom-20 left-10 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-20"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 lg:px-6 relative z-10">
+        {/* Enhanced section header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16 md:mb-20"
+        >
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full px-4 py-2 mb-6">
+            <Sparkles className="w-4 h-4 text-pink-600" />
+            <span className="text-sm font-semibold text-pink-700">Featured Collection</span>
+            <TrendingUp className="w-4 h-4 text-purple-600" />
+          </div>
+          
+          <h2 className="font-playfair text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Handcrafted
+            <span className="block text-transparent bg-gradient-to-r from-pink-600 via-purple-600 to-pink-500 bg-clip-text">
+              Creations
+            </span>
+          </h2>
+          
+          <p className="font-inter text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Discover our collection of beautifully handcrafted crochet pieces, each made with love and attention to detail
+          </p>
+        </motion.div>
         
         <AvailableNowSection />
         
-        {sortedCategories.map((category) => (
-          <CategoryCarousel 
-            key={category} 
-            category={category} 
-            items={groupedByCategory[category]} 
-          />
-        ))}
+        {/* Enhanced category sections */}
+        <div className="space-y-16 md:space-y-20">
+          {sortedCategories.map((category, index) => (
+            <motion.div
+              key={category}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <CategoryCarousel 
+                category={category} 
+                items={groupedByCategory[category]} 
+              />
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
