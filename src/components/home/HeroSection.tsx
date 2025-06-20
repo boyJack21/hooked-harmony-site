@@ -15,7 +15,6 @@ const HeroSection = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Enhanced gradient overlay with subtle pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-100/90 via-white/80 to-purple-50/90" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,182,193,0.3),transparent_50%)]" />
       
@@ -26,7 +25,6 @@ const HeroSection = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           className="max-w-4xl mx-auto"
         >
-          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -38,7 +36,6 @@ const HeroSection = () => {
             <Star className="w-4 h-4 text-yellow-500 fill-current" />
           </motion.div>
 
-          {/* Main Heading with improved typography */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -60,7 +57,6 @@ const HeroSection = () => {
             Discover unique crochet pieces crafted with premium materials and attention to every stitch
           </motion.p>
 
-          {/* Enhanced CTA buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -83,7 +79,6 @@ const HeroSection = () => {
             </Link>
           </motion.div>
 
-          {/* Enhanced scroll indicator */}
           <motion.a 
             href="#featured"
             initial={{ opacity: 0 }}

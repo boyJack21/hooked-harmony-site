@@ -35,7 +35,6 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      // Scroll to featured section
       const featuredSection = document.getElementById('featured');
       if (featuredSection) {
         featuredSection.scrollIntoView({ behavior: 'smooth' });
@@ -51,7 +50,6 @@ const Navbar = () => {
     }`}>
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link 
               to="/" 
@@ -65,7 +63,6 @@ const Navbar = () => {
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-8 ml-12">
               <Link 
                 to="/" 
@@ -98,7 +95,6 @@ const Navbar = () => {
             </nav>
           </div>
 
-          {/* Search Bar (Desktop) */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <form onSubmit={handleSearch} className="relative w-full">
               <Input
@@ -112,7 +108,6 @@ const Navbar = () => {
             </form>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center space-x-2">
             <div className="hidden md:flex items-center space-x-2">
               <ModeToggle />
@@ -136,7 +131,6 @@ const Navbar = () => {
               </DropdownMenu>
             </div>
 
-            {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild className="lg:hidden">
                 <Button 
@@ -154,7 +148,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
         <div className="md:hidden mt-4">
           <form onSubmit={handleSearch} className="relative">
             <Input

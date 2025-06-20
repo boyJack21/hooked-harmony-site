@@ -19,7 +19,6 @@ interface FeaturedItemProps {
   id?: string;
 }
 
-// Create a memoized price display function outside component
 const getPriceDisplay = (category?: string, title?: string) => {
   if (category === "Shirts" || title?.includes("Polo")) {
     return "From R280";
@@ -122,7 +121,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
     });
   }, [id, title, priceDisplay, navigate]);
 
-  // Determine if item is popular/bestseller
   const isPopular = category === "Cardigans" || title.includes("Crop Top");
 
   return (
@@ -134,7 +132,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 h-full cursor-pointer border border-gray-100 hover:border-pink-200"
       onClick={handleItemClick}
     >
-      {/* Image Container */}
       <div className="relative overflow-hidden aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
         <img 
           src={imageSrc}
@@ -146,10 +143,8 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
           decoding="async"
         />
         
-        {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {category && (
             <Badge className="bg-white/90 text-gray-700 hover:bg-white shadow-lg backdrop-blur-sm">
@@ -164,7 +159,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">
           <Button
             variant={isItemInWishlist ? "default" : "secondary"}
@@ -189,7 +183,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-4 md:p-6 space-y-3">
         <div className="space-y-2">
           <h4 className="font-playfair text-lg md:text-xl font-semibold text-gray-900 group-hover:text-pink-600 transition-colors duration-300 line-clamp-1">
@@ -203,7 +196,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
           )}
         </div>
 
-        {/* Price Display */}
         <div className="flex items-center justify-between">
           <div className="bg-gradient-to-r from-pink-50 to-purple-50 px-3 py-2 rounded-lg">
             <span className="font-semibold text-pink-600 text-sm md:text-base">
@@ -222,7 +214,6 @@ const FeaturedItem: React.FC<FeaturedItemProps> = React.memo(({
           </div>
         </div>
 
-        {/* Quick Actions */}
         <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Button
             size="sm"
