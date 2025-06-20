@@ -12,7 +12,6 @@ import SearchFilters, { FilterOptions } from '@/components/search/SearchFilters'
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Lazy load the background animation to improve initial load time
 const BackgroundAnimation = lazy(() => import('@/components/home/BackgroundAnimation'));
 
 const Index = () => {
@@ -24,12 +23,11 @@ const Index = () => {
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
-  // Extract unique categories from featured products
   useEffect(() => {
     const categories = [
-      "Cardigans",
-      "Tops", 
       "Shirts",
+      "Cardigans", 
+      "Tops",
       "Summer Sets",
       "Accessories",
       "Swimwear",
@@ -38,20 +36,17 @@ const Index = () => {
     setAvailableCategories(categories);
   }, []);
 
-  // Handler for search
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     
-    // Scroll to the featured section where results would appear
     const featuredSection = document.getElementById('featured');
     if (featuredSection) {
-      const yOffset = -80; // header offset
+      const yOffset = -80;
       const y = featuredSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
-  // Handler for filter
   const handleFilter = (filters: FilterOptions) => {
     setActiveFilters(filters);
   };

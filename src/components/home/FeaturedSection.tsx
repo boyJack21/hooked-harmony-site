@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp } from 'lucide-react';
@@ -99,7 +100,6 @@ const FeaturedSection = () => {
     }
   ];
 
-  // Group items by category
   const groupedByCategory = featuredItems.reduce<Record<string, ProductItem[]>>((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
@@ -108,8 +108,9 @@ const FeaturedSection = () => {
     return acc;
   }, {});
 
-  // Sort categories to ensure Cardigans comes first
   const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
+    if (a === "Shirts") return -1;
+    if (b === "Shirts") return 1;
     if (a === "Cardigans") return -1;
     if (b === "Cardigans") return 1;
     return a.localeCompare(b);
@@ -117,14 +118,12 @@ const FeaturedSection = () => {
 
   return (
     <section id="featured" className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-      {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-20 right-10 w-32 h-32 bg-pink-100 rounded-full blur-3xl opacity-30"></div>
         <div className="absolute bottom-20 left-10 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-20"></div>
       </div>
       
       <div className="container mx-auto px-4 lg:px-6 relative z-10">
-        {/* Enhanced section header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -152,7 +151,6 @@ const FeaturedSection = () => {
         
         <AvailableNowSection />
         
-        {/* Enhanced category sections */}
         <div className="space-y-16 md:space-y-20">
           {sortedCategories.map((category, index) => (
             <motion.div

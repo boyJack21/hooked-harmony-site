@@ -30,13 +30,11 @@ interface CategoryCarouselProps {
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) => {
   const isMobile = useIsMobile();
   
-  // Determine if this is a bestseller category
   const isBestseller = category === "Cardigans";
   const isNew = category === "Summer Sets" || category === "Tops";
   
   return (
     <div className="mb-16 md:mb-20">
-      {/* Enhanced category header */}
       <motion.div
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 1, x: 0 }}
@@ -73,7 +71,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) 
         </motion.button>
       </motion.div>
 
-      {/* Enhanced carousel */}
       <Carousel
         opts={{
           align: "start",
@@ -117,7 +114,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) 
           ))}
         </CarouselContent>
         
-        {/* Enhanced navigation */}
         <div className="flex justify-center md:justify-end gap-3 mt-6">
           <CarouselPrevious className="static translate-y-0 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 text-gray-600 hover:text-pink-600 shadow-lg hover:shadow-xl transition-all duration-300" />
           <CarouselNext className="static translate-y-0 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 text-gray-600 hover:text-pink-600 shadow-lg hover:shadow-xl transition-all duration-300" />
