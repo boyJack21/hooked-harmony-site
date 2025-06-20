@@ -47,7 +47,7 @@ export const calculateOrderAmount = (formData: OrderFormData): number => {
   
   // Product-specific pricing with more specific matching
   if (item.includes('pink ruffle hat') || item.includes('ruffle hat')) {
-    basePrice = 15000; // R150.00
+    basePrice = 20000; // R200.00 - Updated price
     console.log('Pink ruffle hat detected - base price:', basePrice);
   } else if (item.includes('beanie')) {
     basePrice = 15000; // R150.00
