@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, X } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 
@@ -45,22 +45,9 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   const [selectedCategories, setSelectedCategories] = useState<string[]>(activeFilters.categories || []);
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const handleSearchEvent = (event: CustomEvent) => {
-      const { searchTerm } = event.detail;
-      setSearchTerm(searchTerm);
-      onSearch(searchTerm);
-    };
-
-    window.addEventListener('searchProducts', handleSearchEvent as EventListener);
-    return () => {
-      window.removeEventListener('searchProducts', handleSearchEvent as EventListener);
-    };
-  }, [onSearch]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(searchTerm);
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    onSearch(value);
   };
 
   const handleCategoryChange = (category: string, checked: boolean) => {
@@ -80,13 +67,27 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
     });
   };
 
-  const clearFilters = () => {
+  const clearAllFilters = () => {
     setSelectedCategories([]);
     setSearchTerm('');
     onFilter({
       categories: [],
       priceRange: null
     });
+    onSearch('');
+  };
+
+  const removeCategoryFilter = (category: string) => {
+    const newCategories = selectedCategories.filter(c => c !== category);
+    setSelectedCategories(newCategories);
+    onFilter({
+      ...activeFilters,
+      categories: newCategories
+    });
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
     onSearch('');
   };
 
@@ -113,18 +114,25 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   if (!isMobile) {
     return (
       <div className="mb-6 space-y-6">
-        <form onSubmit={handleSearch} className="flex gap-2">
+        <div className="relative">
           <Input
             type="search"
-            placeholder="Search products..."
+            placeholder="Search products by name, description, or category..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-lg bg-white dark:bg-gray-800"
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="max-w-lg bg-white dark:bg-gray-800 pr-10"
           />
-          <Button type="submit" size="icon">
-            <Search size={18} />
-          </Button>
-        </form>
+          {searchTerm && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={clearSearch}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+            >
+              <X size={14} />
+            </Button>
+          )}
+        </div>
         
         <div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
           <h2 className="font-medium mb-4 flex items-center gap-2">
@@ -132,16 +140,37 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
           </h2>
           {renderFilterContent()}
           
-          <div className="flex justify-between mt-4 pt-4 border-t">
+          <div className="flex justify-between items-center mt-4 pt-4 border-t">
             <div className="flex flex-wrap gap-2">
+              {searchTerm && (
+                <Badge variant="outline" className="px-2 py-1">
+                  Search: "{searchTerm}"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-1 h-4 w-4 p-0"
+                    onClick={clearSearch}
+                  >
+                    <X size={10} />
+                  </Button>
+                </Badge>
+              )}
               {selectedCategories.map(cat => (
                 <Badge key={cat} variant="secondary" className="px-2 py-1">
                   {cat}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-1 h-4 w-4 p-0"
+                    onClick={() => removeCategoryFilter(cat)}
+                  >
+                    <X size={10} />
+                  </Button>
                 </Badge>
               ))}
             </div>
             {(selectedCategories.length > 0 || searchTerm) && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearAllFilters}>
                 Clear all
               </Button>
             )}
@@ -154,18 +183,25 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   return (
     <div className="mb-6">
       <div className="flex gap-2">
-        <form onSubmit={handleSearch} className="flex-1 flex gap-2">
+        <div className="flex-1 relative">
           <Input
             type="search"
             placeholder="Search products..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-white dark:bg-gray-800"
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="flex-1 bg-white dark:bg-gray-800 pr-10"
           />
-          <Button type="submit" size="icon">
-            <Search size={18} />
-          </Button>
-        </form>
+          {searchTerm && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={clearSearch}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+            >
+              <X size={14} />
+            </Button>
+          )}
+        </div>
         
         <Sheet>
           <SheetTrigger asChild>
@@ -207,7 +243,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             
             <SheetFooter>
               <div className="flex justify-between w-full">
-                <Button variant="outline" onClick={clearFilters}>
+                <Button variant="outline" onClick={clearAllFilters}>
                   Clear all
                 </Button>
                 <SheetClose asChild>
@@ -223,12 +259,28 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
         <div className="mt-2 flex flex-wrap gap-2">
           {searchTerm && (
             <Badge variant="outline" className="px-2 py-1">
-              Search: {searchTerm}
+              Search: "{searchTerm}"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-1 h-4 w-4 p-0"
+                onClick={clearSearch}
+              >
+                <X size={10} />
+              </Button>
             </Badge>
           )}
           {selectedCategories.map(cat => (
             <Badge key={cat} variant="secondary" className="px-2 py-1">
               {cat}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-1 h-4 w-4 p-0"
+                onClick={() => removeCategoryFilter(cat)}
+              >
+                <X size={10} />
+              </Button>
             </Badge>
           ))}
         </div>

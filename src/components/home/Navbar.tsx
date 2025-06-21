@@ -2,14 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Menu, Search, Heart } from "lucide-react";
+import { ShoppingBag, Menu, Heart } from "lucide-react";
 import { 
   Sheet,
   SheetContent,
   SheetTrigger
 } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { ModeToggle } from "@/components/ModeToggle";
 import MobileNav from "./MobileNav";
 import WishlistButton from "@/components/WishlistButton";
@@ -17,7 +16,6 @@ import WishlistButton from "@/components/WishlistButton";
 const Navbar = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   
   useEffect(() => {
     const handleScroll = () => {
@@ -31,21 +29,6 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      const event = new CustomEvent('searchProducts', { 
-        detail: { searchTerm: searchTerm.trim() } 
-      });
-      window.dispatchEvent(event);
-      
-      const featuredSection = document.getElementById('featured');
-      if (featuredSection) {
-        featuredSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -100,26 +83,6 @@ const Navbar = () => {
             </nav>
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="relative w-full">
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-full border-gray-200 focus:border-pink-500 focus:ring-pink-500/20 bg-white dark:bg-gray-800"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Button 
-                type="submit" 
-                size="sm" 
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 rounded-full px-3"
-              >
-                <Search className="w-3 h-3" />
-              </Button>
-            </form>
-          </div>
-
           <div className="flex items-center space-x-2">
             <div className="hidden md:flex items-center space-x-2">
               <ModeToggle />
@@ -158,26 +121,6 @@ const Navbar = () => {
               </SheetContent>
             </Sheet>
           </div>
-        </div>
-
-        <div className="md:hidden mt-4">
-          <form onSubmit={handleSearch} className="relative">
-            <Input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-12 py-2 rounded-full border-gray-200 focus:border-pink-500 focus:ring-pink-500/20 bg-white dark:bg-gray-800"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Button 
-              type="submit" 
-              size="sm" 
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 rounded-full px-3"
-            >
-              <Search className="w-3 h-3" />
-            </Button>
-          </form>
         </div>
       </div>
     </header>
