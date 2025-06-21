@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Mail, Instagram } from 'lucide-react';
+import { Mail, Instagram, MessageCircle } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -56,7 +56,6 @@ const ContactSection = () => {
         description: "We've received your message and will contact you soon.",
       });
 
-      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -168,11 +167,30 @@ const ContactSection = () => {
           </form>
 
           <div className="flex justify-center space-x-6 mt-8">
-            <a href="mailto:everythinghooked09@gmail.com" className="p-3 rounded-full bg-primary hover:bg-secondary transition-colors">
-              <Mail className="w-6 h-6" />
+            <a 
+              href="mailto:everythinghooked09@gmail.com" 
+              className="p-3 rounded-full bg-primary hover:bg-secondary transition-colors"
+              aria-label="Send us an email"
+            >
+              <Mail className="w-6 h-6 text-white" />
             </a>
-            <a href="https://instagram.com/everything_hooked" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-primary hover:bg-secondary transition-colors">
-              <Instagram className="w-6 h-6" />
+            <a 
+              href="https://wa.me/27608581873" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="p-3 rounded-full bg-emerald-600 hover:bg-emerald-700 transition-colors"
+              aria-label="Contact us on WhatsApp"
+            >
+              <MessageCircle className="w-6 h-6 text-white" />
+            </a>
+            <a 
+              href="https://instagram.com/everything_hooked" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="p-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-colors"
+              aria-label="Follow us on Instagram"
+            >
+              <Instagram className="w-6 h-6 text-white" />
             </a>
           </div>
         </div>

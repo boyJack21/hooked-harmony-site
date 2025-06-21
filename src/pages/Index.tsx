@@ -45,10 +45,20 @@ const Index = () => {
       const y = featuredSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
+
+    const searchEvent = new CustomEvent('filterProducts', { 
+      detail: { searchTerm: term, filters: activeFilters } 
+    });
+    window.dispatchEvent(searchEvent);
   };
 
   const handleFilter = (filters: FilterOptions) => {
     setActiveFilters(filters);
+    
+    const searchEvent = new CustomEvent('filterProducts', { 
+      detail: { searchTerm, filters } 
+    });
+    window.dispatchEvent(searchEvent);
   };
   
   return (

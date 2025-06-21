@@ -35,6 +35,11 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
+      const event = new CustomEvent('searchProducts', { 
+        detail: { searchTerm: searchTerm.trim() } 
+      });
+      window.dispatchEvent(event);
+      
       const featuredSection = document.getElementById('featured');
       if (featuredSection) {
         featuredSection.scrollIntoView({ behavior: 'smooth' });
@@ -102,9 +107,16 @@ const Navbar = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-full border-gray-200 focus:border-pink-500 focus:ring-pink-500/20"
+                className="w-full pl-10 pr-4 py-2 rounded-full border-gray-200 focus:border-pink-500 focus:ring-pink-500/20 bg-white dark:bg-gray-800"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Button 
+                type="submit" 
+                size="sm" 
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 rounded-full px-3"
+              >
+                <Search className="w-3 h-3" />
+              </Button>
             </form>
           </div>
 
@@ -155,9 +167,16 @@ const Navbar = () => {
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-full border-gray-200 focus:border-pink-500 focus:ring-pink-500/20"
+              className="w-full pl-10 pr-12 py-2 rounded-full border-gray-200 focus:border-pink-500 focus:ring-pink-500/20 bg-white dark:bg-gray-800"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Button 
+              type="submit" 
+              size="sm" 
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 rounded-full px-3"
+            >
+              <Search className="w-3 h-3" />
+            </Button>
           </form>
         </div>
       </div>

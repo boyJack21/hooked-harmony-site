@@ -5,6 +5,13 @@ import { ChevronDown, Heart, ShoppingBag, Star, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
+  const handleShopClick = () => {
+    const featuredSection = document.getElementById('featured');
+    if (featuredSection) {
+      featuredSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div 
       className="min-h-screen relative flex items-center justify-center overflow-hidden"
@@ -63,13 +70,13 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.7 }}
             className="flex flex-col sm:flex-row justify-center gap-4 mb-16"
           >
-            <a 
-              href="#featured" 
+            <button 
+              onClick={handleShopClick}
               className="group bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 px-8 rounded-full transition-all duration-300 inline-flex items-center justify-center font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               <Heart className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" /> 
               Shop Our Creations
-            </a>
+            </button>
             <Link 
               to="/order" 
               className="group bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 py-4 px-8 rounded-full transition-all duration-300 inline-flex items-center justify-center font-semibold text-lg border border-gray-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
@@ -79,8 +86,8 @@ const HeroSection = () => {
             </Link>
           </motion.div>
 
-          <motion.a 
-            href="#featured"
+          <motion.button 
+            onClick={handleShopClick}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1 }}
@@ -90,7 +97,7 @@ const HeroSection = () => {
             <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
               <ChevronDown className="animate-bounce w-4 h-4 text-gray-600 mt-2 group-hover:text-pink-500 transition-colors" />
             </div>
-          </motion.a>
+          </motion.button>
         </motion.div>
       </div>
     </div>
