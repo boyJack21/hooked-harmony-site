@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp } from 'lucide-react';
@@ -6,6 +7,7 @@ import AvailableNowSection from './AvailableNowSection';
 
 const FeaturedSection = () => {
   const featuredItems: ProductItem[] = [
+    // Cardigans
     {
       id: "cardigan-brown-pink",
       imageSrc: "/lovable-uploads/292bcef9-b482-4906-b037-def69ad64fbf.png",
@@ -13,7 +15,7 @@ const FeaturedSection = () => {
       title: "Cozy Two-Tone Cardigan",
       description: "Handcrafted cardigan in brown with pink accents, perfect for chilly evenings",
       category: "Cardigans",
-      priceDisplay: "From R 450"
+      priceDisplay: "From R450"
     },
     {
       id: "cardigan-color-block",
@@ -22,7 +24,7 @@ const FeaturedSection = () => {
       title: "Color Block Cardigan",
       description: "Stylish layered cardigan with cream, tan, brown and gray color blocks",
       category: "Cardigans",
-      priceDisplay: "From R 520"
+      priceDisplay: "From R520"
     },
     {
       id: "cardigan-cream",
@@ -31,8 +33,27 @@ const FeaturedSection = () => {
       title: "Cream Button Cardigan",
       description: "Elegant cream cardigan with buttons and balloon sleeves",
       category: "Cardigans",
-      priceDisplay: "From R 480"
+      priceDisplay: "From R480"
     },
+    {
+      id: "cardigan-beige-navy",
+      imageSrc: "/lovable-uploads/9294a9a2-018c-4538-9f59-8e98a51a166c.png",
+      imageAlt: "Beige and Navy Cardigan",
+      title: "Beige & Navy Button Cardigan",
+      description: "Stylish short-sleeve cardigan with beige base and navy stripes with golden details",
+      category: "Cardigans",
+      priceDisplay: "From R420"
+    },
+    {
+      id: "cardigan-navy-button",
+      imageSrc: "/lovable-uploads/a6d0d655-4648-4d2c-8a1b-1e5bdb9884cd.png",
+      imageAlt: "Navy Button Cardigan",
+      title: "Navy Button Cardigan",
+      description: "Classic navy blue cardigan with ribbed texture and button closure",
+      category: "Cardigans",
+      priceDisplay: "From R460"
+    },
+    // Summer Sets
     {
       id: "summer-set-blue",
       imageSrc: "/lovable-uploads/d910cf04-5989-46cf-8bc7-a9bcb94356b4.png",
@@ -40,8 +61,9 @@ const FeaturedSection = () => {
       title: "Summer Beach Set",
       description: "Stylish blue and white checkered set including a hat and accessories",
       category: "Summer Sets",
-      priceDisplay: "From R 350"
+      priceDisplay: "From R350"
     },
+    // Tops
     {
       id: "top-cream-crop",
       imageSrc: "/lovable-uploads/3b8fc3fe-1891-426b-9f1c-7e6d61851ee4.png",
@@ -49,7 +71,7 @@ const FeaturedSection = () => {
       title: "Ruffled Crop Top",
       description: "Delicate cream crop top with ruffle details and tie front",
       category: "Tops",
-      priceDisplay: "From R 280"
+      priceDisplay: "From R280"
     },
     {
       id: "top-white-crop",
@@ -58,8 +80,9 @@ const FeaturedSection = () => {
       title: "Summer Crop Top",
       description: "Elegant white crochet crop top with tie-back design, perfect for summer days",
       category: "Tops",
-      priceDisplay: "From R 260"
+      priceDisplay: "From R260"
     },
+    // Shirts
     {
       id: "shirt-beige-polo",
       imageSrc: "/lovable-uploads/8e8b348c-460f-4202-b822-cce533c16d65.png",
@@ -67,7 +90,7 @@ const FeaturedSection = () => {
       title: "Classic Beige Polo",
       description: "Comfortable and breathable beige polo shirt, ideal for casual outings",
       category: "Shirts",
-      priceDisplay: "From R 320"
+      priceDisplay: "From R320"
     },
     {
       id: "shirt-beige-brown",
@@ -76,7 +99,7 @@ const FeaturedSection = () => {
       title: "Two-Tone Button Shirt",
       description: "Elegant beige and brown button-up shirt with contrasting detail",
       category: "Shirts",
-      priceDisplay: "From R 340"
+      priceDisplay: "From R340"
     },
     {
       id: "shirt-blue-polo",
@@ -85,8 +108,9 @@ const FeaturedSection = () => {
       title: "Sky Blue Crochet Polo",
       description: "Lightweight and breathable sky blue crochet polo shirt, perfect for summer days",
       category: "Shirts",
-      priceDisplay: "From R 310"
+      priceDisplay: "From R310"
     },
+    // Swimwear
     {
       id: "swimwear-orange-bikini",
       imageSrc: "/lovable-uploads/e255fe3b-ce35-4980-87aa-3b593d0d626d.png",
@@ -94,8 +118,9 @@ const FeaturedSection = () => {
       title: "Vibrant Bikini Set",
       description: "Bright orange crochet bikini, perfect for beach days and pool parties",
       category: "Swimwear",
-      priceDisplay: "From R 420"
+      priceDisplay: "From R420"
     },
+    // Accessories
     {
       id: "accessory-green-beanie",
       imageSrc: "/lovable-uploads/cca20f48-3399-428c-9418-804bf8a9c508.png",
@@ -103,7 +128,7 @@ const FeaturedSection = () => {
       title: "Emerald Beanie",
       description: "Warm and stylish green beanie, perfect for cold winter days",
       category: "Accessories",
-      priceDisplay: "From R 180"
+      priceDisplay: "From R180"
     },
     {
       id: "accessory-bucket-hats",
@@ -112,8 +137,45 @@ const FeaturedSection = () => {
       title: "Bucket Hat Collection",
       description: "Stylish bucket hats in various colors, perfect for sun protection with a fashion twist",
       category: "Accessories",
-      priceDisplay: "From R 220"
+      priceDisplay: "From R220"
     },
+    {
+      id: "accessory-cream-brown-beanie",
+      imageSrc: "/lovable-uploads/5aa296f8-52ea-47c3-89bc-bdaf4206b4a7.png",
+      imageAlt: "Cream and Brown Beanie",
+      title: "Two-Tone Beanie",
+      description: "Stylish cream and brown beanie with ribbed texture, perfect for winter",
+      category: "Accessories",
+      priceDisplay: "From R190"
+    },
+    {
+      id: "accessory-blue-beanie",
+      imageSrc: "/lovable-uploads/6140bc94-40b6-4cd1-81ed-4de76c6c32c6.png",
+      imageAlt: "Blue Ribbed Beanie",
+      title: "Ocean Blue Beanie",
+      description: "Vibrant blue ribbed beanie with excellent stretch and warmth",
+      category: "Accessories",
+      priceDisplay: "From R185"
+    },
+    {
+      id: "accessory-brown-beanie",
+      imageSrc: "/lovable-uploads/d275dcf1-7d00-4422-9fd8-6b017717850b.png",
+      imageAlt: "Brown Ribbed Beanie",
+      title: "Classic Brown Beanie",
+      description: "Rich brown ribbed beanie with EverythingHooked label, perfect for any outfit",
+      category: "Accessories",
+      priceDisplay: "From R195"
+    },
+    {
+      id: "accessory-tote-bag",
+      imageSrc: "/lovable-uploads/25d8b0e5-c1f2-453b-ac4b-f6a406589f9b.png",
+      imageAlt: "Crochet Tote Bag",
+      title: "Natural Tote Bag",
+      description: "Handcrafted natural-colored tote bag with EverythingHooked label, perfect for everyday use",
+      category: "Accessories",
+      priceDisplay: "From R320"
+    },
+    // Baby Clothes
     {
       id: "baby-dress-gray",
       imageSrc: "/lovable-uploads/2f2c964c-4ac4-47b6-8b6f-ed4fc2667b3c.png",
@@ -121,7 +183,26 @@ const FeaturedSection = () => {
       title: "Baby Girl Dress",
       description: "Adorable gray crochet dress for babies, perfect for special occasions",
       category: "Baby Clothes",
-      priceDisplay: "From R 240"
+      priceDisplay: "From R240"
+    },
+    // Leg Warmers (New Category)
+    {
+      id: "leg-warmers-gray",
+      imageSrc: "/lovable-uploads/d7be24c8-6653-4fd7-9cf3-260e5ebe0639.png",
+      imageAlt: "Gray Leg Warmers",
+      title: "Ribbed Leg Warmers",
+      description: "Cozy gray ribbed leg warmers, perfect for layering and staying warm",
+      category: "Leg Warmers",
+      priceDisplay: "From R150"
+    },
+    {
+      id: "leg-warmers-cream",
+      imageSrc: "/lovable-uploads/fdf08431-e067-477f-972f-0b0fe6b32dbb.png",
+      imageAlt: "Cream Leg Warmers",
+      title: "Cable Knit Leg Warmers",
+      description: "Elegant cream leg warmers with cable knit pattern, stylish and functional",
+      category: "Leg Warmers",
+      priceDisplay: "From R160"
     }
   ];
 
@@ -134,10 +215,10 @@ const FeaturedSection = () => {
   }, {});
 
   const sortedCategories = Object.keys(groupedByCategory).sort((a, b) => {
-    if (a === "Shirts") return -1;
-    if (b === "Shirts") return 1;
     if (a === "Cardigans") return -1;
     if (b === "Cardigans") return 1;
+    if (a === "Shirts") return -1;
+    if (b === "Shirts") return 1;
     return a.localeCompare(b);
   });
 

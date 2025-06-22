@@ -29,7 +29,8 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       imageAlt: "Brown and Pink Cardigan",
       title: "Cozy Two-Tone Cardigan",
       description: "Handcrafted cardigan in brown with pink accents, perfect for chilly evenings",
-      category: "Cardigans"
+      category: "Cardigans",
+      priceDisplay: "From R450"
     },
     {
       id: "cardigan-color-block",
@@ -37,7 +38,8 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       imageAlt: "Color Block Cardigan",
       title: "Color Block Cardigan",
       description: "Stylish layered cardigan with cream, tan, brown and gray color blocks",
-      category: "Cardigans"
+      category: "Cardigans",
+      priceDisplay: "From R520"
     },
     {
       id: "cardigan-cream",
@@ -45,7 +47,8 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       imageAlt: "Cream Cardigan",
       title: "Cream Button Cardigan",
       description: "Elegant cream cardigan with buttons and balloon sleeves",
-      category: "Cardigans"
+      category: "Cardigans",
+      priceDisplay: "From R480"
     },
     {
       id: "summer-set-blue",
@@ -53,7 +56,8 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       imageAlt: "Blue Summer Set",
       title: "Summer Beach Set",
       description: "Stylish blue and white checkered set including a hat and accessories",
-      category: "Summer Sets"
+      category: "Summer Sets",
+      priceDisplay: "From R350"
     },
     {
       id: "top-cream-crop",
@@ -61,7 +65,8 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       imageAlt: "Cream Crop Top",
       title: "Ruffled Crop Top",
       description: "Delicate cream crop top with ruffle details and tie front",
-      category: "Tops"
+      category: "Tops",
+      priceDisplay: "From R280"
     },
     {
       id: "shirt-blue-polo",
@@ -69,7 +74,8 @@ const getRecommendedProducts = (currentProductId?: string, currentCategory?: str
       imageAlt: "Sky Blue Crochet Polo",
       title: "Sky Blue Crochet Polo",
       description: "Lightweight and breathable sky blue crochet polo shirt, perfect for summer days",
-      category: "Shirts"
+      category: "Shirts",
+      priceDisplay: "From R310"
     }
   ];
 

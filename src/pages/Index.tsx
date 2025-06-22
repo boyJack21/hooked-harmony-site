@@ -20,27 +20,80 @@ const Index = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showSearch, setShowSearch] = useState(false);
 
-  // Sample data for search functionality
+  // Sample data for search functionality - updated with new products and pricing
   const allItems = useMemo(() => [
     {
-      id: '1',
-      title: 'Pink Ruffle Hat',
-      description: 'Adorable handmade pink ruffle hat perfect for babies and toddlers',
-      imageSrc: '/lovable-uploads/3b8fc3fe-1891-426b-9f1c-7e6d61851ee4.png',
-      imageAlt: 'Pink Ruffle Hat',
-      category: 'Hats',
-      priceDisplay: 'From R200'
+      id: 'cardigan-beige-navy',
+      title: 'Beige & Navy Button Cardigan',
+      description: 'Stylish short-sleeve cardigan with beige base and navy stripes with golden details',
+      imageSrc: '/lovable-uploads/9294a9a2-018c-4538-9f59-8e98a51a166c.png',
+      imageAlt: 'Beige and Navy Cardigan',
+      category: 'Cardigans',
+      priceDisplay: 'From R420'
     },
     {
-      id: '2',
-      title: 'Cozy Baby Blanket',
-      description: 'Soft and warm handmade baby blanket in beautiful colors',
-      imageSrc: '/lovable-uploads/d6ea798a-68f0-4e4c-8a0e-6b0d606189db.png',
-      imageAlt: 'Baby Blanket',
-      category: 'Blankets',
-      priceDisplay: 'From R350'
+      id: 'cardigan-navy-button',
+      title: 'Navy Button Cardigan',
+      description: 'Classic navy blue cardigan with ribbed texture and button closure',
+      imageSrc: '/lovable-uploads/a6d0d655-4648-4d2c-8a1b-1e5bdb9884cd.png',
+      imageAlt: 'Navy Button Cardigan',
+      category: 'Cardigans',
+      priceDisplay: 'From R460'
     },
-    // Add more items as needed
+    {
+      id: 'leg-warmers-gray',
+      title: 'Ribbed Leg Warmers',
+      description: 'Cozy gray ribbed leg warmers, perfect for layering and staying warm',
+      imageSrc: '/lovable-uploads/d7be24c8-6653-4fd7-9cf3-260e5ebe0639.png',
+      imageAlt: 'Gray Leg Warmers',
+      category: 'Leg Warmers',
+      priceDisplay: 'From R150'
+    },
+    {
+      id: 'leg-warmers-cream',
+      title: 'Cable Knit Leg Warmers',
+      description: 'Elegant cream leg warmers with cable knit pattern, stylish and functional',
+      imageSrc: '/lovable-uploads/fdf08431-e067-477f-972f-0b0fe6b32dbb.png',
+      imageAlt: 'Cream Leg Warmers',
+      category: 'Leg Warmers',
+      priceDisplay: 'From R160'
+    },
+    {
+      id: 'accessory-cream-brown-beanie',
+      title: 'Two-Tone Beanie',
+      description: 'Stylish cream and brown beanie with ribbed texture, perfect for winter',
+      imageSrc: '/lovable-uploads/5aa296f8-52ea-47c3-89bc-bdaf4206b4a7.png',
+      imageAlt: 'Cream and Brown Beanie',
+      category: 'Accessories',
+      priceDisplay: 'From R190'
+    },
+    {
+      id: 'accessory-blue-beanie',
+      title: 'Ocean Blue Beanie',
+      description: 'Vibrant blue ribbed beanie with excellent stretch and warmth',
+      imageSrc: '/lovable-uploads/6140bc94-40b6-4cd1-81ed-4de76c6c32c6.png',
+      imageAlt: 'Blue Ribbed Beanie',
+      category: 'Accessories',
+      priceDisplay: 'From R185'
+    },
+    {
+      id: 'accessory-brown-beanie',
+      title: 'Classic Brown Beanie',
+      description: 'Rich brown ribbed beanie with EverythingHooked label, perfect for any outfit',
+      imageSrc: '/lovable-uploads/d275dcf1-7d00-4422-9fd8-6b017717850b.png',
+      imageAlt: 'Brown Ribbed Beanie',
+      category: 'Accessories',
+      priceDisplay: 'From R195'
+    },
+    {
+      id: 'accessory-tote-bag',
+      title: 'Natural Tote Bag',
+      description: 'Handcrafted natural-colored tote bag with EverythingHooked label, perfect for everyday use',
+      imageSrc: '/lovable-uploads/25d8b0e5-c1f2-453b-ac4b-f6a406589f9b.png',
+      imageAlt: 'Crochet Tote Bag',
+      category: 'Accessories',
+      priceDisplay: 'From R320'
+    }
   ], []);
 
   const {
@@ -66,7 +119,7 @@ const Index = () => {
   };
 
   const showMainContent = !showSearch || (showSearch && searchTerm.length === 0 && selectedCategories.length === 0);
-  const categories = ['Hats', 'Blankets', 'Cardigans', 'Tops', 'Shirts', 'Summer Sets'];
+  const categories = ['Cardigans', 'Shirts', 'Tops', 'Summer Sets', 'Accessories', 'Swimwear', 'Baby Clothes', 'Leg Warmers'];
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,7 +164,6 @@ const Index = () => {
             <HeroSection />
             <RecentlyViewed />
             <FeaturedSection />
-            <AvailableNowSection />
             <AboutSection />
             <ContactSection />
             <FAQSection />

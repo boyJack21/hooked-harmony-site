@@ -22,7 +22,9 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
         type="single" 
         value={selectedSize || undefined}
         onValueChange={(value) => {
-          if (value) onSizeChange(value as SizeOption);
+          if (value && (value === 'S' || value === 'M' || value === 'L')) {
+            onSizeChange(value as SizeOption);
+          }
         }}
         className="justify-start bg-gray-50 dark:bg-gray-800 p-1 rounded-md"
       >
