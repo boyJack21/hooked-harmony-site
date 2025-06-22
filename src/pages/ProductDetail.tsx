@@ -12,7 +12,7 @@ import { LazyImage } from '@/components/ui/lazy-image';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
-import SizeSelector from '@/components/product/SizeSelector';
+import SizeSelector, { SizeOption } from '@/components/product/SizeSelector';
 import RecommendedProducts from '@/components/product/RecommendedProducts';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
@@ -27,7 +27,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { addToRecentlyViewed } = useRecentlyViewed();
   
-  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   
@@ -86,7 +86,7 @@ const ProductDetail = () => {
       product_title: product.title,
       product_image: product.imageSrc,
       product_price: product.priceDisplay || 'From R200',
-      size: selectedSize,
+      size: selectedSize || '',
       color: selectedColor,
       quantity,
     });

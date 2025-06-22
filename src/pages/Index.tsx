@@ -3,14 +3,13 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedSection from '@/components/home/FeaturedSection';
-import CategoryCarousel from '@/components/home/CategoryCarousel';
 import AvailableNowSection from '@/components/home/AvailableNowSection';
 import AboutSection from '@/components/home/AboutSection';
 import ContactSection from '@/components/home/ContactSection';
 import FAQSection from '@/components/home/FAQSection';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
-import SearchFilters from '@/components/search/SearchFilters';
+import SearchFilters, { FilterOptions } from '@/components/search/SearchFilters';
 import SearchResults from '@/components/search/SearchResults';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import { useSearch } from '@/hooks/useSearch';
@@ -61,12 +60,13 @@ const Index = () => {
     setShowSearch(term.length > 0 || selectedCategories.length > 0);
   };
 
-  const handleCategoryChange = (categories: string[]) => {
-    setSelectedCategories(categories);
-    setShowSearch(categories.length > 0 || searchTerm.length > 0);
+  const handleFilterChange = (filters: FilterOptions) => {
+    setSelectedCategories(filters.categories);
+    setShowSearch(filters.categories.length > 0 || searchTerm.length > 0);
   };
 
   const showMainContent = !showSearch || (showSearch && searchTerm.length === 0 && selectedCategories.length === 0);
+  const categories = ['Hats', 'Blankets', 'Cardigans', 'Tops', 'Shirts', 'Summer Sets'];
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,10 +82,13 @@ const Index = () => {
             <Breadcrumbs className="mb-6" />
             
             <SearchFilters
-              selectedCategories={selectedCategories}
-              onCategoryChange={handleCategoryChange}
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
+              onSearch={handleSearchChange}
+              onFilter={handleFilterChange}
+              categories={categories}
+              activeFilters={{
+                categories: selectedCategories,
+                priceRange: null
+              }}
             />
             
             <SearchResults
@@ -108,7 +111,6 @@ const Index = () => {
             <HeroSection />
             <RecentlyViewed />
             <FeaturedSection />
-            <CategoryCarousel />
             <AvailableNowSection />
             <AboutSection />
             <ContactSection />
