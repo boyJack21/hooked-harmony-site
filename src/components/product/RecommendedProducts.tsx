@@ -135,7 +135,15 @@ const RecommendedProducts: React.FC<RecommendedProductsProps> = ({
               <div className="p-1">
                 <Card>
                   <CardContent className="p-0">
-                    <FeaturedItem {...product} />
+                    <FeaturedItem 
+                      id={product.id}
+                      imageSrc={product.imageSrc}
+                      imageAlt={product.imageAlt}
+                      title={product.title}
+                      description={product.description}
+                      category={product.category}
+                      priceDisplay={product.priceDisplay}
+                    />
                   </CardContent>
                 </Card>
               </div>

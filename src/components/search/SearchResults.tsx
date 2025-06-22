@@ -109,7 +109,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
           >
-            <FeaturedItem {...item} />
+            <FeaturedItem 
+              id={item.id}
+              title={item.title}
+              description={item.description}
+              imageSrc={item.imageSrc}
+              imageAlt={item.imageAlt}
+              category={item.category}
+              priceDisplay={item.priceDisplay}
+            />
           </motion.div>
         ))}
       </motion.div>
