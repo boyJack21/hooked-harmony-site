@@ -9,6 +9,95 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cart_items: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          product_id: string
+          product_image: string
+          product_price: string
+          product_title: string
+          quantity: number
+          size: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          product_image: string
+          product_price: string
+          product_title: string
+          quantity?: number
+          size?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          product_image?: string
+          product_price?: string
+          product_title?: string
+          quantity?: number
+          size?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      order_confirmations: {
+        Row: {
+          confirmation_number: string
+          created_at: string
+          estimated_delivery: string | null
+          id: string
+          notes: string | null
+          order_id: string | null
+          status: string
+          tracking_number: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          confirmation_number: string
+          created_at?: string
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          confirmation_number?: string
+          created_at?: string
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_confirmations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           color: string | null
@@ -104,12 +193,75 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recently_viewed: {
+        Row: {
+          id: string
+          product_category: string | null
+          product_id: string
+          product_image: string
+          product_title: string
+          user_id: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          product_category?: string | null
+          product_id: string
+          product_image: string
+          product_title: string
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          product_category?: string | null
+          product_id?: string
+          product_image?: string
+          product_title?: string
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_confirmation_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,129 +1,209 @@
 
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ShoppingBag, Menu, Heart } from "lucide-react";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, Search, ShoppingCart, User, LogOut, Menu, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
-  Sheet,
-  SheetContent,
-  SheetTrigger
-} from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ModeToggle } from "@/components/ModeToggle";
-import MobileNav from "./MobileNav";
-import WishlistButton from "@/components/WishlistButton";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { ModeToggle } from '@/components/ModeToggle';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import MobileNav from './MobileNav';
 
-const Navbar = () => {
-  const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+interface NavbarProps {
+  searchTerm?: string;
+  onSearchChange?: (term: string) => void;
+  showSearch?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ 
+  searchTerm = '', 
+  onSearchChange,
+  showSearch = false 
+}) => {
+  const [isSearchOpen, setIsSearchOpen] = useState(showSearch);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { wishlistItems } = useWishlist();
+  const { user, signOut } = useAuth();
+  const { getTotalItems } = useCart();
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (!isSearchOpen && onSearchChange) {
+      onSearchChange('');
+    }
+  };
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled 
-        ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg py-2' 
-        : 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm py-4'
-    }`}>
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link 
-              to="/" 
-              className="group flex items-center space-x-3"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                <Heart className="w-5 h-5 text-white fill-current" />
+    <>
+      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
+                <Heart className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl md:text-2xl font-bold font-playfair bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                Everything Hooked
+              <span className="font-playfair text-xl font-bold hidden sm:block">
+                Ella's Haven
               </span>
             </Link>
 
-            <nav className="hidden lg:flex items-center space-x-8 ml-12">
-              <Link 
-                to="/" 
-                className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors font-medium relative group"
-              >
-                Home
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-pink-600 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-              <Link 
-                to="/#featured" 
-                className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors font-medium relative group"
-              >
-                Shop
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-pink-600 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-              <Link 
-                to="/#about" 
-                className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors font-medium relative group"
-              >
-                About
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-pink-600 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-              <Link 
-                to="/#contact" 
-                className="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors font-medium relative group"
-              >
-                Contact
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-pink-600 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <div className="hidden md:flex items-center space-x-2">
-              <ModeToggle />
-              <WishlistButton />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="relative hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors"
+            {/* Search Bar - Desktop */}
+            {isSearchOpen && onSearchChange && (
+              <div className="hidden md:flex flex-1 max-w-md mx-8">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search for handmade treasures..."
+                    value={searchTerm}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-10 pr-4"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                    onClick={handleSearchToggle}
                   >
-                    <ShoppingBag className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => navigate('/order')}>
-                    <ShoppingBag className="mr-2 h-4 w-4" />
-                    Place an Order
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                </div>
+              </div>
+            )}
 
-            <Sheet>
-              <SheetTrigger asChild className="lg:hidden">
-                <Button 
-                  variant="ghost" 
+            {/* Right side icons */}
+            <div className="flex items-center space-x-2">
+              {/* Search toggle - only show if onSearchChange is provided */}
+              {onSearchChange && !isSearchOpen && (
+                <Button
+                  variant="ghost"
                   size="icon"
-                  className="hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors"
+                  onClick={handleSearchToggle}
+                  className="hidden md:flex"
                 >
-                  <Menu className="h-6 w-6" />
+                  <Search className="h-5 w-5" />
                 </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[85%] sm:w-[350px]">
-                <MobileNav />
-              </SheetContent>
-            </Sheet>
+              )}
+
+              {/* Wishlist */}
+              <Button variant="ghost" size="icon" asChild className="relative">
+                <Link to="/wishlist">
+                  <Heart className="h-5 w-5" />
+                  {wishlistItems.length > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    >
+                      {wishlistItems.length}
+                    </Badge>
+                  )}
+                </Link>
+              </Button>
+
+              {/* Shopping Cart */}
+              <Button variant="ghost" size="icon" asChild className="relative">
+                <Link to="/cart">
+                  <ShoppingCart className="h-5 w-5" />
+                  {user && getTotalItems() > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    >
+                      {getTotalItems()}
+                    </Badge>
+                  )}
+                </Link>
+              </Button>
+
+              {/* User Account */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="flex items-center justify-start gap-2 p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        <p className="font-medium">{user.email}</p>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/cart">
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Cart ({getTotalItems()})
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/wishlist">
+                        <Heart className="mr-2 h-4 w-4" />
+                        Wishlist ({wishlistItems.length})
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+              )}
+
+              {/* Theme Toggle */}
+              <ModeToggle />
+
+              {/* Mobile Menu Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Search Bar */}
+          {isSearchOpen && onSearchChange && (
+            <div className="md:hidden pb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search for handmade treasures..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-10 pr-4"
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    </header>
+      </nav>
+
+      {/* Mobile Navigation */}
+      <MobileNav 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
+    </>
   );
 };
 

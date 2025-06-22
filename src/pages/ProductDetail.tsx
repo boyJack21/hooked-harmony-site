@@ -1,312 +1,288 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, ShoppingBag, Share2, Facebook, Twitter, Instagram, Maximize2 } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/use-toast';
+import { LazyImage } from '@/components/ui/lazy-image';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
-import { useToast } from '@/components/ui/use-toast';
+import SizeSelector from '@/components/product/SizeSelector';
 import RecommendedProducts from '@/components/product/RecommendedProducts';
-import { useIsMobile } from '@/hooks/use-mobile';
-import SizeSelector, { SizeOption } from '@/components/product/SizeSelector';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
-interface ProductDetailProps {}
-
-const ProductDetail: React.FC<ProductDetailProps> = () => {
+const ProductDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [shareMenuOpen, setShareMenuOpen] = useState(false);
-  
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  
   const product = location.state?.product;
+  const { user } = useAuth();
+  const { addToRecentlyViewed } = useRecentlyViewed();
   
-  // Handle case where user navigates directly to this page without product data
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  
+  const isInWishlist = wishlistItems.some(item => item.id === product?.id);
+
+  useEffect(() => {
+    if (product && user) {
+      addToRecentlyViewed({
+        product_id: product.id,
+        product_title: product.title,
+        product_image: product.imageSrc,
+        product_category: product.category,
+      });
+    }
+  }, [product, user, addToRecentlyViewed]);
+
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl mb-4">Product not found</h2>
-        <Button onClick={() => navigate('/')}>Return to Home</Button>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold mb-4">Product not found</h1>
+          <Button onClick={() => navigate('/')}>
+            Return to Home
+          </Button>
+        </div>
+        <Footer />
       </div>
     );
   }
 
-  // Determine available sizes based on category and title
-  const getAvailableSizes = (): SizeOption[] => {
-    if (product.category === "Accessories") {
-      if (product.title.includes("Beanie") || product.title.includes("Bucket Hat")) {
-        return [];
-      }
-      return ['S', 'M', 'L'];
-    } else if (product.title.includes("Crop Cardigan")) {
-      return ['S', 'M'];
-    }
-    return ['S', 'M', 'L']; // Default all sizes
-  };
-
-  const handleOrderNow = () => {
-    const needsSize = !product.title.includes("Beanie") && 
-                      !product.title.includes("Bucket Hat") && 
-                      product.category !== "Accessories";
-                      
-    if (!selectedSize && needsSize) {
-      toast({
-        title: "Size Selection Required",
-        description: "Please select a size before ordering",
-        variant: "destructive",
-        duration: 3000,
-      });
-      return;
-    }
-    
-    toast({
-      title: "Order initiated",
-      description: "You'll be redirected to our order form",
-      duration: 3000,
-    });
-    
-    // Navigate to the order page with the product information and selected size
-    navigate('/order', { 
-      state: { 
-        product,
-        selectedSize 
-      } 
-    });
-  };
-  
   const handleWishlistToggle = () => {
-    if (isInWishlist(product.id)) {
+    if (isInWishlist) {
       removeFromWishlist(product.id);
-      toast({
-        title: "Removed from Wishlist",
-        description: `${product.title} has been removed from your wishlist`,
-        duration: 3000,
-      });
     } else {
-      addToWishlist({
-        id: product.id,
-        imageSrc: product.imageSrc,
-        imageAlt: product.imageAlt,
-        title: product.title,
-        description: product.description,
-        category: product.category,
-        priceDisplay: product.priceDisplay
-      });
-      toast({
-        title: "Added to Wishlist",
-        description: `${product.title} has been added to your wishlist`,
-        duration: 3000,
-      });
+      addToWishlist(product);
     }
   };
 
-  const handleShare = (platform: string) => {
-    const shareUrl = window.location.href;
-    let shareLink = '';
-    
-    if (platform === 'facebook') {
-      shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-    } else if (platform === 'twitter') {
-      shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=Check out this amazing ${product.title}`;
-    } else if (platform === 'instagram') {
-      // Instagram doesn't support direct sharing via URL, but we'll show a toast with instructions
+  const handleAddToCart = async () => {
+    if (!user) {
       toast({
-        title: "Instagram Sharing",
-        description: "Copy the link and share it on your Instagram story!",
-        duration: 3000,
+        title: "Please Sign In",
+        description: "You need to be signed in to add items to cart.",
+        variant: "destructive",
       });
-      navigator.clipboard.writeText(shareUrl);
-      setShareMenuOpen(false);
+      navigate('/auth');
       return;
     }
-    
-    // Open share link in new window
-    if (shareLink) {
-      window.open(shareLink, '_blank');
-    }
-    
-    setShareMenuOpen(false);
-    
-    toast({
-      title: "Shared Successfully",
-      description: `Product shared on ${platform}`,
-      duration: 3000,
+
+    await addToCart({
+      product_id: product.id,
+      product_title: product.title,
+      product_image: product.imageSrc,
+      product_price: product.priceDisplay || 'From R200',
+      size: selectedSize,
+      color: selectedColor,
+      quantity,
     });
   };
 
-  // Should we show size selector?
-  const showSizeSelector = !product.title.includes("Beanie") && 
-                          !product.title.includes("Bucket Hat") && 
-                          product.category !== "Accessories";
+  const handleBuyNow = () => {
+    navigate('/order', {
+      state: {
+        product: {
+          ...product,
+          selectedSize,
+          selectedColor,
+          quantity,
+        },
+        selectedSize,
+      }
+    });
+  };
 
-  const isProductInWishlist = isInWishlist(product.id);
+  const colors = ['Pink', 'Blue', 'White', 'Yellow', 'Purple'];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-16">
-        <Button 
-          variant="ghost" 
-          className="mb-6 flex items-center gap-2"
+      <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs 
+          className="mb-6"
+          items={[
+            { label: 'Home', href: '/' },
+            { label: product.category || 'Products', href: `/?category=${product.category?.toLowerCase()}` },
+            { label: product.title }
+          ]}
+        />
+        
+        <Button
+          variant="ghost"
           onClick={() => navigate(-1)}
+          className="mb-6 flex items-center"
         >
-          <ArrowLeft size={16} /> Back
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
         </Button>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Product Image with Zoom */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Product Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className={`relative aspect-square rounded-lg overflow-hidden ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
-            onClick={() => setIsZoomed(!isZoomed)}
           >
-            <div className={`w-full h-full transition-all duration-300 ${isZoomed ? 'scale-150' : 'scale-100'}`}>
-              <img 
-                src={product.imageSrc} 
-                alt={product.imageAlt} 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            {/* Zoom indicator */}
-            <div className="absolute top-3 left-3 bg-black/60 text-white p-2 rounded-full">
-              <Maximize2 size={16} />
-            </div>
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <LazyImage
+                  src={product.imageSrc}
+                  alt={product.imageAlt || product.title}
+                  className="w-full aspect-square"
+                />
+              </CardContent>
+            </Card>
           </motion.div>
 
           {/* Product Details */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="space-y-6"
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="font-playfair text-3xl text-black dark:text-white">{product.title}</h1>
-                <div className="mt-2 font-inter text-sm text-gray-500 dark:text-gray-400">
-                  Category: {product.category || "Uncategorized"}
+            <div>
+              {product.category && (
+                <Badge variant="secondary" className="mb-2">
+                  {product.category}
+                </Badge>
+              )}
+              <h1 className="text-3xl font-bold text-primary-foreground dark:text-white">
+                {product.title}
+              </h1>
+              {product.priceDisplay && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-lg">
+                  <span className="text-2xl font-bold text-primary-foreground dark:text-white">
+                    {product.priceDisplay}
+                  </span>
                 </div>
-              </div>
-              
-              {/* Social Share Button */}
-              <div className="relative">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-2"
-                  onClick={() => setShareMenuOpen(!shareMenuOpen)}
-                >
-                  <Share2 size={16} /> Share
-                </Button>
-                
-                {shareMenuOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute right-0 mt-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-2 z-10 w-44"
+              )}
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2 text-primary-foreground dark:text-white">
+                Description
+              </h3>
+              <p className="text-primary-foreground/80 dark:text-white/70">
+                {product.description || 'Beautiful handmade crochet item crafted with love and attention to detail.'}
+              </p>
+            </div>
+
+            {/* Color Selection */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-primary-foreground dark:text-white">
+                Color
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {colors.map((color) => (
+                  <Button
+                    key={color}
+                    variant={selectedColor === color ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedColor(color)}
                   >
-                    <div className="flex flex-col space-y-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="flex items-center justify-start gap-2"
-                        onClick={() => handleShare('facebook')}
-                      >
-                        <Facebook size={16} className="text-blue-600" /> Facebook
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="flex items-center justify-start gap-2"
-                        onClick={() => handleShare('twitter')}
-                      >
-                        <Twitter size={16} className="text-blue-400" /> Twitter
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="flex items-center justify-start gap-2"
-                        onClick={() => handleShare('instagram')}
-                      >
-                        <Instagram size={16} className="text-pink-600" /> Instagram
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
+                    {color}
+                  </Button>
+                ))}
               </div>
             </div>
 
-            <Card className="p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
-              <h3 className="text-xl mb-3 font-semibold dark:text-white">Pricing</h3>
-              <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-lg">
-                <div className="font-inter text-lg font-bold dark:text-white">
-                  {product.priceDisplay}
-                </div>
-              </div>
-            </Card>
+            {/* Size Selection */}
+            <SizeSelector 
+              selectedSize={selectedSize}
+              onSizeChange={setSelectedSize}
+            />
 
-            {/* Size Selector - only show when needed */}
-            {showSizeSelector && (
-              <Card className="p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
-                <SizeSelector 
-                  selectedSize={selectedSize}
-                  onSizeChange={setSelectedSize}
-                  availableSizes={getAvailableSizes()}
-                />
-              </Card>
-            )}
-
+            {/* Quantity Selection */}
             <div>
-              <h3 className="text-xl mb-3 font-semibold dark:text-white">Description</h3>
-              <p className="font-inter text-gray-700 dark:text-gray-300">
-                {product.description}
-              </p>
-
-              <div className={`mt-8 ${isMobile ? 'space-y-4' : 'flex space-x-4'}`}>
-                <Button 
-                  size="lg"
-                  className={`${isMobile ? 'w-full' : 'flex-1'}`}
-                  onClick={handleOrderNow}
+              <h3 className="text-lg font-semibold mb-3 text-primary-foreground dark:text-white">
+                Quantity
+              </h3>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
                 >
-                  <ShoppingBag className="mr-2 h-4 w-4" /> Order Now
+                  <Minus className="h-4 w-4" />
                 </Button>
                 
-                <Button 
-                  size="lg"
-                  variant={isProductInWishlist ? "secondary" : "outline"}
-                  className={`${isMobile ? 'w-full' : 'w-auto'}`}
-                  onClick={handleWishlistToggle}
+                <span className="w-12 text-center font-semibold text-primary-foreground dark:text-white">
+                  {quantity}
+                </span>
+                
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity(quantity + 1)}
                 >
-                  <Heart className={`mr-2 h-4 w-4 ${isProductInWishlist ? 'fill-current' : ''}`} />
-                  {isProductInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
+            </div>
+
+            <Separator />
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <Button 
+                  onClick={handleAddToCart}
+                  className="flex-1"
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Add to Cart
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleWishlistToggle}
+                  className={isInWishlist ? 'text-red-500 border-red-500' : ''}
+                >
+                  <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
+                </Button>
+              </div>
+              
+              <Button 
+                onClick={handleBuyNow}
+                size="lg"
+                className="w-full"
+              >
+                Buy Now
+              </Button>
+            </div>
+
+            {/* Product Info */}
+            <div className="space-y-2 text-sm text-primary-foreground/70 dark:text-white/60">
+              <p>✨ Handmade with love</p>
+              <p>🧶 High-quality yarn</p>
+              <p>📦 Custom orders available</p>
+              <p>🚚 Fast shipping</p>
             </div>
           </motion.div>
         </div>
-        
-        {/* Product Recommendations */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <RecommendedProducts 
-            currentProductId={product.id} 
-            currentCategory={product.category} 
-          />
-        </motion.div>
+
+        {/* Recommended Products */}
+        <RecommendedProducts currentProductId={product.id} />
       </div>
       
       <Footer />
