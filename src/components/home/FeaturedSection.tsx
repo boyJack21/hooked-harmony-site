@@ -15,7 +15,7 @@ const FeaturedSection = () => {
       title: "Cozy Two-Tone Cardigan",
       description: "Handcrafted cardigan in brown with pink accents, perfect for chilly evenings",
       category: "Cardigans",
-      priceDisplay: "From R450"
+      priceDisplay: "S=R400, M=R450, L=R500"
     },
     {
       id: "cardigan-color-block",
@@ -24,7 +24,7 @@ const FeaturedSection = () => {
       title: "Color Block Cardigan",
       description: "Stylish layered cardigan with cream, tan, brown and gray color blocks",
       category: "Cardigans",
-      priceDisplay: "From R520"
+      priceDisplay: "S=R500, M=R540, L=R600"
     },
     {
       id: "cardigan-cream",
@@ -33,7 +33,7 @@ const FeaturedSection = () => {
       title: "Cream Button Cardigan",
       description: "Elegant cream cardigan with buttons and balloon sleeves",
       category: "Cardigans",
-      priceDisplay: "From R480"
+      priceDisplay: "S=R450, M=R520, L=R600"
     },
     {
       id: "cardigan-beige-navy",
@@ -42,7 +42,7 @@ const FeaturedSection = () => {
       title: "Beige & Navy Button Cardigan",
       description: "Stylish short-sleeve cardigan with beige base and navy stripes with golden details",
       category: "Cardigans",
-      priceDisplay: "From R420"
+      priceDisplay: "S=R350, M=R400"
     },
     {
       id: "cardigan-navy-button",
@@ -51,7 +51,7 @@ const FeaturedSection = () => {
       title: "Navy Button Cardigan",
       description: "Classic navy blue cardigan with ribbed texture and button closure",
       category: "Cardigans",
-      priceDisplay: "From R460"
+      priceDisplay: "S=R400, M=R450, L=R500"
     },
     // Summer Sets
     {
@@ -61,7 +61,7 @@ const FeaturedSection = () => {
       title: "Summer Beach Set",
       description: "Stylish blue and white checkered set including a hat and accessories",
       category: "Summer Sets",
-      priceDisplay: "From R350"
+      priceDisplay: "From R150"
     },
     // Tops
     {
@@ -71,7 +71,7 @@ const FeaturedSection = () => {
       title: "Ruffled Crop Top",
       description: "Delicate cream crop top with ruffle details and tie front",
       category: "Tops",
-      priceDisplay: "From R280"
+      priceDisplay: "S=R200, M=R250, L=R280"
     },
     {
       id: "top-white-crop",
@@ -80,7 +80,7 @@ const FeaturedSection = () => {
       title: "Summer Crop Top",
       description: "Elegant white crochet crop top with tie-back design, perfect for summer days",
       category: "Tops",
-      priceDisplay: "From R260"
+      priceDisplay: "S=R200, M=R250, L=R280"
     },
     // Shirts
     {
@@ -90,7 +90,7 @@ const FeaturedSection = () => {
       title: "Classic Beige Polo",
       description: "Comfortable and breathable beige polo shirt, ideal for casual outings",
       category: "Shirts",
-      priceDisplay: "From R320"
+      priceDisplay: "S=R280, M=R320, L=R360"
     },
     {
       id: "shirt-beige-brown",
@@ -99,7 +99,7 @@ const FeaturedSection = () => {
       title: "Two-Tone Button Shirt",
       description: "Elegant beige and brown button-up shirt with contrasting detail",
       category: "Shirts",
-      priceDisplay: "From R340"
+      priceDisplay: "S=R280, M=R320, L=R360"
     },
     {
       id: "shirt-blue-polo",
@@ -108,7 +108,7 @@ const FeaturedSection = () => {
       title: "Sky Blue Crochet Polo",
       description: "Lightweight and breathable sky blue crochet polo shirt, perfect for summer days",
       category: "Shirts",
-      priceDisplay: "From R310"
+      priceDisplay: "S=R280, M=R320, L=R360"
     },
     // Swimwear
     {
@@ -118,7 +118,7 @@ const FeaturedSection = () => {
       title: "Vibrant Bikini Set",
       description: "Bright orange crochet bikini, perfect for beach days and pool parties",
       category: "Swimwear",
-      priceDisplay: "From R420"
+      priceDisplay: "S=R170, M=R200, L=R230"
     },
     // Accessories
     {
@@ -128,7 +128,7 @@ const FeaturedSection = () => {
       title: "Emerald Beanie",
       description: "Warm and stylish green beanie, perfect for cold winter days",
       category: "Accessories",
-      priceDisplay: "From R180"
+      priceDisplay: "R150"
     },
     {
       id: "accessory-bucket-hats",
@@ -137,7 +137,7 @@ const FeaturedSection = () => {
       title: "Bucket Hat Collection",
       description: "Stylish bucket hats in various colors, perfect for sun protection with a fashion twist",
       category: "Accessories",
-      priceDisplay: "From R220"
+      priceDisplay: "R150"
     },
     {
       id: "accessory-cream-brown-beanie",
@@ -146,7 +146,7 @@ const FeaturedSection = () => {
       title: "Two-Tone Beanie",
       description: "Stylish cream and brown beanie with ribbed texture, perfect for winter",
       category: "Accessories",
-      priceDisplay: "From R190"
+      priceDisplay: "R150"
     },
     {
       id: "accessory-blue-beanie",
@@ -155,7 +155,7 @@ const FeaturedSection = () => {
       title: "Ocean Blue Beanie",
       description: "Vibrant blue ribbed beanie with excellent stretch and warmth",
       category: "Accessories",
-      priceDisplay: "From R185"
+      priceDisplay: "R150"
     },
     {
       id: "accessory-brown-beanie",
@@ -164,7 +164,7 @@ const FeaturedSection = () => {
       title: "Classic Brown Beanie",
       description: "Rich brown ribbed beanie with EverythingHooked label, perfect for any outfit",
       category: "Accessories",
-      priceDisplay: "From R195"
+      priceDisplay: "R150"
     },
     {
       id: "accessory-tote-bag",
@@ -173,7 +173,7 @@ const FeaturedSection = () => {
       title: "Natural Tote Bag",
       description: "Handcrafted natural-colored tote bag with EverythingHooked label, perfect for everyday use",
       category: "Accessories",
-      priceDisplay: "From R320"
+      priceDisplay: "R200"
     },
     // Baby Clothes
     {
@@ -183,9 +183,9 @@ const FeaturedSection = () => {
       title: "Baby Girl Dress",
       description: "Adorable gray crochet dress for babies, perfect for special occasions",
       category: "Baby Clothes",
-      priceDisplay: "From R240"
+      priceDisplay: "From R200"
     },
-    // Leg Warmers (New Category)
+    // Leg Warmers
     {
       id: "leg-warmers-gray",
       imageSrc: "/lovable-uploads/d7be24c8-6653-4fd7-9cf3-260e5ebe0639.png",
@@ -193,7 +193,7 @@ const FeaturedSection = () => {
       title: "Ribbed Leg Warmers",
       description: "Cozy gray ribbed leg warmers, perfect for layering and staying warm",
       category: "Leg Warmers",
-      priceDisplay: "From R150"
+      priceDisplay: "From R100"
     },
     {
       id: "leg-warmers-cream",
@@ -202,7 +202,7 @@ const FeaturedSection = () => {
       title: "Cable Knit Leg Warmers",
       description: "Elegant cream leg warmers with cable knit pattern, stylish and functional",
       category: "Leg Warmers",
-      priceDisplay: "From R160"
+      priceDisplay: "From R100"
     }
   ];
 

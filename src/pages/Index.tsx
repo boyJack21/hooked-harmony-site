@@ -29,7 +29,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/9294a9a2-018c-4538-9f59-8e98a51a166c.png',
       imageAlt: 'Beige and Navy Cardigan',
       category: 'Cardigans',
-      priceDisplay: 'From R420'
+      priceDisplay: 'S=R350, M=R400'
     },
     {
       id: 'cardigan-navy-button',
@@ -38,7 +38,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/a6d0d655-4648-4d2c-8a1b-1e5bdb9884cd.png',
       imageAlt: 'Navy Button Cardigan',
       category: 'Cardigans',
-      priceDisplay: 'From R460'
+      priceDisplay: 'S=R400, M=R450, L=R500'
     },
     {
       id: 'leg-warmers-gray',
@@ -47,7 +47,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/d7be24c8-6653-4fd7-9cf3-260e5ebe0639.png',
       imageAlt: 'Gray Leg Warmers',
       category: 'Leg Warmers',
-      priceDisplay: 'From R150'
+      priceDisplay: 'From R100'
     },
     {
       id: 'leg-warmers-cream',
@@ -56,7 +56,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/fdf08431-e067-477f-972f-0b0fe6b32dbb.png',
       imageAlt: 'Cream Leg Warmers',
       category: 'Leg Warmers',
-      priceDisplay: 'From R160'
+      priceDisplay: 'From R100'
     },
     {
       id: 'accessory-cream-brown-beanie',
@@ -65,7 +65,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/5aa296f8-52ea-47c3-89bc-bdaf4206b4a7.png',
       imageAlt: 'Cream and Brown Beanie',
       category: 'Accessories',
-      priceDisplay: 'From R190'
+      priceDisplay: 'R150'
     },
     {
       id: 'accessory-blue-beanie',
@@ -74,7 +74,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/6140bc94-40b6-4cd1-81ed-4de76c6c32c6.png',
       imageAlt: 'Blue Ribbed Beanie',
       category: 'Accessories',
-      priceDisplay: 'From R185'
+      priceDisplay: 'R150'
     },
     {
       id: 'accessory-brown-beanie',
@@ -83,7 +83,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/d275dcf1-7d00-4422-9fd8-6b017717850b.png',
       imageAlt: 'Brown Ribbed Beanie',
       category: 'Accessories',
-      priceDisplay: 'From R195'
+      priceDisplay: 'R150'
     },
     {
       id: 'accessory-tote-bag',
@@ -92,7 +92,7 @@ const Index = () => {
       imageSrc: '/lovable-uploads/25d8b0e5-c1f2-453b-ac4b-f6a406589f9b.png',
       imageAlt: 'Crochet Tote Bag',
       category: 'Accessories',
-      priceDisplay: 'From R320'
+      priceDisplay: 'R200'
     }
   ], []);
 
