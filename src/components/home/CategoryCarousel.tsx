@@ -15,11 +15,13 @@ import FeaturedItem from './FeaturedItem';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface ProductItem {
+  id?: string;
   imageSrc: string;
   imageAlt: string;
   title: string;
   description: string;
   category: string;
+  priceDisplay?: string;
 }
 
 interface CategoryCarouselProps {
@@ -101,11 +103,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category, items }) 
                 <Card className="h-full overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border-0 ring-1 ring-gray-100">
                   <CardContent className="p-0 h-full">
                     <FeaturedItem
+                      id={item.id || `${category}-${index}`}
                       imageSrc={item.imageSrc}
                       imageAlt={item.imageAlt}
                       title={item.title}
                       description={item.description}
                       category={category}
+                      priceDisplay={item.priceDisplay}
                     />
                   </CardContent>
                 </Card>

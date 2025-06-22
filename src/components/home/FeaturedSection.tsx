@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp } from 'lucide-react';
@@ -8,95 +7,121 @@ import AvailableNowSection from './AvailableNowSection';
 const FeaturedSection = () => {
   const featuredItems: ProductItem[] = [
     {
+      id: "cardigan-brown-pink",
       imageSrc: "/lovable-uploads/292bcef9-b482-4906-b037-def69ad64fbf.png",
       imageAlt: "Brown and Pink Cardigan",
       title: "Cozy Two-Tone Cardigan",
       description: "Handcrafted cardigan in brown with pink accents, perfect for chilly evenings",
-      category: "Cardigans"
+      category: "Cardigans",
+      priceDisplay: "From R 450"
     },
     {
+      id: "cardigan-color-block",
       imageSrc: "/lovable-uploads/7c1dfbee-f9f7-4b62-8b0d-ab7c5d1d2990.png",
       imageAlt: "Color Block Cardigan",
       title: "Color Block Cardigan",
       description: "Stylish layered cardigan with cream, tan, brown and gray color blocks",
-      category: "Cardigans"
+      category: "Cardigans",
+      priceDisplay: "From R 520"
     },
     {
+      id: "cardigan-cream",
       imageSrc: "/lovable-uploads/d6ea798a-68f0-4e4c-8a0e-6b0d606189db.png",
       imageAlt: "Cream Cardigan",
       title: "Cream Button Cardigan",
       description: "Elegant cream cardigan with buttons and balloon sleeves",
-      category: "Cardigans"
+      category: "Cardigans",
+      priceDisplay: "From R 480"
     },
     {
+      id: "summer-set-blue",
       imageSrc: "/lovable-uploads/d910cf04-5989-46cf-8bc7-a9bcb94356b4.png",
       imageAlt: "Blue Summer Set",
       title: "Summer Beach Set",
       description: "Stylish blue and white checkered set including a hat and accessories",
-      category: "Summer Sets"
+      category: "Summer Sets",
+      priceDisplay: "From R 350"
     },
     {
+      id: "top-cream-crop",
       imageSrc: "/lovable-uploads/3b8fc3fe-1891-426b-9f1c-7e6d61851ee4.png",
       imageAlt: "Cream Crop Top",
       title: "Ruffled Crop Top",
       description: "Delicate cream crop top with ruffle details and tie front",
-      category: "Tops"
+      category: "Tops",
+      priceDisplay: "From R 280"
     },
     {
+      id: "top-white-crop",
       imageSrc: "/lovable-uploads/d977b0bc-aa7a-49ea-9d6a-c37dbe6e71b9.png",
       imageAlt: "White Crop Top",
       title: "Summer Crop Top",
       description: "Elegant white crochet crop top with tie-back design, perfect for summer days",
-      category: "Tops"
+      category: "Tops",
+      priceDisplay: "From R 260"
     },
     {
+      id: "shirt-beige-polo",
       imageSrc: "/lovable-uploads/8e8b348c-460f-4202-b822-cce533c16d65.png",
       imageAlt: "Beige Polo Shirt",
       title: "Classic Beige Polo",
       description: "Comfortable and breathable beige polo shirt, ideal for casual outings",
-      category: "Shirts"
+      category: "Shirts",
+      priceDisplay: "From R 320"
     },
     {
+      id: "shirt-beige-brown",
       imageSrc: "/lovable-uploads/5b1caa4b-5579-450f-84f4-c46a9c909ab8.png",
       imageAlt: "Beige and Brown Shirt",
       title: "Two-Tone Button Shirt",
       description: "Elegant beige and brown button-up shirt with contrasting detail",
-      category: "Shirts"
+      category: "Shirts",
+      priceDisplay: "From R 340"
     },
     {
+      id: "shirt-blue-polo",
       imageSrc: "/lovable-uploads/08cd791a-6b34-44fb-abb5-b8b113488695.png",
       imageAlt: "Sky Blue Crochet Polo",
       title: "Sky Blue Crochet Polo",
       description: "Lightweight and breathable sky blue crochet polo shirt, perfect for summer days",
-      category: "Shirts"
+      category: "Shirts",
+      priceDisplay: "From R 310"
     },
     {
+      id: "swimwear-orange-bikini",
       imageSrc: "/lovable-uploads/e255fe3b-ce35-4980-87aa-3b593d0d626d.png",
       imageAlt: "Orange Bikini Set",
       title: "Vibrant Bikini Set",
       description: "Bright orange crochet bikini, perfect for beach days and pool parties",
-      category: "Swimwear"
+      category: "Swimwear",
+      priceDisplay: "From R 420"
     },
     {
+      id: "accessory-green-beanie",
       imageSrc: "/lovable-uploads/cca20f48-3399-428c-9418-804bf8a9c508.png",
       imageAlt: "Green Beanie",
       title: "Emerald Beanie",
       description: "Warm and stylish green beanie, perfect for cold winter days",
-      category: "Accessories"
+      category: "Accessories",
+      priceDisplay: "From R 180"
     },
     {
+      id: "accessory-bucket-hats",
       imageSrc: "/lovable-uploads/68f87ec2-6bd6-4657-a718-151d2cecfa27.png",
       imageAlt: "Bucket Hats Collection",
       title: "Bucket Hat Collection",
       description: "Stylish bucket hats in various colors, perfect for sun protection with a fashion twist",
-      category: "Accessories"
+      category: "Accessories",
+      priceDisplay: "From R 220"
     },
     {
+      id: "baby-dress-gray",
       imageSrc: "/lovable-uploads/2f2c964c-4ac4-47b6-8b6f-ed4fc2667b3c.png",
       imageAlt: "Baby Dress",
       title: "Baby Girl Dress",
       description: "Adorable gray crochet dress for babies, perfect for special occasions",
-      category: "Baby Clothes"
+      category: "Baby Clothes",
+      priceDisplay: "From R 240"
     }
   ];
 

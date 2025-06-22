@@ -1,100 +1,93 @@
 
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { ModeToggle } from "@/components/ModeToggle";
-import { useWishlist } from "@/contexts/WishlistContext";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { X, Heart, ShoppingCart, User, Home, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 
-// Pure component for better performance
-const MobileNavLink = React.memo(({ 
-  to, 
-  isActive, 
-  children 
-}: { 
-  to: string; 
-  isActive: boolean; 
-  children: React.ReactNode 
-}) => (
-  <Link 
-    to={to} 
-    className={`text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors ${isActive ? 'bg-accent' : ''}`}
-  >
-    {children}
-  </Link>
-));
+interface MobileNavProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-MobileNavLink.displayName = "MobileNavLink";
-
-// Memoized MobileNav component to prevent unnecessary renders
-const MobileNav = React.memo(() => {
+const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
   const { wishlistItems } = useWishlist();
-  const location = useLocation();
-  
-  const isActive = React.useCallback((path: string) => {
-    return location.pathname === path || location.hash === path;
-  }, [location.pathname, location.hash]);
-  
+  const { user, signOut } = useAuth();
+  const { getTotalItems } = useCart();
+
+  if (!isOpen) return null;
+
   return (
-    <div className="flex flex-col h-full py-6">
-      <div className="flex items-center mb-8">
-        <ModeToggle />
-        <span className="ml-3 text-lg font-medium">Theme</span>
-      </div>
-      
-      <nav className="flex flex-col space-y-4">
-        <MobileNavLink to="/" isActive={isActive('/')}>
-          Home
-        </MobileNavLink>
-        <MobileNavLink to="/#featured" isActive={isActive('/#featured')}>
-          Shop
-        </MobileNavLink>
-        <MobileNavLink to="/#about" isActive={isActive('/#about')}>
-          About
-        </MobileNavLink>
-        <MobileNavLink to="/#faq" isActive={isActive('/#faq')}>
-          FAQ
-        </MobileNavLink>
-        <MobileNavLink to="/#contact" isActive={isActive('/#contact')}>
-          Contact
-        </MobileNavLink>
-      </nav>
-      
-      <Separator className="my-6" />
-      
-      <div className="flex flex-col space-y-4">
-        <Link 
-          to="/wishlist" 
-          className="flex items-center text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors"
-        >
-          <Heart className="mr-2 h-5 w-5" />
-          Wishlist
-          {wishlistItems.length > 0 && (
-            <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-500 text-white rounded-full">
-              {wishlistItems.length}
-            </span>
-          )}
-        </Link>
-        <Link 
-          to="/order" 
-          className="flex items-center text-lg font-medium py-2 px-4 hover:bg-accent rounded-md transition-colors"
-        >
-          <ShoppingBag className="mr-2 h-5 w-5" />
-          Place an Order
-        </Link>
-      </div>
-      
-      <div className="mt-auto pt-6">
-        <div className="text-sm text-muted-foreground text-center">
-          Everything Hooked
-          <br />
-          Handcrafted Crochet Creations
+    <div className="fixed inset-0 z-50 md:hidden">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="font-semibold">Menu</h2>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
+        
+        <nav className="p-4 space-y-4">
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100"
+            onClick={onClose}
+          >
+            <Home className="h-5 w-5" />
+            Home
+          </Link>
+          
+          <Link 
+            to="/wishlist" 
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100"
+            onClick={onClose}
+          >
+            <Heart className="h-5 w-5" />
+            Wishlist ({wishlistItems.length})
+          </Link>
+          
+          <Link 
+            to="/cart" 
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100"
+            onClick={onClose}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            Cart ({user ? getTotalItems() : 0})
+          </Link>
+          
+          {user ? (
+            <div className="space-y-2">
+              <div className="p-2 text-sm text-gray-600">
+                Signed in as {user.email}
+              </div>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start p-2"
+                onClick={() => {
+                  signOut();
+                  onClose();
+                }}
+              >
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <Link 
+              to="/auth" 
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100"
+              onClick={onClose}
+            >
+              <User className="h-5 w-5" />
+              Sign In
+            </Link>
+          )}
+        </nav>
       </div>
     </div>
   );
-});
-
-MobileNav.displayName = "MobileNav";
+};
 
 export default MobileNav;
