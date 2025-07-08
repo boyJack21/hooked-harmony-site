@@ -53,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Heart className="h-5 w-5 text-white" />
               </div>
               <span className="font-playfair text-xl font-bold hidden sm:block">
-                Ella's Haven
+                EverythingHooked
               </span>
             </Link>
 

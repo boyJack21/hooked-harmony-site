@@ -63,7 +63,7 @@ const Auth = () => {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Welcome to Ella's Haven</CardTitle>
+              <CardTitle className="text-2xl font-bold">Welcome to EverythingHooked</CardTitle>
               <CardDescription>
                 Sign in to your account or create a new one
               </CardDescription>
