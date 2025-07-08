@@ -203,6 +203,24 @@ const FeaturedSection = () => {
       description: "Elegant cream leg warmers with cable knit pattern, stylish and functional",
       category: "Leg Warmers",
       priceDisplay: "From R100"
+    },
+    {
+      id: "cardigan-red-long",
+      imageSrc: "/lovable-uploads/745709c6-fff5-4382-8555-07bd30ff28fc.png",
+      imageAlt: "Red Long Cardigan",
+      title: "Red Ribbed Long Cardigan",
+      description: "Stunning red long cardigan with ribbed texture and puffy sleeves, perfect for cozy days",
+      category: "Cardigans",
+      priceDisplay: "S=R450, M=R520, L=R600"
+    },
+    {
+      id: "dishcloth-pink-striped",
+      imageSrc: "/lovable-uploads/c8fdb45d-3fab-4956-8c57-599c3ed66845.png",
+      imageAlt: "Pink Striped Dishcloth",
+      title: "Pink Striped Dishcloth",
+      description: "Handmade pink striped dishcloth, perfect for kitchen use with beautiful crochet pattern",
+      category: "Accessories",
+      priceDisplay: "Contact EverythingHooked for price"
     }
   ];
 

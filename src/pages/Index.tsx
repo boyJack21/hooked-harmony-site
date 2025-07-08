@@ -93,6 +93,24 @@ const Index = () => {
       imageAlt: 'Crochet Tote Bag',
       category: 'Accessories',
       priceDisplay: 'R200'
+    },
+    {
+      id: 'cardigan-red-long',
+      title: 'Red Ribbed Long Cardigan',
+      description: 'Stunning red long cardigan with ribbed texture and puffy sleeves, perfect for cozy days',
+      imageSrc: '/lovable-uploads/745709c6-fff5-4382-8555-07bd30ff28fc.png',
+      imageAlt: 'Red Long Cardigan',
+      category: 'Cardigans',
+      priceDisplay: 'S=R450, M=R520, L=R600'
+    },
+    {
+      id: 'dishcloth-pink-striped',
+      title: 'Pink Striped Dishcloth',
+      description: 'Handmade pink striped dishcloth, perfect for kitchen use with beautiful crochet pattern',
+      imageSrc: '/lovable-uploads/c8fdb45d-3fab-4956-8c57-599c3ed66845.png',
+      imageAlt: 'Pink Striped Dishcloth',
+      category: 'Accessories',
+      priceDisplay: 'Contact EverythingHooked for price'
     }
   ], []);
 
