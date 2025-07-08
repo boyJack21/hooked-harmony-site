@@ -55,12 +55,18 @@ export const calculateOrderAmount = (formData: OrderFormData): number => {
   } else if (item.includes('bucket hat')) {
     basePrice = 15000; // R150.00
     console.log('Bucket hat detected - base price:', basePrice);
-  } else if (item.includes('polo shirt') || item.includes('polo')) {
+  } else if (item.includes('tote bag')) {
+    basePrice = 20000; // R200.00
+    console.log('Tote bag detected - base price:', basePrice);
+  } else if (item.includes('leg warmers')) {
+    basePrice = 10000; // R100.00 base price
+    console.log('Leg warmers detected - base price:', basePrice);
+  } else if (item.includes('polo shirt') || item.includes('polo') || item.includes('beige') && item.includes('black') && item.includes('shirt')) {
     if (size === 's') basePrice = 28000; // R280.00
     else if (size === 'm') basePrice = 32000; // R320.00
     else if (size === 'l') basePrice = 36000; // R360.00
     else basePrice = 28000; // Default to S
-    console.log('Polo shirt detected - base price:', basePrice, 'for size:', size);
+    console.log('Polo/shirt detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('crop cardigan')) {
     if (size === 's') basePrice = 35000; // R350.00
     else if (size === 'm') basePrice = 40000; // R400.00
@@ -97,13 +103,17 @@ export const calculateOrderAmount = (formData: OrderFormData): number => {
     else basePrice = 17000; // Default to S
     console.log('Bikini detected - base price:', basePrice, 'for size:', size);
   } else {
-    // Default pricing for custom items
-    basePrice = 25000; // R250.00
-    console.log('Default/custom item - base price:', basePrice);
+    // Return 0 for unknown items - this will trigger the contact message
+    basePrice = 0;
+    console.log('Unknown item - no pricing available');
   }
   
   const totalAmount = basePrice * quantity;
   console.log('Final calculated amount:', totalAmount, 'cents (R' + (totalAmount / 100).toFixed(2) + ')');
   
   return totalAmount;
+};
+
+export const hasValidPricing = (formData: OrderFormData): boolean => {
+  return calculateOrderAmount(formData) > 0;
 };

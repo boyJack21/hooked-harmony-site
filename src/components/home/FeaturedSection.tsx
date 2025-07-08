@@ -36,13 +36,13 @@ const FeaturedSection = () => {
       priceDisplay: "S=R450, M=R520, L=R600"
     },
     {
-      id: "cardigan-beige-navy",
+      id: "shirt-beige-black",
       imageSrc: "/lovable-uploads/9294a9a2-018c-4538-9f59-8e98a51a166c.png",
-      imageAlt: "Beige and Navy Cardigan",
-      title: "Beige & Navy Button Cardigan",
-      description: "Stylish short-sleeve cardigan with beige base and navy stripes with golden details",
-      category: "Cardigans",
-      priceDisplay: "S=R350, M=R400"
+      imageAlt: "Beige and Black Shirt",
+      title: "Beige & Black Button Shirt",
+      description: "Stylish short-sleeve shirt with beige base and black stripes with golden details",
+      category: "Shirts",
+      priceDisplay: "S=R280, M=R320, L=R360"
     },
     {
       id: "cardigan-navy-button",
