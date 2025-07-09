@@ -28,6 +28,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const [yocoLoaded, setYocoLoaded] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [paymentTimeout, setPaymentTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   // Calculate amount dynamically and log for debugging
@@ -105,6 +106,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     console.log('Starting payment process');
     setIsProcessing(true);
 
+    // Set a timeout for the entire payment process
+    const timeout = setTimeout(() => {
+      console.log('Payment timeout reached');
+      setIsProcessing(false);
+      onPaymentError('Payment took too long to process. Please try again.');
+    }, 30000); // 30 second timeout
+
+    setPaymentTimeout(timeout);
+
     try {
       console.log('Creating payment for order:', formData);
       console.log('Calculated amount:', amount, 'cents (R' + displayAmount + ')');
@@ -142,6 +152,23 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
       console.log('Opening Yoco payment popup');
 
+      // Clear any existing timeout
+      if (paymentTimeout) {
+        clearTimeout(paymentTimeout);
+        setPaymentTimeout(null);
+      }
+
+      // Add a shorter timeout specifically for popup opening
+      const popupTimeout = setTimeout(() => {
+        console.log('Popup timeout - forcing user action');
+        setIsProcessing(false);
+        toast({
+          title: "Payment Popup Delayed",
+          description: "If the payment popup doesn't appear, please try again or contact support.",
+          variant: "destructive",
+        });
+      }, 10000); // 10 seconds for popup
+
       // Open Yoco popup
       yoco.showPopup({
         amountInCents: amount,
@@ -154,6 +181,9 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           customer_name: formData.name
         }
       }, (result: any) => {
+        // Clear popup timeout
+        clearTimeout(popupTimeout);
+        
         console.log('Yoco popup result:', result);
         
         if (result.error) {
@@ -171,6 +201,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       });
 
     } catch (error) {
+      // Clear timeout on error
+      if (paymentTimeout) {
+        clearTimeout(paymentTimeout);
+        setPaymentTimeout(null);
+      }
+      
       console.error('Payment error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Payment processing failed. Please try again.';
       onPaymentError(errorMessage);
@@ -247,13 +283,18 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       <Button 
         onClick={handlePayment}
         disabled={isProcessing || !yocoLoaded}
-        className="w-full text-sm md:text-base bg-green-600 hover:bg-green-700 transition-all duration-200"
+        className="w-full text-sm md:text-base bg-green-600 hover:bg-green-700 transition-all duration-200 disabled:opacity-50"
         size="lg"
       >
         {isProcessing ? (
           <div className="flex items-center">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing Payment...
+            <span>
+              {!yocoLoaded ? 'Loading Payment System...' : 'Opening Payment Window...'}
+              <span className="block text-xs mt-1 opacity-75">
+                This may take a few seconds
+              </span>
+            </span>
           </div>
         ) : !yocoLoaded ? (
           <div className="flex items-center">
@@ -267,6 +308,17 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           </div>
         )}
       </Button>
+
+      {isProcessing && yocoLoaded && (
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="flex items-center text-blue-700 text-sm">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <span>
+              Payment window should open shortly. If it doesn't appear, please check if popup blockers are disabled.
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="mt-3 flex items-center justify-center text-xs text-muted-foreground">
         <Shield className="h-3 w-3 mr-1" />
