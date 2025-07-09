@@ -80,7 +80,7 @@ const FeaturedSection = () => {
       title: "Summer Crop Top",
       description: "Elegant white crochet crop top with tie-back design, perfect for summer days",
       category: "Tops",
-      priceDisplay: "S=R200, M=R250, L=R280"
+      priceDisplay: "S=R170, M=R200, L=R230"
     },
     // Shirts
     {
@@ -211,16 +211,16 @@ const FeaturedSection = () => {
       title: "Red Ribbed Long Cardigan",
       description: "Stunning red long cardigan with ribbed texture and puffy sleeves, perfect for cozy days",
       category: "Cardigans",
-      priceDisplay: "S=R450, M=R520, L=R600"
+      priceDisplay: "S=R900, M=R1000, L=R1200"
     },
     {
-      id: "dishcloth-pink-striped",
+      id: "beanie-cat-ear-pink",
       imageSrc: "/lovable-uploads/c8fdb45d-3fab-4956-8c57-599c3ed66845.png",
-      imageAlt: "Pink Striped Dishcloth",
-      title: "Pink Striped Dishcloth",
-      description: "Handmade pink striped dishcloth, perfect for kitchen use with beautiful crochet pattern",
+      imageAlt: "Pink Cat Ear Beanie",
+      title: "Pink Cat Ear Beanie",
+      description: "Adorable pink cat ear beanie with striped pattern, perfect for playful winter style",
       category: "Accessories",
-      priceDisplay: "Contact EverythingHooked for price"
+      priceDisplay: "R200"
     }
   ];
 

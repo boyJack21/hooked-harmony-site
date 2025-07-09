@@ -101,16 +101,16 @@ const Index = () => {
       imageSrc: '/lovable-uploads/745709c6-fff5-4382-8555-07bd30ff28fc.png',
       imageAlt: 'Red Long Cardigan',
       category: 'Cardigans',
-      priceDisplay: 'S=R450, M=R520, L=R600'
+      priceDisplay: 'S=R900, M=R1000, L=R1200'
     },
     {
-      id: 'dishcloth-pink-striped',
-      title: 'Pink Striped Dishcloth',
-      description: 'Handmade pink striped dishcloth, perfect for kitchen use with beautiful crochet pattern',
+      id: 'beanie-cat-ear-pink',
+      title: 'Pink Cat Ear Beanie',
+      description: 'Adorable pink cat ear beanie with striped pattern, perfect for playful winter style',
       imageSrc: '/lovable-uploads/c8fdb45d-3fab-4956-8c57-599c3ed66845.png',
-      imageAlt: 'Pink Striped Dishcloth',
+      imageAlt: 'Pink Cat Ear Beanie',
       category: 'Accessories',
-      priceDisplay: 'Contact EverythingHooked for price'
+      priceDisplay: 'R200'
     }
   ], []);
 

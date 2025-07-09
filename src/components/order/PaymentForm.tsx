@@ -92,11 +92,17 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   }, []);
 
   const handlePayment = async () => {
+    console.log('handlePayment called - checking prerequisites');
+    console.log('yocoLoaded:', yocoLoaded);
+    console.log('window.YocoSDK:', !!window.YocoSDK);
+    
     if (!yocoLoaded || !window.YocoSDK) {
+      console.log('Payment system not ready, showing error');
       onPaymentError('Payment system not ready. Please wait a moment and try again.');
       return;
     }
 
+    console.log('Starting payment process');
     setIsProcessing(true);
 
     try {

@@ -50,7 +50,7 @@ export const calculateOrderAmount = (formData: OrderFormData): number => {
     basePrice = 20000; // R200.00 - Updated price
     console.log('Pink ruffle hat detected - base price:', basePrice);
   } else if (item.includes('beanie')) {
-    basePrice = 15000; // R150.00
+    basePrice = item.includes('cat ear') ? 20000 : 15000; // R200.00 for cat ear beanie, R150.00 for others
     console.log('Beanie detected - base price:', basePrice);
   } else if (item.includes('bucket hat')) {
     basePrice = 15000; // R150.00
@@ -79,10 +79,10 @@ export const calculateOrderAmount = (formData: OrderFormData): number => {
     else basePrice = 50000; // Default to S
     console.log('Color block cardigan detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('long cardigan')) {
-    if (size === 's') basePrice = 45000; // R450.00
-    else if (size === 'm') basePrice = 52000; // R520.00
-    else if (size === 'l') basePrice = 60000; // R600.00
-    else basePrice = 45000; // Default to S
+    if (size === 's') basePrice = 90000; // R900.00
+    else if (size === 'm') basePrice = 100000; // R1000.00
+    else if (size === 'l') basePrice = 120000; // R1200.00
+    else basePrice = 90000; // Default to S
     console.log('Long cardigan detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('cardigan') && !item.includes('crop') && !item.includes('long') && !item.includes('color block')) {
     if (size === 's') basePrice = 40000; // R400.00
@@ -91,10 +91,10 @@ export const calculateOrderAmount = (formData: OrderFormData): number => {
     else basePrice = 40000; // Default to S
     console.log('Regular cardigan detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('ruffled crop top') || item.includes('crop top')) {
-    if (size === 's') basePrice = 20000; // R200.00
-    else if (size === 'm') basePrice = 25000; // R250.00
-    else if (size === 'l') basePrice = 28000; // R280.00
-    else basePrice = 20000; // Default to S
+    if (size === 's') basePrice = 17000; // R170.00
+    else if (size === 'm') basePrice = 20000; // R200.00
+    else if (size === 'l') basePrice = 23000; // R230.00
+    else basePrice = 17000; // Default to S
     console.log('Ruffled crop top detected - base price:', basePrice, 'for size:', size);
   } else if (item.includes('bikini')) {
     if (size === 's') basePrice = 17000; // R170.00

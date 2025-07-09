@@ -55,7 +55,11 @@ const FeaturedItem: React.FC<ProductItem> = ({
         <LazyImage
           src={imageSrc}
           alt={imageAlt}
-          className="w-full aspect-square object-cover"
+          className={`w-full aspect-square ${
+            title.toLowerCase().includes('tote bag') 
+              ? 'object-contain bg-gray-50' 
+              : 'object-cover'
+          }`}
         />
         
         {category && (
