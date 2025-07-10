@@ -104,12 +104,24 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         throw new Error('Missing payment configuration');
       }
 
-      console.log('Initializing Yoco checkout...');
+      console.log('Initializing Yoco checkout with public key:', public_key);
+
+      // Validate public key format
+      if (!public_key.startsWith('pk_')) {
+        throw new Error('Invalid Yoco public key format');
+      }
 
       // Initialize Yoco SDK
-      const yoco = new window.YocoSDK({
-        publicKey: public_key
-      });
+      let yoco;
+      try {
+        yoco = new window.YocoSDK({
+          publicKey: public_key
+        });
+        console.log('Yoco SDK initialized successfully');
+      } catch (sdkError) {
+        console.error('Failed to initialize Yoco SDK:', sdkError);
+        throw new Error('Failed to initialize payment system');
+      }
 
       // Set a timeout to prevent infinite processing
       const paymentTimeout = setTimeout(() => {
@@ -127,19 +139,21 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         }, 5000);
       }, 45000); // 45 second timeout
       
-      // Show payment popup
-      yoco.showPopup({
-        amountInCents: amount,
-        currency: 'ZAR',
-        name: 'EverythingHooked',
-        description: `${formData.item} - Qty: ${formData.quantity}`,
-        metadata: {
-          order_id,
-          customer_email: formData.email,
-          customer_name: formData.name,
-          item: formData.item
-        }
-      }, (result: any) => {
+      // Show payment popup with better error handling
+      try {
+        console.log('Attempting to show Yoco popup...');
+        yoco.showPopup({
+          amountInCents: amount,
+          currency: 'ZAR',
+          name: 'EverythingHooked',
+          description: `${formData.item} - Qty: ${formData.quantity}`,
+          metadata: {
+            order_id,
+            customer_email: formData.email,
+            customer_name: formData.name,
+            item: formData.item
+          }
+        }, (result: any) => {
         clearTimeout(paymentTimeout);
         console.log('Payment callback triggered with result:', JSON.stringify(result, null, 2));
         
@@ -173,6 +187,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           onPaymentSuccess(order_id);
         }
       });
+      
+      console.log('Yoco popup should now be visible to user');
+      
+    } catch (popupError) {
+      clearTimeout(paymentTimeout);
+      console.error('Error showing payment popup:', popupError);
+      setIsProcessing(false);
+      onPaymentError('Failed to open payment window. Please ensure popups are enabled and try again.');
+    }
 
     } catch (error) {
       console.error('Payment error:', error);
