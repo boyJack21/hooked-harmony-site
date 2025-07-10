@@ -40,6 +40,40 @@ const Order = () => {
       setFormData(prev => ({ ...prev, size: selectedSize }));
     }
   }, [selectedSize]);
+
+  // Check for payment result in URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const orderIdParam = urlParams.get('order_id');
+    
+    if (paymentStatus && orderIdParam) {
+      console.log('Payment redirect detected:', paymentStatus, orderIdParam);
+      
+      if (paymentStatus === 'success') {
+        setOrderId(orderIdParam);
+        setCurrentStep('success');
+        toast({
+          title: "Payment Successful! 🎉",
+          description: `Order #${orderIdParam.slice(-6)} has been processed successfully.`,
+        });
+      } else if (paymentStatus === 'failed') {
+        toast({
+          title: "Payment Failed",
+          description: "Your payment could not be processed. Please try again.",
+          variant: "destructive",
+        });
+      } else if (paymentStatus === 'cancelled') {
+        toast({
+          title: "Payment Cancelled",
+          description: "Payment was cancelled. You can try again if needed.",
+        });
+      }
+      
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
   
   const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

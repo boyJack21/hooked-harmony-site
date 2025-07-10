@@ -164,11 +164,19 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       // Show payment popup with better error handling
       try {
         console.log('Attempting to show Yoco popup...');
+        
+        // Get current origin for redirect URLs
+        const origin = window.location.origin;
+        
         yoco.showPopup({
           amountInCents: amount,
           currency: 'ZAR',
           name: 'EverythingHooked',
           description: `${formData.item} - Qty: ${formData.quantity}`,
+          // Add redirect URLs for 3D Secure handling
+          successUrl: `${origin}/order?payment=success&order_id=${order_id}`,
+          cancelUrl: `${origin}/order?payment=cancelled&order_id=${order_id}`,
+          failureUrl: `${origin}/order?payment=failed&order_id=${order_id}`,
           metadata: {
             order_id,
             customer_email: formData.email,
