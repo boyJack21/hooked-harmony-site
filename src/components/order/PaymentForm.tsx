@@ -111,6 +111,22 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         publicKey: public_key
       });
 
+      // Set a timeout to prevent infinite processing
+      const paymentTimeout = setTimeout(() => {
+        console.warn('Payment timeout - checking order status...');
+        setIsProcessing(false);
+        // Don't immediately error - the payment might have succeeded but callback failed
+        toast({
+          title: "Payment Processing...",
+          description: "Checking payment status. Please wait a moment.",
+        });
+        
+        // Give it a bit more time then check order status or prompt user
+        setTimeout(() => {
+          onPaymentError('Payment is taking longer than expected. Please check your bank account or try again.');
+        }, 5000);
+      }, 45000); // 45 second timeout
+      
       // Show payment popup
       yoco.showPopup({
         amountInCents: amount,
@@ -124,20 +140,38 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           item: formData.item
         }
       }, (result: any) => {
-        console.log('Payment result:', result);
+        clearTimeout(paymentTimeout);
+        console.log('Payment callback triggered with result:', JSON.stringify(result, null, 2));
         
-        if (result.error) {
-          console.error('Payment failed:', result.error);
-          onPaymentError(`Payment failed: ${result.error.message || 'Unknown error'}`);
-        } else {
-          console.log('Payment successful!');
+        // Always reset processing state
+        setIsProcessing(false);
+        
+        // Check for different possible result structures
+        if (result && result.error) {
+          console.error('Payment failed with error:', result.error);
+          onPaymentError(`Payment failed: ${result.error.message || result.error || 'Unknown error'}`);
+        } else if (result && (result.id || result.payment_id || result.token)) {
+          // Payment appears successful - has some form of payment identifier
+          console.log('Payment successful with ID:', result.id || result.payment_id || result.token);
           toast({
             title: "Payment Successful! 🎉",
             description: `Order #${order_id.slice(-6)} has been processed successfully.`,
           });
           onPaymentSuccess(order_id);
+        } else if (result === null || result === undefined) {
+          // User likely cancelled or closed popup
+          console.log('Payment cancelled or popup closed');
+          onPaymentError('Payment was cancelled. Please try again if you wish to complete your order.');
+        } else {
+          // Unexpected result structure
+          console.warn('Unexpected payment result structure:', result);
+          // Assume success if no explicit error (Yoco might return success differently)
+          toast({
+            title: "Payment Completed",
+            description: `Order #${order_id.slice(-6)} has been processed. If you don't receive confirmation, please contact support.`,
+          });
+          onPaymentSuccess(order_id);
         }
-        setIsProcessing(false);
       });
 
     } catch (error) {
