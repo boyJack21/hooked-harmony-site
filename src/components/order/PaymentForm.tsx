@@ -45,6 +45,17 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
         console.log('Loading Yoco SDK...');
         
+        // Check if script already exists
+        const existingScript = document.querySelector('script[src*="yoco-sdk-web.js"]');
+        if (existingScript) {
+          console.log('Yoco script already exists in DOM');
+          // Wait for it to load
+          if (window.YocoSDK) {
+            setYocoLoaded(true);
+            return;
+          }
+        }
+        
         // Load Yoco SDK
         const script = document.createElement('script');
         script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
@@ -52,23 +63,34 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         
         const loadPromise = new Promise((resolve, reject) => {
           script.onload = () => {
-            console.log('Yoco SDK loaded successfully');
-            setYocoLoaded(true);
-            resolve(true);
+            console.log('Yoco SDK script loaded');
+            // Check if SDK is actually available
+            setTimeout(() => {
+              if (window.YocoSDK) {
+                console.log('Yoco SDK is now available');
+                setYocoLoaded(true);
+                resolve(true);
+              } else {
+                console.error('Yoco SDK script loaded but window.YocoSDK is undefined');
+                reject(new Error('Yoco SDK not available after script load'));
+              }
+            }, 100);
           };
           
-          script.onerror = () => {
-            console.error('Failed to load Yoco SDK');
+          script.onerror = (error) => {
+            console.error('Failed to load Yoco SDK script:', error);
             reject(new Error('Failed to load payment system'));
           };
         });
         
-        document.head.appendChild(script);
+        if (!existingScript) {
+          document.head.appendChild(script);
+        }
         await loadPromise;
         
       } catch (error) {
         console.error('Error loading Yoco SDK:', error);
-        onPaymentError('Failed to load payment system. Please refresh and try again.');
+        onPaymentError('Failed to load payment system. Please check your internet connection and disable ad blockers, then refresh and try again.');
       }
     };
 
