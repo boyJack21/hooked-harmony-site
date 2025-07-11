@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
 import { createPayment, calculateOrderAmount } from '@/services/paymentService';
 import { CreditCard, Loader2, Shield } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
 
 interface PaymentFormProps {
   formData: OrderFormData;
@@ -183,7 +184,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             customer_name: formData.name,
             item: formData.item
           }
-        }, (result: any) => {
+        }, async (result: any) => {
         clearTimeout(paymentTimeout);
         console.log('Payment callback triggered with result:', JSON.stringify(result, null, 2));
         
@@ -195,26 +196,57 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           console.error('Payment failed with error:', result.error);
           onPaymentError(`Payment failed: ${result.error.message || result.error || 'Unknown error'}`);
         } else if (result && (result.id || result.payment_id || result.token)) {
-          // Payment appears successful - has some form of payment identifier
-          console.log('Payment successful with ID:', result.id || result.payment_id || result.token);
-          toast({
-            title: "Payment Successful! 🎉",
-            description: `Order #${order_id.slice(-6)} has been processed successfully.`,
-          });
-          onPaymentSuccess(order_id);
+          // Payment appears successful - verify with backend
+          console.log('Payment callback successful, verifying...', result.id || result.payment_id || result.token);
+          
+          try {
+            const { data, error } = await supabase.functions.invoke('verify-payment', {
+              body: { orderId: order_id }
+            });
+
+            if (error) throw error;
+
+            if (data.status === 'successful') {
+              toast({
+                title: "Payment Successful! 🎉",
+                description: `Order #${order_id.slice(-6)} has been processed successfully.`,
+              });
+              onPaymentSuccess(order_id);
+            } else {
+              onPaymentError(`Payment verification failed: ${data.status}`);
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            onPaymentError('Payment verification failed. Please contact support with your order reference.');
+          }
         } else if (result === null || result === undefined) {
           // User likely cancelled or closed popup
           console.log('Payment cancelled or popup closed');
           onPaymentError('Payment was cancelled. Please try again if you wish to complete your order.');
         } else {
-          // Unexpected result structure
-          console.warn('Unexpected payment result structure:', result);
-          // Assume success if no explicit error (Yoco might return success differently)
-          toast({
-            title: "Payment Completed",
-            description: `Order #${order_id.slice(-6)} has been processed. If you don't receive confirmation, please contact support.`,
-          });
-          onPaymentSuccess(order_id);
+          // Unexpected result structure - try to verify anyway
+          console.warn('Unexpected payment result structure, attempting verification:', result);
+          
+          try {
+            const { data, error } = await supabase.functions.invoke('verify-payment', {
+              body: { orderId: order_id }
+            });
+
+            if (error) throw error;
+
+            if (data.status === 'successful') {
+              toast({
+                title: "Payment Successful! 🎉",
+                description: `Order #${order_id.slice(-6)} has been processed successfully.`,
+              });
+              onPaymentSuccess(order_id);
+            } else {
+              onPaymentError('Payment status unclear. Please contact support with your order reference.');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            onPaymentError('Payment verification failed. Please contact support with your order reference.');
+          }
         }
       });
       

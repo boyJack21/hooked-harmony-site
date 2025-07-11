@@ -10,6 +10,7 @@ import { OrderFormFooter } from '@/components/order/OrderFormFooter';
 import { useToast } from '@/components/ui/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
+import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle } from 'lucide-react';
 
 const Order = () => {
@@ -51,12 +52,40 @@ const Order = () => {
       console.log('Payment redirect detected:', paymentStatus, orderIdParam);
       
       if (paymentStatus === 'success') {
-        setOrderId(orderIdParam);
-        setCurrentStep('success');
-        toast({
-          title: "Payment Successful! 🎉",
-          description: `Order #${orderIdParam.slice(-6)} has been processed successfully.`,
-        });
+        // Verify payment before showing success
+        const verifyPayment = async () => {
+          try {
+            const { data, error } = await supabase.functions.invoke('verify-payment', {
+              body: { orderId: orderIdParam }
+            });
+
+            if (error) throw error;
+
+            if (data.status === 'successful') {
+              setOrderId(orderIdParam);
+              setCurrentStep('success');
+              toast({
+                title: "Payment Successful! 🎉",
+                description: `Order #${orderIdParam.slice(-6)} has been processed successfully.`,
+              });
+            } else {
+              toast({
+                title: "Payment Verification Failed",
+                description: "Payment status could not be verified. Please contact support.",
+                variant: "destructive",
+              });
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            toast({
+              title: "Verification Error",
+              description: "Could not verify payment status.",
+              variant: "destructive",
+            });
+          }
+        };
+        
+        verifyPayment();
       } else if (paymentStatus === 'failed') {
         toast({
           title: "Payment Failed",
