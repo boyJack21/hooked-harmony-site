@@ -1,16 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
 import { OrderForm } from '@/components/order/OrderForm';
-import { PaymentForm } from '@/components/order/PaymentForm';
 import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
-import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle } from 'lucide-react';
 
 const Order = () => {
@@ -32,77 +29,16 @@ const Order = () => {
   }));
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [currentStep, setCurrentStep] = useState<'form' | 'payment' | 'success'>('form');
+  const [currentStep, setCurrentStep] = useState<'form' | 'success'>('form');
   const [orderId, setOrderId] = useState<string>('');
   const [orderCount, setOrderCount] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   
   useEffect(() => {
     if (selectedSize && !formData.size) {
       setFormData(prev => ({ ...prev, size: selectedSize }));
     }
   }, [selectedSize]);
-
-  // Check for payment result in URL parameters
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentStatus = urlParams.get('payment');
-    const orderIdParam = urlParams.get('order_id');
-    
-    if (paymentStatus && orderIdParam) {
-      console.log('Payment redirect detected:', paymentStatus, orderIdParam);
-      
-      if (paymentStatus === 'success') {
-        // Verify payment before showing success
-        const verifyPayment = async () => {
-          try {
-            const { data, error } = await supabase.functions.invoke('verify-payment', {
-              body: { orderId: orderIdParam }
-            });
-
-            if (error) throw error;
-
-            if (data.status === 'successful') {
-              setOrderId(orderIdParam);
-              setCurrentStep('success');
-              toast({
-                title: "Payment Successful! 🎉",
-                description: `Order #${orderIdParam.slice(-6)} has been processed successfully.`,
-              });
-            } else {
-              toast({
-                title: "Payment Verification Failed",
-                description: "Payment status could not be verified. Please contact support.",
-                variant: "destructive",
-              });
-            }
-          } catch (error) {
-            console.error('Payment verification error:', error);
-            toast({
-              title: "Verification Error",
-              description: "Could not verify payment status.",
-              variant: "destructive",
-            });
-          }
-        };
-        
-        verifyPayment();
-      } else if (paymentStatus === 'failed') {
-        toast({
-          title: "Payment Failed",
-          description: "Your payment could not be processed. Please try again.",
-          variant: "destructive",
-        });
-      } else if (paymentStatus === 'cancelled') {
-        toast({
-          title: "Payment Cancelled",
-          description: "Payment was cancelled. You can try again if needed.",
-        });
-      }
-      
-      // Clean up URL parameters
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [toast]);
   
   const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -116,8 +52,9 @@ const Order = () => {
     });
   }, []);
   
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     
     const formErrors = validateOrderForm(formData);
     if (Object.keys(formErrors).length > 0) {
@@ -127,28 +64,37 @@ const Order = () => {
         description: "Please fill in all required fields correctly.",
         variant: "destructive",
       });
+      setSubmitting(false);
       return;
     }
     
-    // Move to payment step
-    setCurrentStep('payment');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePaymentSuccess = (orderIdFromPayment: string) => {
-    setOrderId(orderIdFromPayment);
-    setCurrentStep('success');
-    setOrderCount(prev => prev + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePaymentError = (error: string) => {
-    toast({
-      title: "Payment Failed",
-      description: error,
-      variant: "destructive",
-    });
-    // Stay on payment step so user can retry
+    // Simulate order submission
+    try {
+      // Generate a simple order ID
+      const newOrderId = `EH${Date.now().toString().slice(-6)}`;
+      
+      setTimeout(() => {
+        setOrderId(newOrderId);
+        setCurrentStep('success');
+        setOrderCount(prev => prev + 1);
+        setSubmitting(false);
+        
+        toast({
+          title: "Order Submitted Successfully! 🎉",
+          description: `Order #${newOrderId} has been received. We'll contact you soon to arrange payment and delivery.`,
+        });
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 1500);
+      
+    } catch (error) {
+      setSubmitting(false);
+      toast({
+        title: "Order Submission Failed",
+        description: "There was an error submitting your order. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleNewOrder = () => {
@@ -165,6 +111,7 @@ const Order = () => {
     setCurrentStep('form');
     setOrderId('');
     setErrors({});
+    setSubmitting(false);
   };
 
   const renderContent = () => {
@@ -175,34 +122,11 @@ const Order = () => {
             formData={formData}
             handleChange={handleChange}
             handleSubmit={handleFormSubmit}
-            submitting={false}
+            submitting={submitting}
             errors={errors}
             orderCount={orderCount}
             initialSize={selectedSize}
           />
-        );
-      
-      case 'payment':
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold mb-2">Complete Your Payment</h2>
-              <p className="text-muted-foreground">
-                Review your order details and proceed with secure payment
-              </p>
-            </div>
-            <PaymentForm 
-              formData={formData}
-              onPaymentSuccess={handlePaymentSuccess}
-              onPaymentError={handlePaymentError}
-            />
-            <button
-              onClick={() => setCurrentStep('form')}
-              className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← Back to order form
-            </button>
-          </div>
         );
       
       case 'success':
@@ -212,12 +136,12 @@ const Order = () => {
               <CheckCircle className="h-16 w-16 text-green-500" />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Payment Successful!</h2>
+              <h2 className="text-2xl font-semibold mb-2">Order Submitted Successfully!</h2>
               <p className="text-muted-foreground mb-4">
-                Your order #{orderId.slice(-6)} has been paid for successfully.
+                Your order #{orderId} has been received successfully.
               </p>
               <p className="text-sm text-muted-foreground">
-                We'll contact you soon to arrange delivery details.
+                We'll contact you soon via phone or email to arrange payment and delivery details.
               </p>
             </div>
             <button

@@ -3,7 +3,7 @@ import { CustomerInfoForm } from './CustomerInfoForm';
 import { OrderDetailsForm } from './OrderDetailsForm';
 import { Heart } from 'lucide-react';
 import { OrderFormData } from '@/types/order';
-import { hasValidPricing } from '@/services/paymentService';
+
 
 interface OrderFormProps {
   formData: OrderFormData;
@@ -27,8 +27,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   initialSize
 }) => {
   const isLimitReached = orderCount >= maxOrders;
-  const hasPrice = hasValidPricing(formData);
-  const isDisabled = submitting || isLimitReached || !hasPrice;
+  const isDisabled = submitting || isLimitReached;
   
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -42,14 +41,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         />
       </div>
       
-      {!hasPrice && formData.item && (
-        <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200 text-center">
-            <strong>Contact EverythingHooked for price</strong><br />
-            This item requires a custom quote. Please reach out to us for pricing information.
-          </p>
-        </div>
-      )}
       
       <div className="mt-8">
         <button
@@ -66,14 +57,10 @@ export const OrderForm: React.FC<OrderFormProps> = ({
             <>
               Order Limit Reached
             </>
-          ) : !hasPrice && formData.item ? (
-            <>
-              Contact for Pricing
-            </>
           ) : (
             <>
               <Heart className="mr-2 h-5 w-5" />
-              Continue to Payment
+              Submit Order
             </>
           )}
         </button>
@@ -84,11 +71,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           </p>
         )}
         
-        {!hasPrice && formData.item && (
-          <p className="mt-2 text-xs text-center text-yellow-600 dark:text-yellow-400">
-            Please contact EverythingHooked for pricing on this item.
-          </p>
-        )}
       </div>
     </form>
   );

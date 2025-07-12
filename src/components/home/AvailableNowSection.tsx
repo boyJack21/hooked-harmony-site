@@ -3,28 +3,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { calculateOrderAmount } from '@/services/paymentService';
+
 import { ShoppingBag, Sparkles } from 'lucide-react';
 
 const AvailableNowSection = () => {
   const navigate = useNavigate();
   
-  // Calculate the actual price for Pink Ruffle Hat
-  const mockFormData = {
-    name: '',
-    email: '',
-    phone: '',
-    item: 'Pink Ruffle Hat',
-    quantity: 1,
-    color: '',
-    size: '',
-    specialInstructions: '',
-  };
-  
-  const amount = calculateOrderAmount(mockFormData);
-  const displayPrice = (amount / 100).toFixed(2);
-  
-  console.log('AvailableNowSection - Calculated price for Pink Ruffle Hat:', displayPrice);
+  // Static price for Pink Ruffle Hat
+  const displayPrice = "299.00";
   
   const handleOrderClick = () => {
     navigate('/order', { 
