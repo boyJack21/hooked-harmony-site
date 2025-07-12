@@ -1,7 +1,59 @@
-
 project_id = "idgsbwbioxdnjazmtedc"
 
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+external_url = "http://localhost:3000"
+additional_redirect_urls = ["https://idgsbwbioxdnjazmtedc.supabase.co/auth/v1/callback"]
+jwt_expiry = 3600
+enable_signup = true
+enable_confirmations = false
+
+[db]
+port = 54322
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = true
+port = 54323
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+port = 54325
+
+[edge_runtime]
+enabled = true
+port = 54326
+
+[analytics]
+enabled = false
+port = 54327
+
 [functions.create-payment]
+verify_jwt = false
+
+[functions.verify-payment]
 verify_jwt = false
 
 [functions.yoco-webhook]
