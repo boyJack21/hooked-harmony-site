@@ -9,6 +9,15 @@ const FeaturedSection = () => {
   const featuredItems: ProductItem[] = [
     // Cardigans
     {
+      id: "cardigan-beige-brown-striped",
+      imageSrc: "/lovable-uploads/ab9a74bb-8ffd-41b7-b3bb-dfaff34a8d66.png",
+      imageAlt: "Beige and Brown Striped Cardigan",
+      title: "Beige & Brown Striped Cardigan",
+      description: "Beautiful striped cardigan with brown and beige tones, featuring classic button closure",
+      category: "Cardigans",
+      priceDisplay: "S=R450, M=R500, L=R550"
+    },
+    {
       id: "cardigan-brown-pink",
       imageSrc: "/lovable-uploads/292bcef9-b482-4906-b037-def69ad64fbf.png",
       imageAlt: "Brown and Pink Cardigan",
@@ -216,8 +225,8 @@ const FeaturedSection = () => {
     {
       id: "beanie-cat-ear-pink",
       imageSrc: "/lovable-uploads/c8fdb45d-3fab-4956-8c57-599c3ed66845.png",
-      imageAlt: "Pink Cat Ear Beanie",
-      title: "Pink Cat Ear Beanie",
+      imageAlt: "Pink Ruffle Hat",
+      title: "Pink Ruffle Hat",
       description: "Adorable pink cat ear beanie with striped pattern, perfect for playful winter style",
       category: "Accessories",
       priceDisplay: "R200"

@@ -40,7 +40,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { isInStock, getProductPrice } = useInventory();
+  const { getProductPrice } = useInventory();
   
   // Determine environment - you can make this configurable
   const environment: 'test' | 'live' = 'test'; // Change to 'live' for production
@@ -52,9 +52,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     environment
   });
 
-  // Check inventory before allowing payment
-  const productInStock = isInStock(orderData.item, orderData.quantity);
-
   const handlePayment = async () => {
     if (!isLoaded) {
       toast({
@@ -65,14 +62,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       return;
     }
 
-    if (!productInStock) {
-      toast({
-        title: "Product Out of Stock",
-        description: "Sorry, this item is currently out of stock.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsLoading(true);
 
@@ -171,18 +160,10 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           <span>Your payment information is encrypted and secure</span>
         </div>
 
-        {!productInStock && (
-          <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              This item is currently out of stock and cannot be purchased.
-            </AlertDescription>
-          </Alert>
-        )}
 
         <Button
           onClick={handlePayment}
-          disabled={isLoading || !isLoaded || !productInStock}
+          disabled={isLoading || !isLoaded}
           className="w-full"
         >
           {isLoading ? (
