@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { CreditCard, Shield, Lock } from 'lucide-react';
+import { CreditCard, Shield, Lock, AlertCircle } from 'lucide-react';
 import { OrderFormData } from '@/types/order';
+import { useYocoSDK } from '@/hooks/useYocoSDK';
+import { useInventory } from '@/hooks/useInventory';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface PaymentFormProps {
   orderData: OrderFormData;
@@ -36,38 +39,36 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   onPaymentError
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [sdkLoaded, setSdkLoaded] = useState(false);
   const { toast } = useToast();
+  const { isInStock, getProductPrice } = useInventory();
+  
+  // Determine environment - you can make this configurable
+  const environment: 'test' | 'live' = 'test'; // Change to 'live' for production
+  
+  const { isLoaded, initializePayment } = useYocoSDK({
+    publicKey: environment === 'test' 
+      ? 'pk_test_ed3c54a6gOol69qa7f45' 
+      : 'pk_live_your_live_key', // Replace with actual live key
+    environment
+  });
 
-  useEffect(() => {
-    // Load Yoco SDK
-    const script = document.createElement('script');
-    script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
-    script.async = true;
-    script.onload = () => {
-      setSdkLoaded(true);
-    };
-    script.onerror = () => {
-      toast({
-        title: "Payment System Error",
-        description: "Failed to load payment system. Please refresh and try again.",
-        variant: "destructive",
-      });
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, [toast]);
+  // Check inventory before allowing payment
+  const productInStock = isInStock(orderData.item, orderData.quantity);
 
   const handlePayment = async () => {
-    if (!sdkLoaded || !window.YocoSDK) {
+    if (!isLoaded) {
       toast({
         title: "Payment System Not Ready",
         description: "Please wait for the payment system to load and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!productInStock) {
+      toast({
+        title: "Product Out of Stock",
+        description: "Sorry, this item is currently out of stock.",
         variant: "destructive",
       });
       return;
@@ -98,27 +99,27 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         body: JSON.stringify({
           amount: amount * 100, // Convert to cents
           currency: 'ZAR',
+          environment,
           orderData: paymentOrderData
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create payment');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create payment');
       }
 
-      const { payment_id, checkout_url } = await response.json();
+      const { payment_id, order_id } = await response.json();
 
-      // Initialize Yoco checkout
-      const yoco = new window.YocoSDK({
-        publicKey: process.env.REACT_APP_YOCO_PUBLIC_KEY || 'pk_test_ed3c54a6gOol69qa7f45',
-      });
-
-      yoco.showPopup({
+      // Use the custom hook for payment initialization
+      initializePayment({
         amountInCents: amount * 100,
         currency: 'ZAR',
         name: orderData.name,
         description: `Order: ${orderData.item}`,
         metadata: {
+          order_id,
+          environment,
           order_data: JSON.stringify(orderData)
         },
         callback: function(result: any) {
@@ -128,7 +129,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             setIsLoading(false);
           } else {
             console.log('Payment successful:', result);
-            onPaymentSuccess(result.id, payment_id);
+            onPaymentSuccess(result.id, order_id);
             setIsLoading(false);
           }
         }
@@ -136,7 +137,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
 
     } catch (error) {
       console.error('Payment initialization error:', error);
-      onPaymentError('Failed to initialize payment. Please try again.');
+      onPaymentError(error instanceof Error ? error.message : 'Failed to initialize payment. Please try again.');
       setIsLoading(false);
     }
   };
@@ -170,9 +171,18 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           <span>Your payment information is encrypted and secure</span>
         </div>
 
+        {!productInStock && (
+          <Alert className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              This item is currently out of stock and cannot be purchased.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Button
           onClick={handlePayment}
-          disabled={isLoading || !sdkLoaded}
+          disabled={isLoading || !isLoaded || !productInStock}
           className="w-full"
         >
           {isLoading ? (

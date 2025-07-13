@@ -9,6 +9,7 @@ const corsHeaders = {
 interface PaymentRequest {
   amount: number;
   currency: string;
+  environment?: string;
   orderData: {
     customer_name: string;
     customer_email: string;
@@ -33,9 +34,25 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { amount, currency, orderData }: PaymentRequest = await req.json();
+    const { amount, currency, environment = 'live', orderData }: PaymentRequest = await req.json();
 
-    console.log('Creating payment for amount:', amount, 'currency:', currency);
+    console.log('Creating payment for amount:', amount, 'currency:', currency, 'environment:', environment);
+
+    // Check inventory before creating payment
+    const { data: inventoryItem, error: inventoryError } = await supabaseClient
+      .from('inventory')
+      .select('stock_quantity')
+      .eq('product_id', orderData.item)
+      .single();
+
+    if (inventoryError) {
+      console.error('Inventory check error:', inventoryError);
+      throw new Error('Product not found');
+    }
+
+    if (inventoryItem.stock_quantity < orderData.quantity) {
+      throw new Error('Insufficient stock available');
+    }
 
     // Create order in database
     const { data: order, error: orderError } = await supabaseClient
@@ -109,7 +126,8 @@ serve(async (req) => {
         currency: currency,
         status: 'pending',
         yoco_payment_id: yocoData.id,
-        payment_method: 'yoco'
+        payment_method: 'yoco',
+        environment: environment
       });
 
     return new Response(

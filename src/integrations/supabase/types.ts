@@ -56,6 +56,36 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory: {
+        Row: {
+          created_at: string
+          id: string
+          price_cents: number
+          product_id: string
+          product_name: string
+          stock_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          price_cents: number
+          product_id: string
+          product_name: string
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          price_cents?: number
+          product_id?: string
+          product_name?: string
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_confirmations: {
         Row: {
           confirmation_number: string
@@ -105,6 +135,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          cart_data: Json | null
           color: string | null
           created_at: string
           customer_email: string
@@ -121,6 +152,7 @@ export type Database = {
           yoco_payment_id: string | null
         }
         Insert: {
+          cart_data?: Json | null
           color?: string | null
           created_at?: string
           customer_email: string
@@ -137,6 +169,7 @@ export type Database = {
           yoco_payment_id?: string | null
         }
         Update: {
+          cart_data?: Json | null
           color?: string | null
           created_at?: string
           customer_email?: string
@@ -159,6 +192,7 @@ export type Database = {
           amount: number
           created_at: string
           currency: string
+          environment: string | null
           id: string
           order_id: string
           payment_method: string | null
@@ -170,6 +204,7 @@ export type Database = {
           amount: number
           created_at?: string
           currency?: string
+          environment?: string | null
           id?: string
           order_id: string
           payment_method?: string | null
@@ -181,6 +216,7 @@ export type Database = {
           amount?: number
           created_at?: string
           currency?: string
+          environment?: string | null
           id?: string
           order_id?: string
           payment_method?: string | null
@@ -263,6 +299,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_cart_total: {
+        Args: { cart_items: Json }
+        Returns: number
+      }
       generate_confirmation_number: {
         Args: Record<PropertyKey, never>
         Returns: string

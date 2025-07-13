@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import Cart from "./pages/Cart";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Enhanced404 from "./pages/Enhanced404";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/payment-success" element={<PaymentSuccess />} />
+                  <Route path="/admin" element={<Admin />} />
                   {/* Catch-all route for 404 */}
                   <Route path="*" element={<Enhanced404 />} />
                 </Routes>
