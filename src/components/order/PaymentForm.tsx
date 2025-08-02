@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, CreditCard, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Shield, CreditCard, Lock, CheckCircle, AlertCircle, Smartphone, QrCode } from 'lucide-react';
 import { useYoco } from '@/hooks/useYoco';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,15 +31,17 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   amount,
   onSuccess,
 }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { isLoaded, processPayment } = useYoco();
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'ready' | 'processing' | 'success' | 'error'>('ready');
+  const [orderCreated, setOrderCreated] = useState<any>(null);
+  const { isLoaded, isLoading, isProcessing, processPayment, getSupportedCardTypes } = useYoco();
   const { toast } = useToast();
 
-  const handlePayment = async () => {
-    setIsProcessing(true);
+  const createOrder = async () => {
+    setIsCreatingOrder(true);
+    setPaymentStep('processing');
 
     try {
-      // First create order in database
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -58,17 +63,47 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
         throw new Error('Failed to create order');
       }
 
+      setOrderCreated(order);
+      setPaymentStep('ready');
+      return order;
+    } catch (error) {
+      console.error('Order creation error:', error);
+      setPaymentStep('error');
+      toast({
+        title: "Error",
+        description: "Failed to create order. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    try {
+      let order = orderCreated;
+      
+      if (!order) {
+        order = await createOrder();
+      }
+
+      setPaymentStep('processing');
+
       // Process payment with Yoco
-      processPayment(
-        amount, // amount in cents
-        'ZAR',
-        {
+      processPayment({
+        amount,
+        currency: 'ZAR',
+        metadata: {
           orderId: order.id,
           customerEmail: orderData.email,
-          item: orderData.item
+          item: orderData.item,
+          customerName: orderData.name
         },
-        async (result) => {
+        onSuccess: async (result) => {
           try {
+            setPaymentStep('success');
+            
             // Update order with payment info
             await supabase
               .from('orders')
@@ -90,105 +125,204 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
                 environment: 'test'
               });
 
-            toast({
-              title: "Payment Successful!",
-              description: "Your order has been confirmed.",
-            });
+            // Send confirmation email (if you have email service set up)
+            // await sendConfirmationEmail(order, result);
 
             onSuccess(result.id, order.id);
           } catch (error) {
             console.error('Post-payment error:', error);
+            setPaymentStep('error');
             toast({
               title: "Payment Processed",
               description: "Payment completed but there was an issue updating records. We'll contact you shortly.",
               variant: "destructive",
             });
           }
-          setIsProcessing(false);
         },
-        (error) => {
+        onError: (error) => {
           console.error('Payment failed:', error);
+          setPaymentStep('error');
+        },
+        onCancel: () => {
+          setPaymentStep('ready');
           toast({
-            title: "Payment Failed",
-            description: error.message || "Payment could not be processed",
-            variant: "destructive",
+            title: "Payment Cancelled",
+            description: "You can try again when ready.",
           });
-          setIsProcessing(false);
         }
-      );
-    } catch (error) {
-      console.error('Order creation error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create order",
-        variant: "destructive",
       });
-      setIsProcessing(false);
+    } catch (error) {
+      setPaymentStep('error');
+    }
+  };
+
+  // Get payment status indicator
+  const getPaymentStatusContent = () => {
+    switch (paymentStep) {
+      case 'processing':
+        return (
+          <div className="flex items-center gap-2 text-blue-600">
+            <LoadingSpinner size="sm" />
+            <span>Processing payment...</span>
+          </div>
+        );
+      case 'success':
+        return (
+          <div className="flex items-center gap-2 text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            <span>Payment successful!</span>
+          </div>
+        );
+      case 'error':
+        return (
+          <div className="flex items-center gap-2 text-red-600">
+            <AlertCircle className="h-4 w-4" />
+            <span>Payment failed. Please try again.</span>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
   return (
-    <Card className="max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5" />
-          Payment Details
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="bg-muted p-4 rounded-lg">
-          <h3 className="font-semibold mb-2">Order Summary</h3>
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span>Item:</span>
-              <span>{orderData.item}</span>
-            </div>
-            {orderData.size && (
+    <div className="max-w-md mx-auto space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Secure Payment
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Order Summary */}
+          <div className="bg-muted p-4 rounded-lg">
+            <h3 className="font-semibold mb-3">Order Summary</h3>
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Size:</span>
-                <span>{orderData.size}</span>
+                <span>Item:</span>
+                <span className="font-medium">{orderData.item}</span>
               </div>
-            )}
-            {orderData.color && (
+              {orderData.size && (
+                <div className="flex justify-between">
+                  <span>Size:</span>
+                  <span>{orderData.size}</span>
+                </div>
+              )}
+              {orderData.color && (
+                <div className="flex justify-between">
+                  <span>Color:</span>
+                  <span>{orderData.color}</span>
+                </div>
+              )}
               <div className="flex justify-between">
-                <span>Color:</span>
-                <span>{orderData.color}</span>
+                <span>Quantity:</span>
+                <span>{orderData.quantity}</span>
               </div>
-            )}
-            <div className="flex justify-between">
-              <span>Quantity:</span>
-              <span>{orderData.quantity}</span>
-            </div>
-            <div className="flex justify-between font-semibold border-t pt-1">
-              <span>Total:</span>
-              <span>R{(amount / 100).toFixed(2)}</span>
+              <div className="flex justify-between font-semibold text-lg border-t pt-2 mt-2">
+                <span>Total:</span>
+                <span>R{(amount / 100).toFixed(2)}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Shield className="h-4 w-4" />
-          <span>Secured by Yoco</span>
-        </div>
-
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Lock className="h-4 w-4" />
-          <span>Your payment information is encrypted and secure</span>
-        </div>
-
-        <Button
-          onClick={handlePayment}
-          disabled={isProcessing || !isLoaded}
-          className="w-full"
-          size="lg"
-        >
-          {isProcessing ? (
-            "Processing Payment..."
-          ) : (
-            `Pay R${(amount / 100).toFixed(2)}`
+          {/* Payment Status */}
+          {getPaymentStatusContent() && (
+            <Alert>
+              <AlertDescription>
+                {getPaymentStatusContent()}
+              </AlertDescription>
+            </Alert>
           )}
-        </Button>
-      </CardContent>
-    </Card>
+
+          {/* Supported Payment Methods */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">Accepted Payment Methods</h4>
+            <div className="flex gap-2 flex-wrap">
+              {getSupportedCardTypes().map((cardType) => (
+                <Badge key={cardType} variant="outline" className="text-xs">
+                  {cardType.replace('_', ' ').toUpperCase()}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Security Features */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Shield className="h-4 w-4 text-green-600" />
+              <span>PCI-DSS Compliant</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Lock className="h-4 w-4 text-green-600" />
+              <span>256-bit SSL Encryption</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CreditCard className="h-4 w-4 text-green-600" />
+              <span>Secured by Yoco</span>
+            </div>
+          </div>
+
+          {/* Payment Button */}
+          <Button
+            onClick={handlePayment}
+            disabled={isCreatingOrder || isProcessing || !isLoaded || paymentStep === 'processing'}
+            className="w-full"
+            size="lg"
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinner size="sm" />
+                Loading Payment System...
+              </div>
+            ) : isCreatingOrder ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinner size="sm" />
+                Creating Order...
+              </div>
+            ) : isProcessing || paymentStep === 'processing' ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinner size="sm" />
+                Processing Payment...
+              </div>
+            ) : (
+              `Pay R${(amount / 100).toFixed(2)} Securely`
+            )}
+          </Button>
+
+          {/* Test Mode Notice */}
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              <strong>Test Mode:</strong> Use card number 4000 0000 0000 0002 for testing. 
+              No real charges will be made.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      {/* Additional Features Card */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm">What happens next?</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-3 w-3 text-green-600" />
+                <span>Instant payment confirmation</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-3 w-3 text-green-600" />
+                <span>Email receipt sent automatically</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-3 w-3 text-green-600" />
+                <span>Order processing begins immediately</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
