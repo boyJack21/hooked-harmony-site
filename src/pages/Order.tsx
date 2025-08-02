@@ -9,7 +9,7 @@ import { PaymentForm } from '@/components/order/PaymentForm';
 import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
-import { createPayment } from '@/services/paymentService';
+
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -82,29 +82,7 @@ const Order = () => {
   const handlePaymentSuccess = (paymentId: string, orderId: string) => {
     setPaymentId(paymentId);
     setOrderId(orderId);
-    
-    // Transform orderData to match payment service interface
-    const paymentOrderData = {
-      customer_name: formData.name,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      item: formData.item,
-      quantity: formData.quantity,
-      color: formData.color,
-      size: formData.size,
-      special_instructions: formData.specialInstructions,
-    };
-    
-    // Redirect to success page with parameters
     navigate(`/payment-success?payment_id=${paymentId}&order_id=${orderId}`);
-  };
-
-  const handlePaymentError = (error: string) => {
-    toast({
-      title: "Payment Failed",
-      description: error,
-      variant: "destructive",
-    });
   };
 
   const handleBackToForm = () => {
@@ -162,8 +140,7 @@ const Order = () => {
             <PaymentForm
               orderData={formData}
               amount={orderAmount}
-              onPaymentSuccess={handlePaymentSuccess}
-              onPaymentError={handlePaymentError}
+              onSuccess={handlePaymentSuccess}
             />
           </div>
         );

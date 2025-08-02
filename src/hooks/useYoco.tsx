@@ -7,17 +7,13 @@ declare global {
   }
 }
 
-interface YocoSDKConfig {
-  publicKey: string;
-  environment: 'test' | 'live';
-}
-
-export const useYocoSDK = (config: YocoSDKConfig) => {
+export const useYoco = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check if SDK is already loaded
     if (window.YocoSDK) {
       setIsLoaded(true);
       return;
@@ -25,7 +21,7 @@ export const useYocoSDK = (config: YocoSDKConfig) => {
 
     setIsLoading(true);
 
-    // Create script element for Yoco SDK
+    // Load Yoco SDK
     const script = document.createElement('script');
     script.src = 'https://js.yoco.com/sdk/v1/yoco-sdk-web.js';
     script.async = true;
@@ -38,8 +34,8 @@ export const useYocoSDK = (config: YocoSDKConfig) => {
     script.onerror = () => {
       setIsLoading(false);
       toast({
-        title: "Payment System Error",
-        description: "Failed to load payment system. Please refresh and try again.",
+        title: "Payment Error",
+        description: "Failed to load payment system",
         variant: "destructive",
       });
     };
@@ -53,18 +49,17 @@ export const useYocoSDK = (config: YocoSDKConfig) => {
     };
   }, [toast]);
 
-  const initializePayment = (paymentData: {
-    amountInCents: number;
-    currency: string;
-    name: string;
-    description: string;
-    metadata?: any;
-    callback: (result: any) => void;
-  }) => {
+  const processPayment = (
+    amount: number,
+    currency: string,
+    metadata: any,
+    onSuccess: (result: any) => void,
+    onError: (error: any) => void
+  ) => {
     if (!window.YocoSDK || !isLoaded) {
       toast({
-        title: "Payment System Not Ready",
-        description: "Please wait for the payment system to load and try again.",
+        title: "Payment Error",
+        description: "Payment system not ready",
         variant: "destructive",
       });
       return;
@@ -72,23 +67,34 @@ export const useYocoSDK = (config: YocoSDKConfig) => {
 
     try {
       const yoco = new window.YocoSDK({
-        publicKey: config.publicKey,
+        publicKey: 'pk_test_ed3c54a6gOol69qa7f45', // Test key - replace with live key for production
       });
 
-      yoco.showPopup(paymentData);
-    } catch (error) {
-      console.error('Yoco initialization error:', error);
-      toast({
-        title: "Payment Error",
-        description: "Failed to initialize payment. Please try again.",
-        variant: "destructive",
+      yoco.showPopup({
+        amountInCents: amount,
+        currency: currency,
+        name: 'Elite Hair Studio',
+        description: `Order: ${metadata.item}`,
+        metadata: metadata,
+        callback: function(result: any) {
+          if (result.error) {
+            console.error('Payment error:', result.error);
+            onError(result.error);
+          } else {
+            console.log('Payment success:', result);
+            onSuccess(result);
+          }
+        }
       });
+    } catch (error) {
+      console.error('Yoco error:', error);
+      onError(error);
     }
   };
 
   return {
     isLoaded,
     isLoading,
-    initializePayment,
+    processPayment,
   };
 };
