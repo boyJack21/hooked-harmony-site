@@ -60,8 +60,11 @@ export const useInventory = () => {
 
   // Listen for real-time inventory updates
   useEffect(() => {
+    // Create unique channel name to avoid subscription conflicts
+    const channelName = `inventory-changes-${Math.random().toString(36).substr(2, 9)}`;
+    
     const channel = supabase
-      .channel('inventory-changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
