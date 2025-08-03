@@ -5,13 +5,16 @@ import Footer from '@/components/home/Footer';
 import { OrderForm } from '@/components/order/OrderForm';
 import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
+import { PayPalButton } from '@/components/order/PayPalButton';
 
 import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
 
-import { CheckCircle, ArrowLeft } from 'lucide-react';
+import { CheckCircle, ArrowLeft, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 const Order = () => {
   const location = useLocation();
@@ -36,6 +39,8 @@ const Order = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'direct' | 'paypal'>('direct');
   
   useEffect(() => {
     if (selectedSize && !formData.size) {
@@ -71,8 +76,14 @@ const Order = () => {
       return;
     }
     
+    // Show payment options instead of submitting directly
+    setShowPaymentOptions(true);
+    setSubmitting(false);
+  };
+
+  const handleDirectOrderSubmit = async () => {
+    setSubmitting(true);
     try {
-      // Submit order directly without payment
       setIsSubmitted(true);
       setOrderCount(prev => prev + 1);
       
@@ -97,6 +108,26 @@ const Order = () => {
     }
   };
 
+  const handlePayPalSuccess = (transactionId: string) => {
+    setIsSubmitted(true);
+    toast({
+      title: "Payment Successful!",
+      description: `Payment completed. Transaction ID: ${transactionId}`,
+    });
+    
+    setTimeout(() => {
+      handleNewOrder();
+    }, 3000);
+  };
+
+  const handlePayPalError = (error: string) => {
+    toast({
+      title: "Payment Failed",
+      description: error,
+      variant: "destructive",
+    });
+  };
+
   const handleNewOrder = () => {
     setFormData({
       name: '',
@@ -112,6 +143,7 @@ const Order = () => {
     setErrors({});
     setSubmitting(false);
     setIsSubmitted(false);
+    setShowPaymentOptions(false);
   };
 
   const renderContent = () => {
@@ -126,6 +158,73 @@ const Order = () => {
           <Button onClick={handleNewOrder}>
             Place Another Order
           </Button>
+        </div>
+      );
+    }
+
+    if (showPaymentOptions) {
+      return (
+        <div className="space-y-8">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-2">Choose Payment Method</h3>
+            <p className="text-muted-foreground">How would you like to complete your order?</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Direct Order Option */}
+            <Card className="p-6 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/20">
+              <div className="text-center space-y-4">
+                <CreditCard className="h-12 w-12 mx-auto text-primary" />
+                <div>
+                  <h4 className="font-semibold">Pay Later</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Submit order now, we'll contact you for payment
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleDirectOrderSubmit}
+                  disabled={submitting}
+                  className="w-full"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Order'}
+                </Button>
+              </div>
+            </Card>
+
+            {/* PayPal Option */}
+            <Card className="p-6">
+              <div className="text-center space-y-4">
+                <div className="h-12 w-12 mx-auto bg-[#0070ba] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">PayPal</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Pay with PayPal</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Secure payment with PayPal
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Amount: $49.99 (example price)
+                  </p>
+                </div>
+                <PayPalButton
+                  orderData={formData}
+                  amount={4999} // $49.99 in cents
+                  onSuccess={handlePayPalSuccess}
+                  onError={handlePayPalError}
+                />
+              </div>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPaymentOptions(false)}
+              className="mt-4"
+            >
+              Back to Order Form
+            </Button>
+          </div>
         </div>
       );
     }
