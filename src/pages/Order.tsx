@@ -5,7 +5,7 @@ import Footer from '@/components/home/Footer';
 import { OrderForm } from '@/components/order/OrderForm';
 import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
-import { PaymentForm } from '@/components/order/PaymentForm';
+
 import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
@@ -32,12 +32,10 @@ const Order = () => {
   }));
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [currentStep, setCurrentStep] = useState<'form' | 'payment' | 'success'>('form');
   const [orderId, setOrderId] = useState<string>('');
-  const [paymentId, setPaymentId] = useState<string>('');
   const [orderCount, setOrderCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [orderAmount, setOrderAmount] = useState(500); // Default amount in ZAR
+  const [isSubmitted, setIsSubmitted] = useState(false);
   
   useEffect(() => {
     if (selectedSize && !formData.size) {
@@ -73,21 +71,30 @@ const Order = () => {
       return;
     }
     
-    // Move to payment step
-    setCurrentStep('payment');
-    setSubmitting(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handlePaymentSuccess = (paymentId: string, orderId: string) => {
-    setPaymentId(paymentId);
-    setOrderId(orderId);
-    navigate(`/payment-success?payment_id=${paymentId}&order_id=${orderId}`);
-  };
-
-  const handleBackToForm = () => {
-    setCurrentStep('form');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      // Submit order directly without payment
+      setIsSubmitted(true);
+      setOrderCount(prev => prev + 1);
+      
+      toast({
+        title: "Order Submitted!",
+        description: "Your order has been received. We'll contact you shortly.",
+      });
+      
+      // Reset form after successful submission
+      setTimeout(() => {
+        handleNewOrder();
+      }, 3000);
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleNewOrder = () => {
@@ -101,53 +108,39 @@ const Order = () => {
       size: '',
       specialInstructions: '',
     });
-    setCurrentStep('form');
     setOrderId('');
-    setPaymentId('');
     setErrors({});
     setSubmitting(false);
+    setIsSubmitted(false);
   };
 
   const renderContent = () => {
-    switch (currentStep) {
-      case 'form':
-        return (
-          <OrderForm 
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleFormSubmit}
-            submitting={submitting}
-            errors={errors}
-            orderCount={orderCount}
-            initialSize={selectedSize}
-          />
-        );
-      
-      case 'payment':
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-4 mb-6">
-              <Button 
-                onClick={handleBackToForm}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Order Details
-              </Button>
-            </div>
-            <PaymentForm
-              orderData={formData}
-              amount={orderAmount}
-              onSuccess={handlePaymentSuccess}
-            />
-          </div>
-        );
-      
-      default:
-        return null;
+    if (isSubmitted) {
+      return (
+        <div className="text-center py-12">
+          <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Order Submitted Successfully!</h2>
+          <p className="text-muted-foreground mb-6">
+            Thank you for your order. We'll contact you shortly to confirm details and arrange payment.
+          </p>
+          <Button onClick={handleNewOrder}>
+            Place Another Order
+          </Button>
+        </div>
+      );
     }
+
+    return (
+      <OrderForm 
+        formData={formData}
+        handleChange={handleChange}
+        handleSubmit={handleFormSubmit}
+        submitting={submitting}
+        errors={errors}
+        orderCount={orderCount}
+        initialSize={selectedSize}
+      />
+    );
   };
 
   return (
@@ -156,21 +149,13 @@ const Order = () => {
       
       <main className="container mx-auto px-4 py-8 md:py-16">
         <div className="max-w-3xl mx-auto">
-          {currentStep === 'form' && <OrderFormHeader />}
-          {currentStep === 'payment' && (
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2">Complete Your Payment</h1>
-              <p className="text-muted-foreground">
-                Secure payment powered by Yoco
-              </p>
-            </div>
-          )}
+          {!isSubmitted && <OrderFormHeader />}
           
           <div className="my-6 md:my-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-8">
             {renderContent()}
           </div>
           
-          {currentStep === 'form' && <OrderFormFooter />}
+          {!isSubmitted && <OrderFormFooter />}
         </div>
       </main>
       
