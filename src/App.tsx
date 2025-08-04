@@ -15,7 +15,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Wishlist from "./pages/Wishlist";
 import Auth from "./pages/Auth";
 import Cart from "./pages/Cart";
-import PaymentSuccess from "./pages/PaymentSuccess";
+
 
 import Enhanced404 from "./pages/Enhanced404";
 import Admin from "./pages/Admin";
@@ -36,7 +36,7 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/order" element={<Order />} />
-                  <Route path="/payment-success" element={<PaymentSuccess />} />
+                  
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/cart" element={<Cart />} />
