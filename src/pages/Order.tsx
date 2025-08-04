@@ -5,7 +5,8 @@ import Footer from '@/components/home/Footer';
 import { OrderForm } from '@/components/order/OrderForm';
 import { OrderFormHeader } from '@/components/order/OrderFormHeader';
 import { OrderFormFooter } from '@/components/order/OrderFormFooter';
-
+import { YocoButton } from '@/components/order/YocoButton';
+import { getProductPrice, formatPrice, addSizeUpcharge } from '@/utils/pricing';
 
 import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
@@ -39,6 +40,12 @@ const Order = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  
+  // Calculate price based on product and size
+  const basePrice = getProductPrice(formData.item);
+  const finalPrice = addSizeUpcharge(basePrice, formData.size);
+  const totalPrice = finalPrice * formData.quantity;
   
   useEffect(() => {
     if (selectedSize && !formData.size) {
@@ -74,7 +81,9 @@ const Order = () => {
       return;
     }
     
-    await handleDirectOrderSubmit();
+    // Show payment options instead of submitting directly
+    setShowPaymentOptions(true);
+    setSubmitting(false);
   };
 
   const handleDirectOrderSubmit = async () => {
@@ -104,6 +113,25 @@ const Order = () => {
     }
   };
 
+  const handleYocoSuccess = (paymentId: string) => {
+    setIsSubmitted(true);
+    toast({
+      title: "Payment Successful!",
+      description: `Payment completed successfully. Payment ID: ${paymentId}`,
+    });
+    
+    setTimeout(() => {
+      handleNewOrder();
+    }, 3000);
+  };
+
+  const handleYocoError = (error: string) => {
+    toast({
+      title: "Payment Failed",
+      description: error,
+      variant: "destructive",
+    });
+  };
 
   const handleNewOrder = () => {
     setFormData({
@@ -120,6 +148,7 @@ const Order = () => {
     setErrors({});
     setSubmitting(false);
     setIsSubmitted(false);
+    setShowPaymentOptions(false);
   };
 
   const renderContent = () => {
@@ -138,6 +167,80 @@ const Order = () => {
       );
     }
 
+    if (showPaymentOptions) {
+      return (
+        <div className="space-y-8">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-2">Choose Payment Method</h3>
+            <p className="text-muted-foreground">How would you like to complete your order?</p>
+            <div className="mt-4 p-4 bg-primary/5 rounded-lg">
+              <p className="text-lg font-semibold">
+                Total: {formatPrice(totalPrice)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {formData.item} - Size: {formData.size || 'Standard'} - Qty: {formData.quantity}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Direct Order Option */}
+            <Card className="p-6 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/20">
+              <div className="text-center space-y-4">
+                <CreditCard className="h-12 w-12 mx-auto text-primary" />
+                <div>
+                  <h4 className="font-semibold">Pay Later</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Submit order now, we'll contact you for payment
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleDirectOrderSubmit}
+                  disabled={submitting}
+                  className="w-full"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Order'}
+                </Button>
+              </div>
+            </Card>
+
+            {/* Yoco Payment Option */}
+            <Card className="p-6">
+              <div className="text-center space-y-4">
+                <div className="h-12 w-12 mx-auto bg-[#00d4ff] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">Yoco</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Pay with Card</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Secure payment with Yoco
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Amount: {formatPrice(totalPrice)}
+                  </p>
+                </div>
+                <YocoButton
+                  orderData={formData}
+                  amount={totalPrice}
+                  onSuccess={handleYocoSuccess}
+                  onError={handleYocoError}
+                />
+              </div>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPaymentOptions(false)}
+              className="mt-4"
+            >
+              Back to Order Form
+            </Button>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <OrderForm 
