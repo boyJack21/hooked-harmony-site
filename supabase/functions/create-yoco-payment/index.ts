@@ -14,56 +14,20 @@ serve(async (req) => {
   try {
     const { orderData, amount } = await req.json();
     
-    console.log('Creating Yoco payment for amount:', amount);
+    console.log('Creating order for Yoco payment, amount:', amount);
     
-    const yocoSecretKey = Deno.env.get('YOCO_SECRET_KEY');
-    
-    if (!yocoSecretKey) {
-      throw new Error('Yoco secret key not configured');
-    }
-
-    // Create payment intent with Yoco
-    const paymentPayload = {
-      amount: amount, // Amount in cents
-      currency: 'ZAR',
-      metadata: {
-        order_id: crypto.randomUUID(),
-        customer_name: orderData.name,
-        customer_email: orderData.email,
-        item: orderData.item,
-        size: orderData.size,
-        color: orderData.color,
-        quantity: orderData.quantity,
-      },
-    };
-
-    const response = await fetch('https://online.yoco.com/v1/charges/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${yocoSecretKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(paymentPayload),
-    });
-
-    const paymentIntent = await response.json();
-    
-    if (!response.ok) {
-      console.error('Yoco payment creation failed:', paymentIntent);
-      throw new Error(paymentIntent.message || 'Failed to create Yoco payment');
-    }
-
-    console.log('Yoco payment intent created successfully:', paymentIntent.id);
-
-    // Store order in database
+    // Store order in database first (before payment)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const orderId = crypto.randomUUID();
+
     const { error: orderError } = await supabase
       .from('orders')
       .insert({
+        id: orderId,
         customer_name: orderData.name,
         customer_email: orderData.email,
         customer_phone: orderData.phone,
@@ -74,17 +38,20 @@ serve(async (req) => {
         special_instructions: orderData.specialInstructions,
         total_amount: amount,
         status: 'pending',
-        yoco_payment_id: paymentIntent.id,
       });
 
     if (orderError) {
       console.error('Error storing order:', orderError);
+      throw new Error('Failed to create order');
     }
 
+    console.log('Order created successfully:', orderId);
+
+    // Return order ID for frontend to use with Yoco SDK
     return new Response(JSON.stringify({ 
       success: true,
-      paymentIntentId: paymentIntent.id,
-      clientSecret: paymentIntent.id, // Yoco uses the payment ID as client secret
+      orderId: orderId,
+      amount: amount,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

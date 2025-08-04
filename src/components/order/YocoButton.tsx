@@ -55,19 +55,19 @@ export const YocoButton: React.FC<YocoButtonProps> = ({
     setIsProcessing(true);
 
     try {
-      // Create payment intent
-      const { data: paymentData, error: paymentError } = await supabase.functions
+      // Create order first
+      const { data: orderResponse, error: orderError } = await supabase.functions
         .invoke('create-yoco-payment', {
           body: { orderData, amount }
         });
 
-      if (paymentError || !paymentData.success) {
-        throw new Error(paymentData?.error || 'Failed to create payment');
+      if (orderError || !orderResponse.success) {
+        throw new Error(orderResponse?.error || 'Failed to create order');
       }
 
       // Initialize Yoco popup
       const yoco = new window.YocoSDK({
-        publicKey: process.env.YOCO_PUBLIC_KEY || 'pk_test_ed3c54a6gOol69qa7f45',
+        publicKey: 'pk_test_ed3c54a6gOol69qa7f45', // Use your actual public key
       });
 
       yoco.showPopup({
@@ -75,6 +75,9 @@ export const YocoButton: React.FC<YocoButtonProps> = ({
         currency: 'ZAR',
         name: orderData.name,
         description: `${orderData.item} - Size: ${orderData.size}, Quantity: ${orderData.quantity}`,
+        metadata: {
+          orderId: orderResponse.orderId,
+        },
         callback: async (result: any) => {
           if (result.error) {
             console.error('Yoco payment error:', result.error);
@@ -87,7 +90,10 @@ export const YocoButton: React.FC<YocoButtonProps> = ({
             // Verify payment with our backend
             const { data: verifyData, error: verifyError } = await supabase.functions
               .invoke('verify-yoco-payment', {
-                body: { paymentId: result.id }
+                body: { 
+                  paymentId: result.id,
+                  orderId: orderResponse.orderId 
+                }
               });
 
             if (verifyError || !verifyData.success) {

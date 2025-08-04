@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { paymentId } = await req.json();
+    const { paymentId, orderId } = await req.json();
     
     console.log('Verifying Yoco payment:', paymentId);
     
@@ -51,26 +51,26 @@ serve(async (req) => {
       .from('orders')
       .update({ 
         status: payment.status === 'successful' ? 'completed' : 'failed',
+        yoco_payment_id: paymentId,
         updated_at: new Date().toISOString(),
       })
-      .eq('yoco_payment_id', paymentId);
+      .eq('id', orderId);
 
     if (orderError) {
       console.error('Error updating order:', orderError);
     }
 
-    // Insert/update payment record
+    // Insert payment record
     const { error: paymentError } = await supabase
       .from('payments')
-      .upsert({
+      .insert({
+        order_id: orderId,
         yoco_payment_id: paymentId,
         amount: payment.amount,
         currency: payment.currency,
         status: payment.status,
         payment_method: 'yoco',
         environment: 'live',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       });
 
     if (paymentError) {
