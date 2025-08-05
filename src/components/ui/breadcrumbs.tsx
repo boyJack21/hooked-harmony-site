@@ -48,7 +48,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className }) =>
   return (
     <nav className={cn('flex items-center space-x-2 text-sm text-gray-600', className)}>
       {breadcrumbItems.map((item, index) => (
-        <React.Fragment key={index}>
+        <div key={`breadcrumb-${index}`} className="flex items-center space-x-2">
           {index > 0 && <ChevronRight className="w-4 h-4" />}
           
           {item.href ? (
@@ -64,8 +64,8 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className }) =>
               {index === 0 && <Home className="w-4 h-4 mr-1" />}
               {item.label}
             </span>
-          )}
-        </React.Fragment>
+           )}
+        </div>
       ))}
     </nav>
   );
