@@ -126,9 +126,12 @@ const Order = () => {
   };
 
   const handleYocoError = (error: string) => {
+    // Reset to payment options screen so user can retry
+    setShowPaymentOptions(true);
+    
     toast({
       title: "Payment Failed",
-      description: error,
+      description: error + " Please try again or choose 'Pay Later'.",
       variant: "destructive",
     });
   };

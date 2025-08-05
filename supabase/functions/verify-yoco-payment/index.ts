@@ -46,6 +46,18 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Get order details for emails
+    const { data: orderData, error: orderFetchError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+
+    if (orderFetchError) {
+      console.error('Error fetching order:', orderFetchError);
+      throw new Error('Failed to retrieve order details');
+    }
+
     // Update order status
     const { error: orderError } = await supabase
       .from('orders')
@@ -75,6 +87,32 @@ serve(async (req) => {
 
     if (paymentError) {
       console.error('Error storing payment:', paymentError);
+    }
+
+    // Send confirmation emails if payment successful
+    if (payment.status === 'successful') {
+      try {
+        await supabase.functions.invoke('send-order-emails', {
+          body: {
+            customerName: orderData.customer_name,
+            customerEmail: orderData.customer_email,
+            orderData: {
+              item: orderData.item,
+              quantity: orderData.quantity,
+              size: orderData.size,
+              color: orderData.color,
+              specialInstructions: orderData.special_instructions
+            },
+            amount: orderData.total_amount,
+            orderId: orderData.id,
+            paymentId: paymentId
+          }
+        });
+        console.log('Order confirmation emails sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send confirmation emails:', emailError);
+        // Don't fail the payment verification if emails fail
+      }
     }
 
     return new Response(JSON.stringify({ 
