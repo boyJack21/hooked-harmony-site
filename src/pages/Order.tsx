@@ -22,14 +22,17 @@ const Order = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const product = location.state?.product;
+  const cartItems = location.state?.cartItems;
+  const isCartCheckout = location.state?.isCartCheckout;
   const selectedSize = location.state?.selectedSize;
+  
   
   const [formData, setFormData] = useState<OrderFormData>(() => ({
     name: '',
     email: '',
     phone: '',
-    item: product ? product.title : '',
-    quantity: 1,
+    item: isCartCheckout ? 'Cart Items' : (product ? product.title : ''),
+    quantity: isCartCheckout ? cartItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 1 : 1,
     color: '',
     size: selectedSize || '',
     specialInstructions: '',
@@ -41,11 +44,18 @@ const Order = () => {
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [formValid, setFormValid] = useState(false);
   
-  // Calculate price based on product and size
-  const basePrice = getProductPrice(formData.item);
-  const finalPrice = addSizeUpcharge(basePrice, formData.size);
-  const totalPrice = finalPrice * formData.quantity;
+  // Calculate price based on product and size or cart total
+  const basePrice = isCartCheckout 
+    ? cartItems?.reduce((sum: number, item: any) => {
+        const price = parseFloat(item.product_price.replace(/[^0-9.]/g, ''));
+        return sum + (price * item.quantity);
+      }, 0) * 100 || 0 // Convert to cents
+    : getProductPrice(formData.item);
+  
+  const finalPrice = isCartCheckout ? basePrice : addSizeUpcharge(basePrice, formData.size);
+  const totalPrice = isCartCheckout ? finalPrice : finalPrice * formData.quantity;
   
   useEffect(() => {
     if (selectedSize && !formData.size) {
@@ -67,23 +77,21 @@ const Order = () => {
   
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     
     const formErrors = validateOrderForm(formData);
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
+      setFormValid(false);
       toast({
         title: "Form Incomplete",
         description: "Please fill in all required fields correctly.",
         variant: "destructive",
       });
-      setSubmitting(false);
       return;
     }
     
-    // Show payment options instead of submitting directly
+    setFormValid(true);
     setShowPaymentOptions(true);
-    setSubmitting(false);
   };
 
   const handleDirectOrderSubmit = async () => {
@@ -170,20 +178,53 @@ const Order = () => {
       );
     }
 
-    if (showPaymentOptions) {
+    if (showPaymentOptions && formValid) {
       return (
         <div className="space-y-8">
+          {/* Order Summary */}
+          <div className="bg-muted/20 rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Customer:</span>
+                <span>{formData.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Email:</span>
+                <span>{formData.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Phone:</span>
+                <span>{formData.phone}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Item(s):</span>
+                <span>{formData.item}</span>
+              </div>
+              {!isCartCheckout && (
+                <>
+                  <div className="flex justify-between">
+                    <span>Size:</span>
+                    <span>{formData.size || 'Standard'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Quantity:</span>
+                    <span>{formData.quantity}</span>
+                  </div>
+                </>
+              )}
+              <div className="pt-2 border-t">
+                <div className="flex justify-between font-semibold text-lg">
+                  <span>Total:</span>
+                  <span>{formatPrice(totalPrice)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="text-center">
             <h3 className="text-xl font-semibold mb-2">Choose Payment Method</h3>
             <p className="text-muted-foreground">How would you like to complete your order?</p>
-            <div className="mt-4 p-4 bg-primary/5 rounded-lg">
-              <p className="text-lg font-semibold">
-                Total: {formatPrice(totalPrice)}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {formData.item} - Size: {formData.size || 'Standard'} - Qty: {formData.quantity}
-              </p>
-            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -246,15 +287,73 @@ const Order = () => {
     }
 
     return (
-      <OrderForm 
-        formData={formData}
-        handleChange={handleChange}
-        handleSubmit={handleFormSubmit}
-        submitting={submitting}
-        errors={errors}
-        orderCount={orderCount}
-        initialSize={selectedSize}
-      />
+      <div className="space-y-8">
+        {/* Order Form */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Customer Information</h2>
+          <OrderForm 
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleFormSubmit}
+            submitting={submitting}
+            errors={errors}
+            orderCount={orderCount}
+            initialSize={selectedSize}
+          />
+        </div>
+        
+        {/* Payment Section */}
+        {formValid && (
+          <div className="border-t pt-8">
+            <h2 className="text-2xl font-bold mb-6">Payment Options</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Direct Order Option */}
+              <Card className="p-6 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/20">
+                <div className="text-center space-y-4">
+                  <CreditCard className="h-12 w-12 mx-auto text-primary" />
+                  <div>
+                    <h4 className="font-semibold">Pay Later</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Submit order now, we'll contact you for payment
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={handleDirectOrderSubmit}
+                    disabled={submitting}
+                    className="w-full"
+                  >
+                    {submitting ? 'Submitting...' : 'Submit Order'}
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Yoco Payment Option */}
+              <Card className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="h-12 w-12 mx-auto bg-[#00d4ff] rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">Yoco</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Pay with Card</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Secure payment with Yoco
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Amount: {formatPrice(totalPrice)}
+                    </p>
+                  </div>
+                  <YocoButton
+                    orderData={formData}
+                    amount={totalPrice}
+                    onSuccess={handleYocoSuccess}
+                    onError={handleYocoError}
+                  />
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 

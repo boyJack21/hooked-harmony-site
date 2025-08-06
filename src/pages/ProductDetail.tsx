@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { LazyImage } from '@/components/ui/lazy-image';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import Navbar from '@/components/home/Navbar';
@@ -18,6 +18,7 @@ import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { CartSuccessModal } from '@/components/cart/CartSuccessModal';
 
 const ProductDetail = () => {
   const location = useLocation();
@@ -30,6 +31,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [showCartModal, setShowCartModal] = useState(false);
   
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
@@ -71,16 +73,6 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast({
-        title: "Please Sign In",
-        description: "You need to be signed in to add items to cart.",
-        variant: "destructive",
-      });
-      navigate('/auth');
-      return;
-    }
-
     await addToCart({
       product_id: product.id,
       product_title: product.title,
@@ -90,21 +82,10 @@ const ProductDetail = () => {
       color: selectedColor,
       quantity,
     });
+    
+    setShowCartModal(true);
   };
 
-  const handleBuyNow = () => {
-    navigate('/order', {
-      state: {
-        product: {
-          ...product,
-          selectedSize,
-          selectedColor,
-          quantity,
-        },
-        selectedSize,
-      }
-    });
-  };
 
   const colors = ['Pink', 'Blue', 'White', 'Yellow', 'Purple'];
 
@@ -262,13 +243,6 @@ const ProductDetail = () => {
                 </Button>
               </div>
               
-              <Button 
-                onClick={handleBuyNow}
-                size="lg"
-                className="w-full"
-              >
-                Buy Now
-              </Button>
             </div>
 
             {/* Product Info */}
@@ -284,6 +258,13 @@ const ProductDetail = () => {
         {/* Recommended Products */}
         <RecommendedProducts currentProductId={product.id} />
       </div>
+      
+      {/* Cart Success Modal */}
+      <CartSuccessModal
+        isOpen={showCartModal}
+        onClose={() => setShowCartModal(false)}
+        productTitle={product.title}
+      />
       
       <Footer />
     </div>
