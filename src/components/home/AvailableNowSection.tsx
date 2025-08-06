@@ -10,7 +10,7 @@ const AvailableNowSection = () => {
   const navigate = useNavigate();
   
   // Static price for Pink Ruffle Hat
-  const displayPrice = "299.00";
+  const displayPrice = "200.00";
   
   const handleOrderClick = () => {
     navigate('/order', { 

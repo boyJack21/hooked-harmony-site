@@ -13,6 +13,7 @@ export interface CartItem {
   size?: string;
   color?: string;
   quantity: number;
+  isLocal?: boolean; // Flag for local cart items
 }
 
 interface CartContextType {
@@ -44,11 +45,59 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (user) {
+      syncLocalCartToDatabase();
       fetchCartItems();
     } else {
-      setItems([]);
+      loadLocalCart();
     }
   }, [user]);
+
+  const loadLocalCart = () => {
+    try {
+      const localCart = localStorage.getItem('cart_items');
+      if (localCart) {
+        const parsedCart = JSON.parse(localCart);
+        setItems(parsedCart.map((item: any) => ({ ...item, isLocal: true })));
+      }
+    } catch (error) {
+      console.error('Error loading local cart:', error);
+    }
+  };
+
+  const saveLocalCart = (cartItems: CartItem[]) => {
+    try {
+      const localItems = cartItems.filter(item => item.isLocal);
+      localStorage.setItem('cart_items', JSON.stringify(localItems));
+    } catch (error) {
+      console.error('Error saving local cart:', error);
+    }
+  };
+
+  const syncLocalCartToDatabase = async () => {
+    if (!user) return;
+    
+    try {
+      const localCart = localStorage.getItem('cart_items');
+      if (localCart) {
+        const localItems = JSON.parse(localCart);
+        
+        for (const item of localItems) {
+          const { id, isLocal, ...itemData } = item;
+          await supabase
+            .from('cart_items')
+            .insert({
+              user_id: user.id,
+              ...itemData,
+            });
+        }
+        
+        // Clear local cart after syncing
+        localStorage.removeItem('cart_items');
+      }
+    } catch (error) {
+      console.error('Error syncing local cart:', error);
+    }
+  };
 
   const fetchCartItems = async () => {
     if (!user) return;
@@ -62,7 +111,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setItems(data || []);
+      
+      // Merge database items with any remaining local items
+      const localCart = localStorage.getItem('cart_items');
+      let localItems: CartItem[] = [];
+      if (localCart) {
+        localItems = JSON.parse(localCart).map((item: any) => ({ ...item, isLocal: true }));
+      }
+      
+      setItems([...(data || []), ...localItems]);
     } catch (error) {
       console.error('Error fetching cart items:', error);
     } finally {
@@ -71,15 +128,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addToCart = async (item: Omit<CartItem, 'id'>) => {
-    if (!user) {
-      toast({
-        title: "Please Sign In",
-        description: "You need to be signed in to add items to cart.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       // Check if item already exists in cart
       const existingItem = items.find(
@@ -94,18 +142,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      const { data, error } = await supabase
-        .from('cart_items')
-        .insert({
-          user_id: user.id,
+      if (user) {
+        // Add to database if user is signed in
+        const { data, error } = await supabase
+          .from('cart_items')
+          .insert({
+            user_id: user.id,
+            ...item,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        setItems(prev => [data, ...prev]);
+      } else {
+        // Add to local cart if user is not signed in
+        const localItem: CartItem = {
+          id: `local_${Date.now()}_${Math.random()}`,
           ...item,
-        })
-        .select()
-        .single();
+          isLocal: true,
+        };
+        
+        const updatedItems = [localItem, ...items];
+        setItems(updatedItems);
+        saveLocalCart(updatedItems);
+      }
 
-      if (error) throw error;
-
-      setItems(prev => [data, ...prev]);
       toast({
         title: "Added to Cart",
         description: `${item.product_title} has been added to your cart.`,
@@ -127,18 +189,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const { error } = await supabase
-        .from('cart_items')
-        .update({ quantity })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setItems(prev => 
-        prev.map(item => 
+      const item = items.find(item => item.id === id);
+      
+      if (item?.isLocal) {
+        // Update local cart item
+        const updatedItems = items.map(item => 
           item.id === id ? { ...item, quantity } : item
-        )
-      );
+        );
+        setItems(updatedItems);
+        saveLocalCart(updatedItems);
+      } else {
+        // Update database item
+        const { error } = await supabase
+          .from('cart_items')
+          .update({ quantity })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setItems(prev => 
+          prev.map(item => 
+            item.id === id ? { ...item, quantity } : item
+          )
+        );
+      }
     } catch (error) {
       console.error('Error updating quantity:', error);
       toast({
@@ -151,14 +225,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeFromCart = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('id', id);
+      const item = items.find(item => item.id === id);
+      
+      if (item?.isLocal) {
+        // Remove from local cart
+        const updatedItems = items.filter(item => item.id !== id);
+        setItems(updatedItems);
+        saveLocalCart(updatedItems);
+      } else {
+        // Remove from database
+        const { error } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('id', id);
 
-      if (error) throw error;
+        if (error) throw error;
+        setItems(prev => prev.filter(item => item.id !== id));
+      }
 
-      setItems(prev => prev.filter(item => item.id !== id));
       toast({
         title: "Item Removed",
         description: "Item has been removed from your cart.",
@@ -174,16 +258,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearCart = async () => {
-    if (!user) return;
-
     try {
-      const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id);
+      if (user) {
+        const { error } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
+      // Clear local cart as well
+      localStorage.removeItem('cart_items');
       setItems([]);
     } catch (error) {
       console.error('Error clearing cart:', error);

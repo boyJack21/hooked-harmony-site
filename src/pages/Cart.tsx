@@ -19,24 +19,6 @@ const Cart = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center">
-            <ShoppingBag className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Please Sign In</h2>
-            <p className="text-gray-600 mb-6">You need to be signed in to view your cart.</p>
-            <Button asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -177,14 +159,26 @@ const Cart = () => {
                     
                     <Button
                       className="w-full mt-6"
-                      onClick={() => navigate('/order', { 
-                        state: { 
-                          cartItems: items,
-                          isCartCheckout: true 
-                        } 
-                      })}
+                      onClick={() => {
+                        if (!user) {
+                          navigate('/auth', { 
+                            state: { 
+                              redirectTo: '/order',
+                              cartItems: items,
+                              isCartCheckout: true 
+                            } 
+                          });
+                        } else {
+                          navigate('/order', { 
+                            state: { 
+                              cartItems: items,
+                              isCartCheckout: true 
+                            } 
+                          });
+                        }
+                      }}
                     >
-                      Proceed to Checkout
+                      {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
                     </Button>
                     
                     <Button variant="outline" className="w-full mt-3" asChild>
