@@ -86,7 +86,7 @@ export const YocoButton: React.FC<YocoButtonProps> = ({
               onError(result.error.message || 'Payment failed');
             } else {
               // User cancelled or closed popup
-              console.log('Payment cancelled by user');
+              // User cancelled payment
             }
             setIsProcessing(false);
             return;

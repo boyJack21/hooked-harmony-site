@@ -25,7 +25,9 @@ const Cart = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navbar />
         <div className="container mx-auto px-4 py-16">
-          <LoadingSpinner size="lg" className="h-64" />
+          <div className="flex justify-center items-center h-64">
+            <LoadingSpinner size="lg" />
+          </div>
         </div>
         <Footer />
       </div>

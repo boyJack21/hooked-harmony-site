@@ -2,6 +2,7 @@ import React from 'react';
 import { CustomerInfoForm } from './CustomerInfoForm';
 import { OrderDetailsForm } from './OrderDetailsForm';
 import { Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { OrderFormData } from '@/types/order';
 
 
@@ -43,10 +44,11 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       
       
       <div className="mt-8">
-        <button
+        <Button
           type="submit"
           disabled={isDisabled}
-          className={`w-full ${isDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-secondary hover:bg-secondary/90'} text-white py-3 px-6 rounded-md transition-colors flex items-center justify-center`}
+          className="w-full"
+          size="lg"
         >
           {submitting ? (
             <div className="flex items-center">
@@ -63,7 +65,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
               Submit Order
             </>
           )}
-        </button>
+        </Button>
         
         {isLimitReached && (
           <p className="mt-2 text-xs text-center text-amber-600">

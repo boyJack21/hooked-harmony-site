@@ -6,7 +6,7 @@ import { ShoppingBag, Trash2, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
 import { useWishlist } from '@/contexts/WishlistContext';

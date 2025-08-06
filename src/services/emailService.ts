@@ -49,8 +49,6 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
       `
     };
 
-    console.log('Sending email with params:', templateParams);
-    console.log('Using EmailJS config - Service ID:', serviceId, 'Template ID:', templateId);
 
     // Send the email directly using emailjs-com
     const response = await emailjs.send(
@@ -60,7 +58,7 @@ export const sendOrderEmail = async (orderData: OrderData): Promise<boolean> => 
       publicKey
     );
     
-    console.log('Email sent successfully:', response);
+    
     return true;
   } catch (error) {
     console.error('Failed to send email. Details:', error);
