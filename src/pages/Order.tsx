@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { OrderFormData } from '@/types/order';
 import { validateOrderForm } from '@/services/validationService';
 
-import { CheckCircle, ArrowLeft, CreditCard } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -45,12 +45,14 @@ const Order = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formValid, setFormValid] = useState(false);
   
-  // Calculate price based on product and size or cart total
+  // Calculate price based on product and size or cart total (in cents)
   const basePrice = isCartCheckout 
-    ? cartItems?.reduce((sum: number, item: any) => {
-        const price = parseFloat(item.product_price.replace(/[^0-9.]/g, ''));
-        return sum + (price * item.quantity);
-      }, 0) * 100 || 0 // Convert to cents
+    ? (cartItems?.reduce((sum: number, item: any) => {
+        const priceMatch = String(item.product_price).match(/[\d.]+/);
+        const priceRands = priceMatch ? parseFloat(priceMatch[0]) : 0;
+        const priceCents = Math.round(priceRands * 100);
+        return sum + (priceCents * item.quantity);
+      }, 0) || 0)
     : getProductPrice(formData.item);
   
   const finalPrice = isCartCheckout ? basePrice : addSizeUpcharge(basePrice, formData.size);
@@ -98,33 +100,6 @@ const Order = () => {
     }
   };
 
-  const handleDirectOrderSubmit = async () => {
-    setSubmitting(true);
-    try {
-      setIsSubmitted(true);
-      setOrderCount(prev => prev + 1);
-      
-      toast({
-        title: "Order Submitted!",
-        description: "Your order has been received. We'll contact you shortly.",
-      });
-      
-      // Reset form after successful submission
-      setTimeout(() => {
-        handleNewOrder();
-      }, 3000);
-      
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit order. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const handleYocoSuccess = (paymentId: string) => {
     setIsSubmitted(true);
     toast({
@@ -140,7 +115,7 @@ const Order = () => {
   const handleYocoError = (error: string) => {
     toast({
       title: "Payment Failed",
-      description: error + " Please try again or choose 'Pay Later'.",
+      description: error + " Please try again.",
       variant: "destructive",
     });
   };
@@ -291,41 +266,7 @@ const Order = () => {
             </div>
           )}
           
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Pay Later Option */}
-            <Card className={`relative overflow-hidden transition-all duration-200 ${
-              formValid 
-                ? 'hover:shadow-lg hover:-translate-y-1 cursor-pointer border-2 hover:border-primary/30' 
-                : 'cursor-not-allowed'
-            }`}>
-              <div className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center">
-                  <CreditCard className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">Pay Later</h4>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Submit your order now and we'll contact you to arrange payment and delivery
-                  </p>
-                </div>
-                <Button 
-                  onClick={handleDirectOrderSubmit}
-                  disabled={submitting || !formValid}
-                  className="w-full h-12 text-base font-semibold"
-                  size="lg"
-                >
-                  {submitting ? (
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Submitting...
-                    </div>
-                  ) : (
-                    'Submit Order'
-                  )}
-                </Button>
-              </div>
-            </Card>
-
+          <div className="grid gap-6 md:grid-cols-1">
             {/* Yoco Payment Option */}
             <Card className={`relative overflow-hidden transition-all duration-200 ${
               formValid 
