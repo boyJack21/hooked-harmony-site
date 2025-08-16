@@ -43,7 +43,6 @@ const Order = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [formValid, setFormValid] = useState(false);
   
   // Calculate price based on product and size or cart total
@@ -91,7 +90,12 @@ const Order = () => {
     }
     
     setFormValid(true);
-    setShowPaymentOptions(true);
+    
+    // Scroll to payment section smoothly
+    const paymentSection = document.getElementById('payment-section');
+    if (paymentSection) {
+      paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   const handleDirectOrderSubmit = async () => {
@@ -134,9 +138,6 @@ const Order = () => {
   };
 
   const handleYocoError = (error: string) => {
-    // Reset to payment options screen so user can retry
-    setShowPaymentOptions(true);
-    
     toast({
       title: "Payment Failed",
       description: error + " Please try again or choose 'Pay Later'.",
@@ -159,138 +160,65 @@ const Order = () => {
     setErrors({});
     setSubmitting(false);
     setIsSubmitted(false);
-    setShowPaymentOptions(false);
+    setFormValid(false);
   };
 
   const renderContent = () => {
     if (isSubmitted) {
       return (
         <div className="text-center py-12">
-          <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Order Submitted Successfully!</h2>
-          <p className="text-muted-foreground mb-6">
-            Thank you for your order. We'll contact you shortly to confirm details and arrange payment.
+          <div className="w-20 h-20 mx-auto mb-6 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+            <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-500" />
+          </div>
+          <h2 className="text-3xl font-bold mb-4 text-green-800 dark:text-green-300">
+            Order Submitted Successfully!
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+            Thank you for your order. We'll contact you shortly to confirm details and arrange delivery.
           </p>
-          <Button onClick={handleNewOrder}>
+          <Button onClick={handleNewOrder} size="lg" className="px-8">
             Place Another Order
           </Button>
         </div>
       );
     }
 
-    if (showPaymentOptions && formValid) {
-      return (
-        <div className="space-y-8">
-          {/* Order Summary */}
-          <div className="bg-muted/20 rounded-lg p-6">
-            <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Customer:</span>
-                <span>{formData.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Email:</span>
-                <span>{formData.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Phone:</span>
-                <span>{formData.phone}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Item(s):</span>
-                <span>{formData.item}</span>
-              </div>
-              {!isCartCheckout && (
-                <>
-                  <div className="flex justify-between">
-                    <span>Size:</span>
-                    <span>{formData.size || 'Standard'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Quantity:</span>
-                    <span>{formData.quantity}</span>
-                  </div>
-                </>
-              )}
-              <div className="pt-2 border-t">
-                <div className="flex justify-between font-semibold text-lg">
-                  <span>Total:</span>
-                  <span>{formatPrice(totalPrice)}</span>
-                </div>
-              </div>
+    return (
+      <div className="space-y-10">
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center space-x-4 mb-8">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
+              1
             </div>
+            <span className="ml-2 text-sm font-medium">Order Details</span>
           </div>
-
-          <div className="text-center">
-            <h3 className="text-xl font-semibold mb-2">Choose Payment Method</h3>
-            <p className="text-muted-foreground">How would you like to complete your order?</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Direct Order Option */}
-            <Card className="p-6 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/20">
-              <div className="text-center space-y-4">
-                <CreditCard className="h-12 w-12 mx-auto text-primary" />
-                <div>
-                  <h4 className="font-semibold">Pay Later</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Submit order now, we'll contact you for payment
-                  </p>
-                </div>
-                <Button 
-                  onClick={handleDirectOrderSubmit}
-                  disabled={submitting}
-                  className="w-full"
-                >
-                  {submitting ? 'Submitting...' : 'Submit Order'}
-                </Button>
-              </div>
-            </Card>
-
-            {/* Yoco Payment Option */}
-            <Card className="p-6">
-              <div className="text-center space-y-4">
-                <div className="h-12 w-12 mx-auto bg-[#00d4ff] rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">Yoco</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Pay with Card</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Secure payment with Yoco
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Amount: {formatPrice(totalPrice)}
-                  </p>
-                </div>
-                <YocoButton
-                  orderData={formData}
-                  amount={totalPrice}
-                  onSuccess={handleYocoSuccess}
-                  onError={handleYocoError}
-                />
-              </div>
-            </Card>
-          </div>
-
-          <div className="text-center">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowPaymentOptions(false)}
-              className="mt-4"
-            >
-              Back to Order Form
-            </Button>
+          <div className="w-16 h-px bg-muted"></div>
+          <div className="flex items-center">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+              formValid 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted text-muted-foreground'
+            }`}>
+              2
+            </div>
+            <span className={`ml-2 text-sm font-medium transition-colors ${
+              formValid ? 'text-foreground' : 'text-muted-foreground'
+            }`}>
+              Payment
+            </span>
           </div>
         </div>
-      );
-    }
 
-    return (
-      <div className="space-y-8">
-        {/* Order Form */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Customer Information</h2>
+        {/* Customer Information Section */}
+        <div className="bg-card rounded-xl border p-6 shadow-sm">
+          <div className="flex items-center mb-6">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-primary font-semibold">1</span>
+            </div>
+            <h2 className="text-2xl font-bold">Customer Information</h2>
+          </div>
+          
           <OrderForm 
             formData={formData}
             handleChange={handleChange}
@@ -303,56 +231,138 @@ const Order = () => {
         </div>
         
         {/* Payment Section */}
-        {formValid && (
-          <div className="border-t pt-8">
-            <h2 className="text-2xl font-bold mb-6">Payment Options</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Direct Order Option */}
-              <Card className="p-6 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/20">
-                <div className="text-center space-y-4">
-                  <CreditCard className="h-12 w-12 mx-auto text-primary" />
-                  <div>
-                    <h4 className="font-semibold">Pay Later</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Submit order now, we'll contact you for payment
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={handleDirectOrderSubmit}
-                    disabled={submitting}
-                    className="w-full"
-                  >
-                    {submitting ? 'Submitting...' : 'Submit Order'}
-                  </Button>
-                </div>
-              </Card>
-
-              {/* Yoco Payment Option */}
-              <Card className="p-6">
-                <div className="text-center space-y-4">
-                  <div className="h-12 w-12 mx-auto bg-[#00d4ff] rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">Yoco</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">Pay with Card</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Secure payment with Yoco
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Amount: {formatPrice(totalPrice)}
-                    </p>
-                  </div>
-                  <YocoButton
-                    orderData={formData}
-                    amount={totalPrice}
-                    onSuccess={handleYocoSuccess}
-                    onError={handleYocoError}
-                  />
-                </div>
-              </Card>
+        <div id="payment-section" className={`bg-card rounded-xl border p-6 shadow-sm transition-all duration-300 ${
+          formValid 
+            ? 'opacity-100 border-primary/20' 
+            : 'opacity-50 pointer-events-none'
+        }`}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 transition-colors ${
+                formValid 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                <span className="font-semibold">2</span>
+              </div>
+              <h2 className="text-2xl font-bold">Payment Options</h2>
             </div>
+            {!formValid && (
+              <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
+                Complete step 1 first
+              </span>
+            )}
           </div>
-        )}
+
+          {formValid && (
+            <div className="bg-muted/30 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold mb-3 text-center">Order Summary</h3>
+              <div className="space-y-2 text-sm max-w-md mx-auto">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Customer:</span>
+                  <span className="font-medium">{formData.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Email:</span>
+                  <span className="font-medium">{formData.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Item(s):</span>
+                  <span className="font-medium">{formData.item}</span>
+                </div>
+                {!isCartCheckout && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Size:</span>
+                      <span className="font-medium">{formData.size || 'Standard'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Quantity:</span>
+                      <span className="font-medium">{formData.quantity}</span>
+                    </div>
+                  </>
+                )}
+                <Separator className="my-3" />
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Total:</span>
+                  <span className="text-primary">{formatPrice(totalPrice)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Pay Later Option */}
+            <Card className={`relative overflow-hidden transition-all duration-200 ${
+              formValid 
+                ? 'hover:shadow-lg hover:-translate-y-1 cursor-pointer border-2 hover:border-primary/30' 
+                : 'cursor-not-allowed'
+            }`}>
+              <div className="p-6 text-center space-y-4">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center">
+                  <CreditCard className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">Pay Later</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Submit your order now and we'll contact you to arrange payment and delivery
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleDirectOrderSubmit}
+                  disabled={submitting || !formValid}
+                  className="w-full h-12 text-base font-semibold"
+                  size="lg"
+                >
+                  {submitting ? (
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Submitting...
+                    </div>
+                  ) : (
+                    'Submit Order'
+                  )}
+                </Button>
+              </div>
+            </Card>
+
+            {/* Yoco Payment Option */}
+            <Card className={`relative overflow-hidden transition-all duration-200 ${
+              formValid 
+                ? 'hover:shadow-lg hover:-translate-y-1 border-2 hover:border-[#00d4ff]/30' 
+                : 'cursor-not-allowed opacity-50'
+            }`}>
+              <div className="p-6 text-center space-y-4">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-[#00d4ff] to-[#00c4ef] rounded-2xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">Yoco</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">Pay with Card</h4>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Secure payment with Yoco
+                  </p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Amount: {formatPrice(totalPrice)}
+                  </p>
+                </div>
+                <div className="min-h-[48px] flex items-center justify-center">
+                  {formValid ? (
+                    <YocoButton
+                      orderData={formData}
+                      amount={totalPrice}
+                      onSuccess={handleYocoSuccess}
+                      onError={handleYocoError}
+                    />
+                  ) : (
+                    <Button disabled className="w-full h-12 text-base font-semibold" size="lg">
+                      Complete Order Form
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   };
@@ -362,10 +372,10 @@ const Order = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-8 md:py-16">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {!isSubmitted && <OrderFormHeader />}
           
-          <div className="my-6 md:my-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-8">
+          <div className="my-6 md:my-8">
             {renderContent()}
           </div>
           
