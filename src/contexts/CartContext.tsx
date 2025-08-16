@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 export interface CartItem {
@@ -40,7 +39,7 @@ export const useCart = () => {
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const [user, setUser] = useState<any>(null); // Simple user state without auth dependency
   const { toast } = useToast();
 
   useEffect(() => {
@@ -282,7 +281,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getTotalPrice = () => {
     return items.reduce((total, item) => {
-      const price = parseFloat(item.product_price.replace(/[^0-9.]/g, ''));
+      // Extract price from stored string format like "R200.00"
+      const priceMatch = item.product_price.match(/[\d.]+/);
+      const price = priceMatch ? parseFloat(priceMatch[0]) : 0;
       return total + (price * item.quantity);
     }, 0);
   };

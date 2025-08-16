@@ -12,11 +12,9 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/contexts/AuthContext';
 
 const Cart = () => {
   const { items, loading, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
 
@@ -162,25 +160,15 @@ const Cart = () => {
                     <Button
                       className="w-full mt-6"
                       onClick={() => {
-                        if (!user) {
-                          navigate('/auth', { 
-                            state: { 
-                              redirectTo: '/order',
-                              cartItems: items,
-                              isCartCheckout: true 
-                            } 
-                          });
-                        } else {
-                          navigate('/order', { 
-                            state: { 
-                              cartItems: items,
-                              isCartCheckout: true 
-                            } 
-                          });
-                        }
+                        navigate('/order', { 
+                          state: { 
+                            cartItems: items,
+                            isCartCheckout: true 
+                          } 
+                        });
                       }}
                     >
-                      {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
+                      Proceed to Checkout
                     </Button>
                     
                     <Button variant="outline" className="w-full mt-3" asChild>
