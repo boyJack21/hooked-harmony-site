@@ -64,6 +64,14 @@ create table if not exists orders (
   cart_data jsonb not null,
   total_amount integer not null check (total_amount >= 0),
   status text not null default 'new',
+  yoco_checkout_id text unique,
+  yoco_payment_id text,
+  paid_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table orders add column if not exists delivery_address text;
+alter table orders add column if not exists yoco_checkout_id text unique;
+alter table orders add column if not exists yoco_payment_id text;
+alter table orders add column if not exists paid_at timestamptz;

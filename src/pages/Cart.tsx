@@ -1,11 +1,60 @@
-import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { AlertCircle, Check, CreditCard, Minus, Plus, Trash2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { useShop } from "@/lib/shop";
 import { CONTACT_EMAIL, formatRand } from "@/data/products";
 
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
+
 export default function Cart() {
   const { cart, setQty, removeFromCart, cartTotal, clearCart } = useShop();
+  const [params] = useSearchParams();
+  const paymentStatus = params.get("payment");
+  const [checkoutError, setCheckoutError] = useState("");
+  const [checkingOut, setCheckingOut] = useState(false);
+
+  async function handleCheckout(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCheckoutError("");
+    setCheckingOut(true);
+
+    const data = new FormData(event.currentTarget);
+
+    try {
+      const response = await fetch(`${API_URL}/api/yoco/checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer: {
+            name: data.get("name"),
+            email: data.get("email"),
+            phone: data.get("phone"),
+            deliveryAddress: data.get("deliveryAddress"),
+          },
+          cart,
+        }),
+      });
+
+      const checkout = await response.json();
+
+      if (!response.ok || !checkout.redirectUrl) {
+        throw new Error(checkout.message ?? "Could not start checkout.");
+      }
+
+      window.location.href = checkout.redirectUrl;
+    } catch (error) {
+      setCheckoutError(
+        error instanceof Error
+          ? error.message
+          : "Could not start checkout. Please try again.",
+      );
+      setCheckingOut(false);
+    }
+  }
 
   if (cart.length === 0) {
     return (
@@ -33,6 +82,25 @@ export default function Cart() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <h1 className="font-display text-4xl font-bold">Your cart</h1>
+
+      {paymentStatus === "success" && (
+        <div className="mt-6 flex gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-4 text-sm">
+          <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <p>
+            Payment submitted. We'll confirm your order as soon as Yoco verifies
+            the payment.
+          </p>
+        </div>
+      )}
+
+      {(paymentStatus === "cancelled" || paymentStatus === "failed") && (
+        <div className="mt-6 flex gap-3 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+          <p>
+            Payment was not completed. You can try again or send the order by email.
+          </p>
+        </div>
+      )}
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
         <ul className="space-y-4">
@@ -108,14 +176,39 @@ export default function Cart() {
             <span className="text-primary">{formatRand(cartTotal)}</span>
           </div>
 
+          <form onSubmit={handleCheckout} className="mt-6 space-y-3">
+            <Input name="name" placeholder="Full name" required />
+            <Input name="email" type="email" placeholder="Email" required />
+            <Input name="phone" placeholder="Phone / WhatsApp" />
+            <textarea
+              name="deliveryAddress"
+              rows={4}
+              required
+              placeholder="Delivery address"
+              className="w-full rounded-2xl border border-input bg-card px-5 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+            />
+
+            {checkoutError && (
+              <p className="rounded-xl bg-destructive/10 px-4 py-3 text-xs text-destructive">
+                {checkoutError}
+              </p>
+            )}
+
+            <Button type="submit" className="w-full shadow-glow" disabled={checkingOut}>
+              <CreditCard className="h-4 w-4" />
+              {checkingOut ? "Opening Yoco..." : "Pay with Yoco"}
+            </Button>
+          </form>
+
           <a
             href={`mailto:${CONTACT_EMAIL}?subject=New%20order%20from%20EverythingHooked&body=${orderBody}`}
-            className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-glow hover:bg-primary/90"
+            className="mt-3 flex h-11 w-full items-center justify-center rounded-full border border-border text-sm font-semibold hover:bg-muted"
           >
-            Send my order
+            Email order instead
           </a>
           <p className="mt-3 text-xs text-muted-foreground">
-            We'll confirm sizing, delivery and payment by email before we start hooking.
+            Yoco opens a secure hosted payment page. Orders are confirmed after
+            payment verification.
           </p>
           <Button variant="ghost" className="mt-3 w-full" onClick={clearCart}>
             Clear cart
