@@ -5,15 +5,37 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import ProductCard from "@/components/ProductCard";
 import { cn } from "@/lib/utils";
 import { useShop } from "@/lib/shop";
-import { colorOptions, findProduct, formatRand, products } from "@/data/products";
+import { colorOptions, formatRand } from "@/data/products";
+import { findProduct, useProducts } from "@/lib/catalog";
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
-  const product = findProduct(slug);
+  const { products, loading, error } = useProducts();
+  const product = findProduct(products, slug);
   const { addToCart, toggleWishlist, isWishlisted } = useShop();
   const [sizeIndex, setSizeIndex] = useState(0);
   const [color, setColor] = useState(colorOptions[0]);
   const [added, setAdded] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
+        <h1 className="font-display text-3xl font-bold">Loading product...</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
+        <h1 className="font-display text-3xl font-bold">Products unavailable</h1>
+        <p className="mt-4 text-muted-foreground">Could not load products from the API.</p>
+        <ButtonLink to="/shop" className="mt-8">
+          Back to shop
+        </ButtonLink>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -27,7 +49,9 @@ export default function ProductDetail() {
     );
   }
 
-  const sizes = product.sizes ?? [{ size: "One size", price: product.basePrice }];
+  const sizes = product.sizes?.length
+    ? product.sizes
+    : [{ size: "One size", price: product.basePrice }];
   const selected = sizes[Math.min(sizeIndex, sizes.length - 1)];
   const liked = isWishlisted(product.slug);
   const related = products

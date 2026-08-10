@@ -1,7 +1,10 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { faqs, featuredProduct } from "@/data/products";
+import { faqs } from "@/data/products";
+import { useProducts } from "@/lib/catalog";
 
 export default function About() {
+  const { featuredProduct } = useProducts();
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <header>
@@ -12,6 +15,7 @@ export default function About() {
         </p>
       </header>
 
+      {featuredProduct && (
       <div className="mt-10 overflow-hidden rounded-3xl border border-border shadow-card">
         <img
           src={featuredProduct.heroImage}
@@ -19,6 +23,7 @@ export default function About() {
           className="h-full w-full object-cover"
         />
       </div>
+      )}
 
       <div className="mt-10 space-y-5 text-muted-foreground">
         <p>
