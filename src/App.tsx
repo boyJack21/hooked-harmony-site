@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import Patterns from "@/pages/Patterns";
 import PatternDetail from "@/pages/PatternDetail";
 import Tutorials from "@/pages/Tutorials";
+import TutorialDetail from "@/pages/TutorialDetail";
 import Makers from "@/pages/Makers";
 import Contact from "@/pages/Contact";
 
@@ -16,6 +17,7 @@ function App() {
         { path: "/patterns", element: <Patterns /> },
         { path: "/patterns/:slug", element: <PatternDetail /> },
         { path: "/tutorials", element: <Tutorials /> },
+        { path: "/tutorials/:slug", element: <TutorialDetail /> },
         { path: "/makers", element: <Makers /> },
         { path: "/contact", element: <Contact /> },
         { path: "*", element: <Navigate to="/" replace /> },
