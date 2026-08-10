@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm craft palette — terracotta, cream, sage, dusty rose */
+    --background: 40 47% 95%; /* warm cream */
+    --foreground: 24 22% 20%; /* warm dark cocoa */
+
+    --card: 0 0% 100%;
+    --card-foreground: 24 22% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 22% 20%;
+
+    --primary: 12 62% 48%; /* terracotta */
+    --primary-foreground: 30 100% 97%;
+
+    --secondary: 32 38% 84%; /* soft tan */
+    --secondary-foreground: 24 22% 24%;
+
+    --muted: 36 30% 90%;
+    --muted-foreground: 24 12% 42%;
+
+    --accent: 94 17% 45%; /* sage */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 8 60% 44%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 32 30% 82%;
+    --input: 32 30% 82%;
+    --ring: 12 62% 48%;
+
+    --cream: 40 47% 95%;
+    --clay: 12 62% 48%;
+    --sage: 94 17% 45%;
+    --rose: 350 40% 70%;
+    --coco: 24 22% 20%;
+
+    --radius: 0.85rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    font-feature-settings: "ss01" on, "cv01" on;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+}
+
