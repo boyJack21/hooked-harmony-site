@@ -39,7 +39,21 @@ const sized = (s: number, m: number, l: number): SizePrice[] => [
 
 const oneSize = (p: number): SizePrice[] => [{ size: "One size", price: p }];
 
-export const products: Product[] = [
+const latestProductSlugs = [
+  "cardigan-granny-square",
+  "cardigan-monochrome-patchwork",
+  "shirt-brown-black-button",
+  "forest-ribbed-beanie",
+  "oat-ribbed-beanie",
+  "oat-tweed-beanie",
+  "charcoal-tweed-beanie",
+];
+
+const latestProductOrder = new Map(
+  latestProductSlugs.map((slug, index) => [slug, index])
+);
+
+const productListings: Product[] = [
   // Cardigans
   {
     slug: "cardigan-beige-brown-striped",
@@ -111,6 +125,30 @@ export const products: Product[] = [
     basePrice: 900,
     sizes: sized(900, 1000, 1200),
   },
+  {
+    slug: "cardigan-granny-square",
+    name: "Granny Square Cardigan",
+    category: "Cardigans",
+    image: `${U}/products/granny-square-cardigan.jpg`,
+    alt: "Colourful granny square crochet cardigan with striped sleeves",
+    description:
+      "Statement granny square cardigan with colourful panels and striped sleeves",
+    priceLabel: "S=R900, M=R1000, L=R1200",
+    basePrice: 900,
+    sizes: sized(900, 1000, 1200),
+  },
+  {
+    slug: "cardigan-monochrome-patchwork",
+    name: "Monochrome Patchwork Cardigan",
+    category: "Cardigans",
+    image: `${U}/products/monochrome-patchwork-cardigan.jpg`,
+    alt: "Black and white patchwork crochet cardigan with collar",
+    description:
+      "Chunky black and white patchwork cardigan with a soft collar and ribbed cuffs",
+    priceLabel: "S=R500, M=R540, L=R600",
+    basePrice: 500,
+    sizes: sized(500, 540, 600),
+  },
 
   // Shirts
   {
@@ -121,6 +159,18 @@ export const products: Product[] = [
     alt: "Beige crochet shirt with black stripes and golden details",
     description:
       "Stylish short-sleeve shirt with beige base and black stripes with golden details",
+    priceLabel: "S=R280, M=R320, L=R360",
+    basePrice: 280,
+    sizes: sized(280, 320, 360),
+  },
+  {
+    slug: "shirt-brown-black-button",
+    name: "Brown & Black Button Shirt",
+    category: "Shirts",
+    image: `${U}/products/brown-black-button-shirt.jpg`,
+    alt: "Brown and black striped crochet button shirt with collar",
+    description:
+      "Short-sleeve button shirt with rich brown tones, black stripes and a structured collar",
     priceLabel: "S=R280, M=R320, L=R360",
     basePrice: 280,
     sizes: sized(280, 320, 360),
@@ -242,6 +292,51 @@ export const products: Product[] = [
     basePrice: 200,
     sizes: oneSize(200),
   },
+  {
+    slug: "forest-ribbed-beanie",
+    name: "Forest Ribbed Beanie",
+    category: "Accessories",
+    image: `${U}/products/forest-ribbed-beanie.jpg`,
+    alt: "Forest green ribbed crochet beanie with EverythingHooked label",
+    description:
+      "Warm forest green ribbed beanie finished with an EverythingHooked label",
+    priceLabel: "R150",
+    basePrice: 150,
+    sizes: oneSize(150),
+  },
+  {
+    slug: "oat-ribbed-beanie",
+    name: "Oat Ribbed Beanie",
+    category: "Accessories",
+    image: `${U}/products/oat-ribbed-beanie.jpg`,
+    alt: "Oat coloured ribbed crochet beanie",
+    description: "Soft oat-toned ribbed beanie with a classic folded cuff",
+    priceLabel: "R150",
+    basePrice: 150,
+    sizes: oneSize(150),
+  },
+  {
+    slug: "oat-tweed-beanie",
+    name: "Oat Tweed Beanie",
+    category: "Accessories",
+    image: `${U}/products/oat-tweed-beanie.jpg`,
+    alt: "Oat tweed crochet beanie with folded cuff",
+    description: "Neutral oat tweed beanie with a textured folded cuff",
+    priceLabel: "R150",
+    basePrice: 150,
+    sizes: oneSize(150),
+  },
+  {
+    slug: "charcoal-tweed-beanie",
+    name: "Charcoal Tweed Beanie",
+    category: "Accessories",
+    image: `${U}/products/charcoal-tweed-beanie.jpg`,
+    alt: "Charcoal tweed crochet beanie with folded cuff",
+    description: "Charcoal tweed beanie with subtle flecks and a cozy ribbed cuff",
+    priceLabel: "R150",
+    basePrice: 150,
+    sizes: oneSize(150),
+  },
 
   // Leg Warmers
   {
@@ -328,6 +423,17 @@ export const products: Product[] = [
   },
 ];
 
+export const products: Product[] = productListings
+  .map((product, index) => ({ product, index }))
+  .sort((a, b) => {
+    const aOrder = latestProductOrder.get(a.product.slug) ?? Number.POSITIVE_INFINITY;
+    const bOrder = latestProductOrder.get(b.product.slug) ?? Number.POSITIVE_INFINITY;
+
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    return a.index - b.index;
+  })
+  .map(({ product }) => product);
+
 export const featuredProduct = {
   ...products.find((p) => p.slug === "pink-ruffle-hat")!,
   heroImage: `${U}/3d200bb5-6fc3-434c-babc-f4df8d2f6f3f.png`,
@@ -336,7 +442,18 @@ export const featuredProduct = {
   price: 200,
 };
 
-export const colorOptions = ["Pink", "Blue", "White", "Yellow", "Purple"];
+export const colorOptions = [
+  "Pink",
+  "Blue",
+  "White",
+  "Yellow",
+  "Purple",
+  "Beige",
+  "Brown",
+  "Black",
+  "Green",
+  "Gray",
+];
 
 export const CONTACT_EMAIL = "everythinghooked09@gmail.com";
 
