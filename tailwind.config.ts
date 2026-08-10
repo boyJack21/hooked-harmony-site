@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -38,23 +39,33 @@ export default {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        cream: "hsl(var(--cream))",
-        clay: "hsl(var(--clay))",
-        sage: "hsl(var(--sage))",
-        rose: "hsl(var(--rose))",
-        coco: "hsl(var(--coco))",
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
       },
       fontFamily: {
-        display: ['"Fraunces"', "Georgia", "serif"],
-        body: ['"Nunito Sans"', "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ['"Playfair Display"', "Georgia", "serif"],
+        body: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 10px 40px -12px rgba(94, 60, 40, 0.18)",
+        glow: "var(--shadow-glow)",
+        card: "var(--shadow-card)",
+      },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(18px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.6s ease-out both",
+        float: "float 4s ease-in-out infinite",
       },
     },
   },
