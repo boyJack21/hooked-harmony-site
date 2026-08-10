@@ -4,14 +4,14 @@ import ProductCard from "@/components/ProductCard";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import {
   categories,
-  featuredProduct,
   formatRand,
-  productsByCategory,
 } from "@/data/products";
+import { productsByCategory, useProducts } from "@/lib/catalog";
 import { useShop } from "@/lib/shop";
 
 export default function Home() {
   const { addToCart } = useShop();
+  const { products, loading, error, featuredProduct } = useProducts();
 
   return (
     <div>
@@ -69,8 +69,14 @@ export default function Home() {
         </header>
 
         <div className="mt-14 space-y-16">
-          {categories.map((category) => {
-            const items = productsByCategory(category.name);
+          {loading && <p className="text-center text-sm text-muted-foreground">Loading products...</p>}
+          {error && (
+            <p className="text-center text-sm text-destructive">
+              Could not load products from the API.
+            </p>
+          )}
+          {!loading && !error && categories.map((category) => {
+            const items = productsByCategory(products, category.name);
             if (!items.length) return null;
             return (
               <div key={category.slug}>
@@ -102,6 +108,7 @@ export default function Home() {
       </section>
 
       {/* Featured */}
+      {featuredProduct && (
       <section className="bg-muted/40 py-20">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
           <div className="overflow-hidden rounded-3xl border border-border shadow-card">
@@ -152,6 +159,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Why us */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">

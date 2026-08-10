@@ -1,18 +1,20 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
-import { categories, products } from "@/data/products";
+import { categories } from "@/data/products";
+import { useProducts } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 export default function Shop() {
   const [params, setParams] = useSearchParams();
   const active = params.get("category") ?? "all";
+  const { products, loading, error } = useProducts();
 
   const visible = useMemo(() => {
     if (active === "all") return products;
     const match = categories.find((c) => c.slug === active);
     return match ? products.filter((p) => p.category === match.name) : products;
-  }, [active]);
+  }, [active, products]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -42,11 +44,19 @@ export default function Shop() {
         ))}
       </div>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((p) => (
-          <ProductCard key={p.slug} product={p} />
-        ))}
-      </div>
+      {loading && <p className="mt-10 text-sm text-muted-foreground">Loading products...</p>}
+      {error && (
+        <p className="mt-10 text-sm text-destructive">
+          Could not load products from the API.
+        </p>
+      )}
+      {!loading && !error && (
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((p) => (
+            <ProductCard key={p.slug} product={p} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
