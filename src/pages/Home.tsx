@@ -70,11 +70,6 @@ export default function Home() {
 
         <div className="mt-14 space-y-16">
           {loading && <p className="text-center text-sm text-muted-foreground">Loading products...</p>}
-          {error && (
-            <p className="text-center text-sm text-destructive">
-              Could not load products from the API.
-            </p>
-          )}
           {!loading && !error && categories.map((category) => {
             const items = productsByCategory(products, category.name);
             if (!items.length) return null;

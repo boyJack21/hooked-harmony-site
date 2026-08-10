@@ -14,7 +14,7 @@ type ProductsState = {
   featuredProduct: FeaturedProduct | null;
 };
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
 export function useProducts(): ProductsState {
   const [products, setProducts] = useState<Product[]>([]);

@@ -45,11 +45,6 @@ export default function Shop() {
       </div>
 
       {loading && <p className="mt-10 text-sm text-muted-foreground">Loading products...</p>}
-      {error && (
-        <p className="mt-10 text-sm text-destructive">
-          Could not load products from the API.
-        </p>
-      )}
       {!loading && !error && (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((p) => (
