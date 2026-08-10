@@ -86,6 +86,60 @@ export type Database = {
         }
         Relationships: []
       }
+      makers: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          initials: string | null
+          location: string | null
+          name: string
+          specialty: string | null
+          tone: string | null
+          website: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          initials?: string | null
+          location?: string | null
+          name: string
+          specialty?: string | null
+          tone?: string | null
+          website?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          initials?: string | null
+          location?: string | null
+          name?: string
+          specialty?: string | null
+          tone?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      newsletter: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       order_confirmations: {
         Row: {
           confirmation_number: string
@@ -184,6 +238,60 @@ export type Database = {
           total_amount?: number
           updated_at?: string
           yoco_payment_id?: string | null
+        }
+        Relationships: []
+      }
+      patterns: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          emoji: string | null
+          gauge: string | null
+          id: string
+          is_featured: boolean | null
+          slug: string
+          title: string
+          tone: string | null
+          tool: string | null
+          updated_at: string
+          yardage: string | null
+          yarn: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          emoji?: string | null
+          gauge?: string | null
+          id?: string
+          is_featured?: boolean | null
+          slug: string
+          title: string
+          tone?: string | null
+          tool?: string | null
+          updated_at?: string
+          yardage?: string | null
+          yarn?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          emoji?: string | null
+          gauge?: string | null
+          id?: string
+          is_featured?: boolean | null
+          slug?: string
+          title?: string
+          tone?: string | null
+          tool?: string | null
+          updated_at?: string
+          yardage?: string | null
+          yarn?: string | null
         }
         Relationships: []
       }
@@ -291,6 +399,42 @@ export type Database = {
           product_title?: string
           user_id?: string | null
           viewed_at?: string
+        }
+        Relationships: []
+      }
+      tutorials: {
+        Row: {
+          created_at: string
+          emoji: string | null
+          id: string
+          level: string | null
+          minutes: number | null
+          slug: string
+          technique: string | null
+          title: string
+          tone: string | null
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          level?: string | null
+          minutes?: number | null
+          slug: string
+          technique?: string | null
+          title: string
+          tone?: string | null
+        }
+        Update: {
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          level?: string | null
+          minutes?: number | null
+          slug?: string
+          technique?: string | null
+          title?: string
+          tone?: string | null
         }
         Relationships: []
       }
