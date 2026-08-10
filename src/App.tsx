@@ -1,29 +1,34 @@
 import { useRoutes, Navigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
+import { ShopProvider } from "@/lib/shop";
 import Home from "@/pages/Home";
-import Patterns from "@/pages/Patterns";
-import PatternDetail from "@/pages/PatternDetail";
-import Tutorials from "@/pages/Tutorials";
-import TutorialDetail from "@/pages/TutorialDetail";
-import Makers from "@/pages/Makers";
+import Shop from "@/pages/Shop";
+import ProductDetail from "@/pages/ProductDetail";
+import Cart from "@/pages/Cart";
+import Wishlist from "@/pages/Wishlist";
+import CustomOrder from "@/pages/CustomOrder";
+import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 
 function App() {
-  return useRoutes([
+  const routes = useRoutes([
     {
       element: <Layout />,
       children: [
         { path: "/", element: <Home /> },
-        { path: "/patterns", element: <Patterns /> },
-        { path: "/patterns/:slug", element: <PatternDetail /> },
-        { path: "/tutorials", element: <Tutorials /> },
-        { path: "/tutorials/:slug", element: <TutorialDetail /> },
-        { path: "/makers", element: <Makers /> },
+        { path: "/shop", element: <Shop /> },
+        { path: "/product/:slug", element: <ProductDetail /> },
+        { path: "/cart", element: <Cart /> },
+        { path: "/wishlist", element: <Wishlist /> },
+        { path: "/order", element: <CustomOrder /> },
+        { path: "/about", element: <About /> },
         { path: "/contact", element: <Contact /> },
         { path: "*", element: <Navigate to="/" replace /> },
       ],
     },
   ]);
+
+  return <ShopProvider>{routes}</ShopProvider>;
 }
 
 export default App;

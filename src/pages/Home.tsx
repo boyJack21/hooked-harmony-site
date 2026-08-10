@@ -1,169 +1,184 @@
-import { ArrowRight, Heart, Leaf, Users } from "lucide-react";
-import hero from "@/assets/hero.jpg";
-import { Container } from "@/components/ui/Container";
-import { ButtonLink } from "@/components/ui/Button";
-import { SectionHeading } from "@/components/SectionHeading";
-import { PatternCard } from "@/components/PatternCard";
-import { NewsletterForm } from "@/components/NewsletterForm";
-import { patterns, makers } from "@/data/content";
-
-const values = [
-  {
-    icon: Heart,
-    title: "Made with love",
-    text: "Every pattern is tested and written to be kind to beginners and satisfying for experts.",
-  },
-  {
-    icon: Leaf,
-    title: "Mindful & natural",
-    text: "We champion natural fibers, small-batch yarns, and slow, soothing making.",
-  },
-  {
-    icon: Users,
-    title: "A real community",
-    text: "Share progress, ask questions, and cheer on fellow makers from around the world.",
-  },
-];
+import { Link } from "react-router-dom";
+import { ArrowRight, ChevronDown, Heart, ShoppingBag, Sparkles, Star } from "lucide-react";
+import ProductCard from "@/components/ProductCard";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import {
+  categories,
+  featuredProduct,
+  formatRand,
+  productsByCategory,
+} from "@/data/products";
+import { useShop } from "@/lib/shop";
 
 export default function Home() {
-  const featured = patterns.filter((p) => p.isFeatured).slice(0, 3);
+  const { addToCart } = useShop();
 
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <Container className="grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-2 lg:gap-14">
-          <div className="space-y-6">
-            <p className="inline-flex items-center rounded-full bg-clay/10 px-4 py-1.5 text-sm font-semibold text-clay">
-              Crochet · Knitting · Amigurumi
-            </p>
-            <h1 className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Find your calm, one stitch at a time.
-            </h1>
-            <p className="max-w-md text-lg text-muted-foreground">
-              Hooked Harmony is a cozy home for crochet and knitting makers.
-              Browse beautiful patterns, learn new techniques, and meet the
-              people who make this craft so warm.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <ButtonLink
-                size="lg"
-                to="/patterns"
-                className="inline-flex items-center gap-2"
-              >
-                Browse patterns <ArrowRight className="h-4 w-4" />
-              </ButtonLink>
-              <ButtonLink size="lg" variant="secondary" to="/tutorials">
-                Start learning
-              </ButtonLink>
-            </div>
-          </div>
-          <div className="relative">
-            <img
-              src={hero}
-              alt="Cozy knit and crochet pieces with yarn balls on a cream linen table"
-              width={1024}
-              height={1024}
-              className="aspect-[4/3] w-full rounded-3xl object-cover shadow-soft"
-            />
-          </div>
-        </Container>
-      </section>
+      <section className="gradient-hero relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden">
+        <div className="mx-auto w-full max-w-4xl px-4 py-20 text-center sm:px-6">
+          <span className="inline-flex animate-fade-up items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-2 text-sm font-medium shadow-card backdrop-blur">
+            <Sparkles className="h-4 w-4 text-primary" />
+            Handcrafted with Love
+            <Star className="h-4 w-4 text-primary" fill="currentColor" />
+          </span>
 
-      {/* Value props */}
-      <section className="bg-muted/50 py-16">
-        <Container className="grid gap-8 sm:grid-cols-3">
-          {values.map((v) => (
-            <div key={v.title} className="space-y-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <v.icon className="h-5 w-5" />
-              </div>
-              <h3 className="font-display text-xl font-semibold">{v.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {v.text}
-              </p>
-            </div>
-          ))}
-        </Container>
-      </section>
+          <h1 className="mt-8 animate-fade-up font-display text-5xl font-black leading-[1.05] tracking-tight sm:text-7xl">
+            Everything
+            <br />
+            <span className="text-accent">Hooked</span>
+          </h1>
 
-      {/* Featured patterns */}
-      <section className="py-16 sm:py-20">
-        <Container className="space-y-10">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHeading
-              eyebrow="Patterns"
-              title="Our most-loved patterns"
-              description="A handful of favorites to get you started — from cozy throws to sweet amigurumi."
-            />
-            <ButtonLink
-              variant="outline"
-              to="/patterns"
-              className="inline-flex items-center gap-2"
-            >
-              View all <ArrowRight className="h-4 w-4" />
+          <p className="mx-auto mt-6 max-w-xl animate-fade-up text-lg text-muted-foreground">
+            Discover unique crochet pieces crafted with premium materials and
+            attention to every stitch
+          </p>
+
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <ButtonLink to="/shop" size="lg" className="shadow-glow">
+              <Heart className="h-4 w-4" fill="currentColor" />
+              Shop Our Creations
+            </ButtonLink>
+            <ButtonLink to="/order" size="lg" variant="outline" className="bg-background">
+              <ShoppingBag className="h-4 w-4" />
+              Custom Order
             </ButtonLink>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p) => (
-              <PatternCard key={p.id} pattern={p} />
-            ))}
-          </div>
-        </Container>
+
+          <a
+            href="#collection"
+            className="mt-16 inline-flex flex-col items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          >
+            Explore Collection
+            <span className="flex h-9 w-6 items-start justify-center rounded-full border border-border pt-1">
+              <ChevronDown className="h-4 w-4 animate-float" />
+            </span>
+          </a>
+        </div>
       </section>
 
-      {/* Makers strip */}
-      <section className="bg-muted/50 py-16 sm:py-20">
-        <Container className="space-y-10">
-          <SectionHeading
-            eyebrow="Community"
-            title="Meet the makers"
-            description="Real people, real yarn, real stories — the heart of Hooked Harmony."
-          />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {makers.slice(0, 3).map((m) => (
-              <div
-                key={m.id}
-                className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-clay/20 font-display font-bold text-clay">
-                  {m.initials}
+      {/* Collections */}
+      <section id="collection" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <header className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-4xl font-bold">Our Collections</h2>
+          <p className="mt-4 text-muted-foreground">
+            Every piece is made to order — choose your colour, choose your size, and
+            we'll hook it up just for you.
+          </p>
+        </header>
+
+        <div className="mt-14 space-y-16">
+          {categories.map((category) => {
+            const items = productsByCategory(category.name);
+            if (!items.length) return null;
+            return (
+              <div key={category.slug}>
+                <div className="mb-6 flex items-end justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-display text-2xl font-bold">{category.name}</h3>
+                    {category.badge && (
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        {category.badge}
+                      </span>
+                    )}
+                  </div>
+                  <Link
+                    to={`/shop?category=${category.slug}`}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                  >
+                    View all <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </div>
-                <div>
-                  <h3 className="font-display font-semibold">{m.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {m.specialty}
-                  </p>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.slice(0, 3).map((p) => (
+                    <ProductCard key={p.slug} product={p} />
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-          <ButtonLink
-            variant="outline"
-            to="/makers"
-            className="inline-flex items-center gap-2"
-          >
-            Meet everyone <ArrowRight className="h-4 w-4" />
-          </ButtonLink>
-        </Container>
+            );
+          })}
+        </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-16 sm:py-20">
-        <Container>
-          <div className="flex flex-col items-start gap-6 rounded-3xl bg-gradient-to-br from-clay/15 via-rose/10 to-cream p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-md space-y-2">
-              <h2 className="font-display text-3xl font-semibold">
-                New patterns, twice a month
-              </h2>
-              <p className="text-muted-foreground">
-                Join the newsletter for fresh tutorials, member spotlights, and
-                the occasional discount on premium patterns.
-              </p>
-            </div>
-            <NewsletterForm />
+      {/* Featured */}
+      <section className="bg-muted/40 py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
+          <div className="overflow-hidden rounded-3xl border border-border shadow-card">
+            <img
+              src={featuredProduct.heroImage}
+              alt={featuredProduct.alt}
+              className="h-full w-full object-cover"
+            />
           </div>
-        </Container>
+          <div>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+              Featured piece
+            </span>
+            <h2 className="mt-5 font-display text-4xl font-bold">
+              {featuredProduct.name}
+            </h2>
+            <p className="mt-4 text-muted-foreground">{featuredProduct.blurb}</p>
+            <p className="mt-6 text-3xl font-bold text-primary">
+              {formatRand(featuredProduct.price)}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button
+                size="lg"
+                className="shadow-glow"
+                onClick={() =>
+                  addToCart({
+                    slug: featuredProduct.slug,
+                    name: featuredProduct.name,
+                    image: featuredProduct.image,
+                    size: "One size",
+                    color: "Pink",
+                    price: featuredProduct.price,
+                    qty: 1,
+                  })
+                }
+              >
+                <ShoppingBag className="h-4 w-4" />
+                Add to Cart
+              </Button>
+              <ButtonLink
+                to={`/product/${featuredProduct.slug}`}
+                size="lg"
+                variant="outline"
+              >
+                View Details
+              </ButtonLink>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why us */}
+      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <div className="grid gap-8 sm:grid-cols-3">
+          {[
+            {
+              title: "Handmade to order",
+              body: "Nothing sits in a warehouse. Your piece is hooked from scratch once you order.",
+            },
+            {
+              title: "Premium yarn",
+              body: "Soft, durable yarns chosen to hold their shape and colour wash after wash.",
+            },
+            {
+              title: "Made your way",
+              body: "Pick your colour and size, or send us a custom design and we'll make it real.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-2xl border border-border bg-card p-8 shadow-card"
+            >
+              <h3 className="font-display text-xl font-bold">{item.title}</h3>
+              <p className="mt-3 text-sm text-muted-foreground">{item.body}</p>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

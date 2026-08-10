@@ -1,64 +1,68 @@
 import { Link } from "react-router-dom";
-import { Sparkles } from "lucide-react";
-import { Container } from "@/components/ui/Container";
+import { Heart, Instagram, Mail, Phone } from "lucide-react";
+import { CONTACT_EMAIL, categories } from "@/data/products";
 
-export function Footer() {
+export default function Footer() {
   return (
-    <footer className="mt-20 border-t border-border bg-muted/60">
-      <Container className="grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="space-y-3">
+    <footer className="border-t border-border bg-muted/40">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
+        <div className="md:col-span-2">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-primary-foreground">
+              <Heart className="h-4 w-4" fill="currentColor" />
             </span>
-            <span className="font-display text-lg font-semibold">
-              Hooked Harmony
+            <span className="font-display text-xl font-bold text-gradient-brand">
+              EverythingHooked
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">
-            A cozy community for crochet and knitting makers. Find patterns,
-            learn techniques, and connect with makers like you.
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Handcrafted crochet clothing and accessories, made stitch by stitch in
+            South Africa. Every piece is made to order with premium yarn and a lot
+            of love.
           </p>
         </div>
 
         <div>
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-wide">
-            Explore
-          </h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link className="hover:text-foreground" to="/patterns">Patterns</Link></li>
-            <li><Link className="hover:text-foreground" to="/tutorials">Tutorials</Link></li>
-            <li><Link className="hover:text-foreground" to="/makers">Meet the makers</Link></li>
-            <li><Link className="hover:text-foreground" to="/contact">Contact</Link></li>
+          <h3 className="text-sm font-semibold uppercase tracking-wide">Shop</h3>
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            {categories.map((c) => (
+              <li key={c.slug}>
+                <Link to={`/shop?category=${c.slug}`} className="hover:text-primary">
+                  {c.name}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
         <div>
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-wide">
-            Categories
-          </h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>Crochet</li>
-            <li>Knitting</li>
-            <li>Amigurumi</li>
-            <li>Home &amp; gifts</li>
+          <h3 className="text-sm font-semibold uppercase tracking-wide">Get in touch</h3>
+          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-primary" />
+              <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-primary">
+                {CONTACT_EMAIL}
+              </a>
+            </li>
+            <li className="flex items-center gap-2">
+              <Instagram className="h-4 w-4 text-primary" />
+              <span>@everythinghooked</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-primary" />
+              <span>Orders via email &amp; DM</span>
+            </li>
+            <li>
+              <Link to="/order" className="hover:text-primary">
+                Request a custom order
+              </Link>
+            </li>
           </ul>
         </div>
+      </div>
 
-        <div>
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-wide">
-            Stay in the loop
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            New patterns and tutorials, twice a month. No spam, ever.
-          </p>
-        </div>
-      </Container>
-      <div className="border-t border-border">
-        <Container className="flex flex-col items-center justify-between gap-2 py-5 text-xs text-muted-foreground sm:flex-row">
-          <span>© {new Date().getFullYear()} Hooked Harmony. Made with warmth.</span>
-          <span>Crochet, knit, repeat.</span>
-        </Container>
+      <div className="border-t border-border py-6 text-center text-xs text-muted-foreground">
+        © {new Date().getFullYear()} EverythingHooked. Handmade with love.
       </div>
     </footer>
   );
