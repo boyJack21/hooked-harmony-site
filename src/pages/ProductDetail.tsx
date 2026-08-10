@@ -28,8 +28,7 @@ export default function ProductDetail() {
   if (error) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-3xl font-bold">Products unavailable</h1>
-        <p className="mt-4 text-muted-foreground">Could not load products from the API.</p>
+        <h1 className="font-display text-3xl font-bold">Product not found</h1>
         <ButtonLink to="/shop" className="mt-8">
           Back to shop
         </ButtonLink>

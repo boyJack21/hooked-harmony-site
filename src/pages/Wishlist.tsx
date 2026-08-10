@@ -15,7 +15,11 @@ export default function Wishlist() {
       {loading ? (
         <p className="mt-8 text-muted-foreground">Loading products...</p>
       ) : error ? (
-        <p className="mt-8 text-destructive">Could not load products from the API.</p>
+        <div className="mt-8">
+          <ButtonLink to="/shop" size="lg">
+            Browse the collection
+          </ButtonLink>
+        </div>
       ) : saved.length === 0 ? (
         <div className="mt-8">
           <p className="text-muted-foreground">
