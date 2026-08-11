@@ -69,7 +69,7 @@ export default function Footer() {
                 rel="noreferrer"
                 className="hover:text-primary"
               >
-                Orders via WhatsApp &amp; DM
+                Orders via WhatsApp
               </a>
             </li>
             <li>
