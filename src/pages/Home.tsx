@@ -12,6 +12,9 @@ import { useShop } from "@/lib/shop";
 export default function Home() {
   const { addToCart } = useShop();
   const { products, loading, error, featuredProduct } = useProducts();
+  const categoryProducts = featuredProduct
+    ? products.filter((product) => product.slug !== featuredProduct.slug)
+    : products;
 
   return (
     <div>
@@ -71,7 +74,7 @@ export default function Home() {
         <div className="mt-14 space-y-16">
           {loading && <p className="text-center text-sm text-muted-foreground">Loading products...</p>}
           {!loading && !error && categories.map((category) => {
-            const items = productsByCategory(products, category.name);
+            const items = productsByCategory(categoryProducts, category.name);
             if (!items.length) return null;
             return (
               <div key={category.slug}>

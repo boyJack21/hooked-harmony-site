@@ -1,7 +1,13 @@
 import { useState, type FormEvent } from "react";
-import { Check, Instagram, Mail, Truck } from "lucide-react";
+import { Check, Instagram, Mail, MessageCircle, Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { CONTACT_EMAIL } from "@/data/products";
+import {
+  CONTACT_EMAIL,
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+  WHATSAPP_NUMBER,
+  WHATSAPP_URL,
+} from "@/data/products";
 
 export default function Contact() {
   const [sent, setSent] = useState(false);
@@ -35,7 +41,18 @@ export default function Contact() {
               body: CONTACT_EMAIL,
               href: `mailto:${CONTACT_EMAIL}`,
             },
-            { icon: Instagram, title: "Instagram", body: "@everythinghooked" },
+            {
+              icon: Instagram,
+              title: "Instagram",
+              body: INSTAGRAM_HANDLE,
+              href: INSTAGRAM_URL,
+            },
+            {
+              icon: MessageCircle,
+              title: "WhatsApp",
+              body: WHATSAPP_NUMBER,
+              href: WHATSAPP_URL,
+            },
             {
               icon: Truck,
               title: "Delivery",
@@ -51,7 +68,12 @@ export default function Contact() {
               </span>
               <h2 className="mt-4 font-display text-lg font-bold">{item.title}</h2>
               {item.href ? (
-                <a href={item.href} className="mt-1 block text-sm text-primary hover:underline">
+                <a
+                  href={item.href}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                  className="mt-1 block text-sm text-primary hover:underline"
+                >
                   {item.body}
                 </a>
               ) : (
