@@ -4,7 +4,7 @@ import { AlertCircle, Check, CreditCard, Minus, Plus, Trash2 } from "lucide-reac
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useShop } from "@/lib/shop";
-import { CONTACT_EMAIL, formatRand } from "@/data/products";
+import { formatRand } from "@/data/products";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
@@ -70,15 +70,6 @@ export default function Cart() {
     );
   }
 
-  const orderBody = encodeURIComponent(
-    `Hi EverythingHooked,\n\nI'd like to order:\n\n${cart
-      .map(
-        (i) =>
-          `• ${i.name} — ${i.color}, ${i.size} x ${i.qty} = ${formatRand(i.price * i.qty)}`
-      )
-      .join("\n")}\n\nTotal: ${formatRand(cartTotal)}\n\nMy details:\nName:\nPhone:\nDelivery address:\n`
-  );
-
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <h1 className="font-display text-4xl font-bold">Your cart</h1>
@@ -97,7 +88,7 @@ export default function Cart() {
         <div className="mt-6 flex gap-3 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <p>
-            Payment was not completed. You can try again or send the order by email.
+            Payment was not completed. You can try again when you're ready.
           </p>
         </div>
       )}
@@ -200,15 +191,9 @@ export default function Cart() {
             </Button>
           </form>
 
-          <a
-            href={`mailto:${CONTACT_EMAIL}?subject=New%20order%20from%20EverythingHooked&body=${orderBody}`}
-            className="mt-3 flex h-11 w-full items-center justify-center rounded-full border border-border text-sm font-semibold hover:bg-muted"
-          >
-            Email order instead
-          </a>
           <p className="mt-3 text-xs text-muted-foreground">
             Yoco opens a secure hosted payment page. Orders are confirmed after
-            payment verification.
+            payment verification, and we'll email your confirmation.
           </p>
           <Button variant="ghost" className="mt-3 w-full" onClick={clearCart}>
             Clear cart

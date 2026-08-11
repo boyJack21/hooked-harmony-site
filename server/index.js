@@ -1,13 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
-const { randomUUID } = require('crypto');
+const crypto = require('crypto');
+const { randomUUID } = crypto;
+const { sendOrderConfirmationEmail } = require('./order-email');
 require('dotenv').config();
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, _res, buffer) => {
+    req.rawBody = buffer.toString('utf8');
+  },
+}));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -186,6 +192,78 @@ app.post('/api/yoco/checkout', async (req, res) => {
   }
 });
 
+app.post('/api/yoco/webhook', async (req, res) => {
+  if (!process.env.YOCO_WEBHOOK_SECRET) {
+    res.status(500).json({ message: 'Webhook configuration is incomplete' });
+    return;
+  }
+
+  const rawBody = req.rawBody ?? JSON.stringify(req.body ?? {});
+
+  if (!verifyWebhook(req.headers, rawBody)) {
+    res.status(403).json({ message: 'Invalid webhook signature' });
+    return;
+  }
+
+  const event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  const checkoutId = event?.payload?.metadata?.checkoutId;
+  const orderId = event?.payload?.metadata?.orderId;
+  const paymentId = event?.payload?.id;
+  const paymentStatus = event?.payload?.status;
+
+  try {
+    if (
+      (event?.type === 'payment.succeeded' || paymentStatus === 'succeeded') &&
+      (checkoutId || orderId)
+    ) {
+      const orderResult = await pool.query(
+        `
+          UPDATE orders
+          SET
+            status = 'paid',
+            yoco_payment_id = $1,
+            paid_at = now(),
+            updated_at = now()
+          WHERE yoco_checkout_id = $2 OR id = $3
+          RETURNING *
+        `,
+        [paymentId, checkoutId, orderId],
+      );
+
+      const order = orderResult.rows[0];
+
+      if (order && !order.confirmation_email_sent_at) {
+        const emailResult = await sendOrderConfirmationEmail(order);
+
+        if (!emailResult.skipped) {
+          await pool.query(
+            `
+              UPDATE orders
+              SET confirmation_email_sent_at = now(), updated_at = now()
+              WHERE id = $1
+            `,
+            [order.id],
+          );
+        }
+      }
+    } else if ((checkoutId || orderId) && paymentStatus) {
+      await pool.query(
+        `
+          UPDATE orders
+          SET status = $1, updated_at = now()
+          WHERE yoco_checkout_id = $2 OR id = $3
+        `,
+        [paymentStatus, checkoutId, orderId],
+      );
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    console.error('Yoco webhook error:', error);
+    res.status(500).json({ message: 'Webhook processing failed' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
@@ -282,4 +360,31 @@ function userError(message) {
 
 function getSiteUrl(origin) {
   return (process.env.SITE_URL || origin || 'http://localhost:8080').replace(/\/$/, '');
+}
+
+function verifyWebhook(headers, rawBody) {
+  const id = headers['webhook-id'];
+  const timestamp = headers['webhook-timestamp'];
+  const signatureHeader = headers['webhook-signature'];
+
+  if (!id || !timestamp || !signatureHeader) return false;
+
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
+  if (!Number.isFinite(age) || age > 180) return false;
+
+  const signedContent = `${id}.${timestamp}.${rawBody}`;
+  const secretBytes = Buffer.from((process.env.YOCO_WEBHOOK_SECRET || '').split('_')[1] ?? '', 'base64');
+  const expectedSignature = crypto
+    .createHmac('sha256', secretBytes)
+    .update(signedContent)
+    .digest('base64');
+
+  return signatureHeader.split(' ').some((signaturePart) => {
+    const signature = signaturePart.split(',')[1];
+    if (!signature) return false;
+
+    const expected = Buffer.from(expectedSignature);
+    const actual = Buffer.from(signature);
+    return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+  });
 }

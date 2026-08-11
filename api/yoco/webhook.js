@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import pg from "pg";
+import { sendOrderConfirmationEmail } from "../_lib/order-email.js";
 
 const { Pool } = pg;
 
@@ -42,8 +43,11 @@ export default async function handler(request, response) {
   const paymentId = event?.payload?.id;
   const paymentStatus = event?.payload?.status;
 
-  if (event?.type === "payment.succeeded" && (checkoutId || orderId)) {
-    await pool.query(
+  if (
+    (event?.type === "payment.succeeded" || paymentStatus === "succeeded") &&
+    (checkoutId || orderId)
+  ) {
+    const orderResult = await pool.query(
       `
         UPDATE orders
         SET
@@ -52,9 +56,27 @@ export default async function handler(request, response) {
           paid_at = now(),
           updated_at = now()
         WHERE yoco_checkout_id = $2 OR id = $3
+        RETURNING *
       `,
       [paymentId, checkoutId, orderId],
     );
+
+    const order = orderResult.rows[0];
+
+    if (order && !order.confirmation_email_sent_at) {
+      const emailResult = await sendOrderConfirmationEmail(order);
+
+      if (!emailResult.skipped) {
+        await pool.query(
+          `
+            UPDATE orders
+            SET confirmation_email_sent_at = now(), updated_at = now()
+            WHERE id = $1
+          `,
+          [order.id],
+        );
+      }
+    }
   } else if ((checkoutId || orderId) && paymentStatus) {
     await pool.query(
       `
