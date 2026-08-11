@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
-import { Heart, Instagram, Mail, Phone } from "lucide-react";
-import { CONTACT_EMAIL, categories } from "@/data/products";
+import { Heart, Instagram, Mail, MessageCircle } from "lucide-react";
+import {
+  CONTACT_EMAIL,
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+  WHATSAPP_URL,
+  categories,
+} from "@/data/products";
 
 export default function Footer() {
   return (
@@ -46,11 +52,25 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <Instagram className="h-4 w-4 text-primary" />
-              <span>@everythinghooked</span>
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary"
+              >
+                {INSTAGRAM_HANDLE}
+              </a>
             </li>
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-primary" />
-              <span>Orders via email &amp; DM</span>
+              <MessageCircle className="h-4 w-4 text-primary" />
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary"
+              >
+                Orders via WhatsApp &amp; DM
+              </a>
             </li>
             <li>
               <Link to="/order" className="hover:text-primary">
