@@ -15,7 +15,7 @@ const webhookSecret = process.env.YOCO_WEBHOOK_SECRET;
 
 const pool = new Pool({
   connectionString,
-  ssl: isLocalDatabase(connectionString) ? false : { rejectUnauthorized: false },
+  ssl: databaseSslConfig(connectionString),
 });
 
 export default async function handler(request, response) {
@@ -128,6 +128,15 @@ function readBody(request) {
     request.on("end", () => resolve(body));
     request.on("error", reject);
   });
+}
+
+function databaseSslConfig(value = "") {
+  if (isLocalDatabase(value)) return false;
+
+  const ca = process.env.DB_CA_CERT?.replace(/\\n/g, "\n");
+  if (ca) return { rejectUnauthorized: true, ca };
+
+  return { rejectUnauthorized: false };
 }
 
 function isLocalDatabase(value = "") {
