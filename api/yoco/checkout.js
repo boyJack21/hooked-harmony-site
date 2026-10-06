@@ -295,9 +295,30 @@ function isAllowedOrigin(origin) {
   if (!origin) return false;
 
   try {
-    const allowed = new URL(process.env.SITE_URL || "http://localhost:5173");
-    const candidate = new URL(origin);
-    return candidate.origin === allowed.origin;
+    const candidate = new URL(origin).origin;
+    const configured = process.env.ALLOWED_CHECKOUT_ORIGINS
+      ?.split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    if (configured?.length) {
+      return configured.some((value) => new URL(value).origin === candidate);
+    }
+
+    const site = new URL(process.env.SITE_URL || "http://localhost:5173");
+    const allowed = new Set([site.origin]);
+
+    if (site.hostname.startsWith("www.")) {
+      const withoutWww = new URL(site.origin);
+      withoutWww.hostname = site.hostname.slice(4);
+      allowed.add(withoutWww.origin);
+    } else if (!isLocalDatabase(site.hostname)) {
+      const withWww = new URL(site.origin);
+      withWww.hostname = `www.${site.hostname}`;
+      allowed.add(withWww.origin);
+    }
+
+    return allowed.has(candidate);
   } catch {
     return false;
   }
