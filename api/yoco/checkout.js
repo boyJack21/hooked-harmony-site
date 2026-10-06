@@ -8,8 +8,12 @@ const yocoSecretKey = process.env.YOCO_SECRET_KEY;
 
 const pool = new Pool({
   connectionString,
-  ssl: isLocalDatabase(connectionString) ? false : { rejectUnauthorized: false },
+  ssl: databaseSslConfig(connectionString),
 });
+
+const checkoutAttempts = new Map();
+const CHECKOUT_WINDOW_MS = 60_000;
+const CHECKOUT_MAX_ATTEMPTS = 10;
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -20,6 +24,17 @@ export default async function handler(request, response) {
 
   if (!connectionString || !yocoSecretKey) {
     response.status(500).json({ message: "Payment configuration is incomplete" });
+    return;
+  }
+
+  if (!isAllowedOrigin(request.headers.origin)) {
+    response.status(403).json({ message: "Checkout origin is not allowed" });
+    return;
+  }
+
+  if (isRateLimited(clientIp(request))) {
+    response.setHeader("Retry-After", "60");
+    response.status(429).json({ message: "Too many checkout attempts. Please try again shortly." });
     return;
   }
 
@@ -163,7 +178,20 @@ async function resolveCart(client, cart) {
     const product = products.get(item.slug);
     if (!product) throw userError(`Product is no longer available: ${item.name}`);
 
-    const price = product.sizes.get(item.size) ?? product.basePrice;
+    let price;
+
+    if (product.sizes.size > 0) {
+      if (!product.sizes.has(item.size)) {
+        throw userError(`Invalid size selected for ${product.name}.`);
+      }
+      price = product.sizes.get(item.size);
+    } else {
+      if (item.size !== "One size") {
+        throw userError(`Invalid size selected for ${product.name}.`);
+      }
+      price = product.basePrice;
+    }
+
     return {
       slug: product.slug,
       name: product.name,
@@ -192,19 +220,44 @@ function normalizeCustomer(customer = {}) {
     throw userError("Name, email, and delivery address are required.");
   }
 
+  if (name.length > 120 || email.length > 254 || phone.length > 40 || deliveryAddress.length > 500) {
+    throw userError("Customer details are too long.");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw userError("Enter a valid email address.");
+  }
+
   return { name, email, phone, deliveryAddress };
 }
 
 function normalizeCart(cart = []) {
   if (!Array.isArray(cart) || !cart.length) throw userError("Your cart is empty.");
 
-  return cart.map((item) => ({
-    slug: String(item.slug ?? ""),
-    name: String(item.name ?? ""),
-    size: String(item.size ?? "One size"),
-    color: String(item.color ?? ""),
-    qty: Math.max(1, Math.min(99, Number(item.qty) || 1)),
-  }));
+  if (cart.length > 50) throw userError("Too many items in one checkout.");
+
+  return cart.map((item) => {
+    const slug = String(item.slug ?? "").trim();
+    const size = String(item.size ?? "One size").trim();
+    const color = String(item.color ?? "").trim();
+    const qty = Number(item.qty);
+
+    if (!slug || slug.length > 120 || size.length > 80 || color.length > 80) {
+      throw userError("Invalid cart item.");
+    }
+
+    if (!Number.isInteger(qty) || qty < 1 || qty > 20) {
+      throw userError("Item quantity must be between 1 and 20.");
+    }
+
+    return {
+      slug,
+      name: String(item.name ?? "").slice(0, 160),
+      size,
+      color,
+      qty,
+    };
+  });
 }
 
 function userError(message) {
@@ -216,6 +269,47 @@ function userError(message) {
 
 function getSiteUrl(origin) {
   return (process.env.SITE_URL || origin || "http://localhost:8080").replace(/\/$/, "");
+}
+
+function clientIp(request) {
+  const forwarded = request.headers["x-forwarded-for"];
+  return String(Array.isArray(forwarded) ? forwarded[0] : forwarded ?? request.socket?.remoteAddress ?? "unknown")
+    .split(",")[0]
+    .trim();
+}
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const current = checkoutAttempts.get(ip);
+
+  if (!current || now - current.startedAt >= CHECKOUT_WINDOW_MS) {
+    checkoutAttempts.set(ip, { startedAt: now, count: 1 });
+    return false;
+  }
+
+  current.count += 1;
+  return current.count > CHECKOUT_MAX_ATTEMPTS;
+}
+
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+
+  try {
+    const allowed = new URL(process.env.SITE_URL || "http://localhost:5173");
+    const candidate = new URL(origin);
+    return candidate.origin === allowed.origin;
+  } catch {
+    return false;
+  }
+}
+
+function databaseSslConfig(value = "") {
+  if (isLocalDatabase(value)) return false;
+
+  const ca = process.env.DB_CA_CERT?.replace(/\\n/g, "\n");
+  if (ca) return { rejectUnauthorized: true, ca };
+
+  return { rejectUnauthorized: false };
 }
 
 function isLocalDatabase(value = "") {
