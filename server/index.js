@@ -8,7 +8,17 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_CHECKOUT_ORIGINS || process.env.SITE_URL || "http://localhost:5173")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Origin not allowed"));
+  },
+}));
 app.use(express.json({
   verify: (req, _res, buffer) => {
     req.rawBody = buffer.toString('utf8');
@@ -21,13 +31,9 @@ const pool = new Pool({
 
 app.get('/api/health', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW()');
+    await pool.query('SELECT 1');
 
-    res.json({
-      status: 'ok',
-      database: 'connected',
-      time: result.rows[0].now,
-    });
+    res.json({ status: 'ok' });
   } catch (error) {
     console.error(error);
 
@@ -84,7 +90,6 @@ app.get('/api/products', async (req, res) => {
 
     res.status(500).json({
       message: 'Failed to load products',
-      error: error.message,
     });
   }
 });
@@ -307,7 +312,20 @@ async function resolveCart(client, cart) {
     const product = products.get(item.slug);
     if (!product) throw userError(`Product is no longer available: ${item.name}`);
 
-    const price = product.sizes.get(item.size) ?? product.basePrice;
+    let price;
+
+    if (product.sizes.size > 0) {
+      if (!product.sizes.has(item.size)) {
+        throw userError(`Invalid size selected for ${product.name}.`);
+      }
+      price = product.sizes.get(item.size);
+    } else {
+      if (item.size !== 'One size') {
+        throw userError(`Invalid size selected for ${product.name}.`);
+      }
+      price = product.basePrice;
+    }
+
     return {
       slug: product.slug,
       name: product.name,
@@ -336,19 +354,44 @@ function normalizeCustomer(customer = {}) {
     throw userError('Name, email, and delivery address are required.');
   }
 
+  if (name.length > 120 || email.length > 254 || phone.length > 40 || deliveryAddress.length > 500) {
+    throw userError('Customer details are too long.');
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw userError('Enter a valid email address.');
+  }
+
   return { name, email, phone, deliveryAddress };
 }
 
 function normalizeCart(cart = []) {
   if (!Array.isArray(cart) || !cart.length) throw userError('Your cart is empty.');
 
-  return cart.map((item) => ({
-    slug: String(item.slug ?? ''),
-    name: String(item.name ?? ''),
-    size: String(item.size ?? 'One size'),
-    color: String(item.color ?? ''),
-    qty: Math.max(1, Math.min(99, Number(item.qty) || 1)),
-  }));
+  if (cart.length > 50) throw userError('Too many items in one checkout.');
+
+  return cart.map((item) => {
+    const slug = String(item.slug ?? '').trim();
+    const size = String(item.size ?? 'One size').trim();
+    const color = String(item.color ?? '').trim();
+    const qty = Number(item.qty);
+
+    if (!slug || slug.length > 120 || size.length > 80 || color.length > 80) {
+      throw userError('Invalid cart item.');
+    }
+
+    if (!Number.isInteger(qty) || qty < 1 || qty > 20) {
+      throw userError('Item quantity must be between 1 and 20.');
+    }
+
+    return {
+      slug,
+      name: String(item.name ?? '').slice(0, 160),
+      size,
+      color,
+      qty,
+    };
+  });
 }
 
 function userError(message) {
