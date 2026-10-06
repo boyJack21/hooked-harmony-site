@@ -6,7 +6,7 @@ const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({
   connectionString,
-  ssl: isLocalDatabase(connectionString) ? false : { rejectUnauthorized: false },
+  ssl: databaseSslConfig(connectionString),
 });
 
 export default async function handler(request, response) {
@@ -25,12 +25,8 @@ export default async function handler(request, response) {
   }
 
   try {
-    const result = await pool.query("SELECT NOW()");
-    response.status(200).json({
-      status: "ok",
-      database: "connected",
-      time: result.rows[0].now,
-    });
+    await pool.query("SELECT 1");
+    response.status(200).json({ status: "ok" });
   } catch (error) {
     console.error("Health error:", error);
     response.status(500).json({
@@ -38,6 +34,15 @@ export default async function handler(request, response) {
       message: "Database connection failed",
     });
   }
+}
+
+function databaseSslConfig(value = "") {
+  if (isLocalDatabase(value)) return false;
+
+  const ca = process.env.DB_CA_CERT?.replace(/\\n/g, "\n");
+  if (ca) return { rejectUnauthorized: true, ca };
+
+  return { rejectUnauthorized: false };
 }
 
 function isLocalDatabase(value = "") {
