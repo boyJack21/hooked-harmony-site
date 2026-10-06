@@ -1,59 +1,102 @@
-# hooked-harmony-site
+# Hooked Harmony Site
 
-## Database
+A full-stack e-commerce storefront for a handmade crochet brand. The project combines a React/TypeScript frontend with server-side API routes, PostgreSQL persistence, Yoco checkout integration, verified payment webhooks, and transactional order-confirmation email.
 
-This project is set up for plain PostgreSQL instead of Supabase.
+## What the application does
 
-1. Create a PostgreSQL database.
-2. Copy `.env.example` to `.env` and set `DATABASE_URL`.
-3. Run the schema in `db/schema.sql` against the database.
-4. Seed the product catalog:
+Customers can browse products, manage a cart and wishlist, submit custom-order requests, and complete checkout through Yoco. Product and order data are stored in PostgreSQL. Payment success is confirmed server-side through a signed webhook before an order is marked as paid and a confirmation email is sent.
+
+## Architecture
+
+```text
+React + TypeScript storefront
+          |
+          | same-origin API calls
+          v
+Vercel / Node API routes
+          |
+          +----> PostgreSQL
+          |
+          +----> Yoco Checkout API
+          |          |
+          |          v
+          |     Signed webhook
+          |
+          +----> Resend email API
+```
+
+## Key engineering features
+
+- React + TypeScript storefront
+- PostgreSQL-backed product and order data
+- Server-side price resolution so checkout totals are not trusted from the browser
+- Yoco checkout integration
+- HMAC webhook signature verification with timestamp validation
+- Order status persistence and payment identifiers
+- Transactional order-confirmation emails through Resend
+- Environment-based secret management
+- Vercel serverless API routes
+- Responsive product, cart, wishlist, and custom-order flows
+
+## Security decisions
+
+- Payment and email credentials are read from environment variables and are never exposed to the browser.
+- Product prices are resolved from PostgreSQL on the server before a checkout is created.
+- Webhook signatures are verified using the configured Yoco webhook secret before payment state is accepted.
+- `.env` files are excluded from source control.
+
+## Local setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Copy the environment template:
+
+```bash
+cp .env.example .env
+```
+
+3. Create a PostgreSQL database and update `DATABASE_URL`.
+
+4. Run the schema:
+
+```bash
+psql "$DATABASE_URL" -f db/schema.sql
+```
+
+5. Seed the product catalog if required:
 
 ```bash
 cd server
+npm install
 npm run seed:products
+cd ..
 ```
 
-The current Vite storefront keeps products in `src/data/products.ts`, cart and
-wishlist state in `localStorage`, and order/contact forms as email links. Use a
-server-side API route for any future reads or writes to PostgreSQL so the
-database URL is never exposed to the browser.
-
-## Vercel
-
-Set these variables in Vercel under Project Settings -> Environment Variables:
-
-```text
-DATABASE_URL
-SITE_URL
-EMAIL_ASSET_BASE_URL
-YOCO_SECRET_KEY
-YOCO_WEBHOOK_SECRET
-RESEND_API_KEY
-ORDER_EMAIL_FROM
-ORDER_EMAIL_REPLY_TO
-```
-
-Do not set `VITE_API_URL` in Vercel unless the API is hosted on a different
-domain; production uses the same-origin `/api/products` serverless function.
-Use your Yoco test secret key while testing. Switch to the live secret key only
-after your production domain is verified in Yoco.
-Order confirmation emails are sent through Resend after Yoco confirms payment
-through the webhook.
-Set `EMAIL_ASSET_BASE_URL` to your public storefront URL, for example
-`https://everythinghooked.online`, so product images in order emails can load
-from the customer's inbox.
-
-The Vercel build uses:
+6. Start the storefront:
 
 ```bash
-npm run build
+npm run dev
 ```
 
-with `dist` as the output directory. API routes live in `api/`.
+## Environment variables
 
-Register this webhook URL in Yoco:
+The project expects the variables documented in `.env.example`, including:
 
-```text
-https://your-domain.vercel.app/api/yoco/webhook
-```
+- `DATABASE_URL`
+- `SITE_URL`
+- `EMAIL_ASSET_BASE_URL`
+- `YOCO_SECRET_KEY`
+- `YOCO_WEBHOOK_SECRET`
+- `RESEND_API_KEY`
+- `ORDER_EMAIL_FROM`
+- `ORDER_EMAIL_REPLY_TO`
+
+For production, configure them in the hosting platform rather than committing them to Git.
+
+## What I focused on
+
+This project demonstrates end-to-end ownership across frontend development, relational data modelling, backend API design, payment integration, webhook verification, transactional email, and deployment-oriented configuration.
