@@ -3,7 +3,10 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 const { randomUUID } = crypto;
-const { sendOrderConfirmationEmail } = require('./order-email');
+const {
+  sendBusinessOrderNotificationEmail,
+  sendOrderConfirmationEmail,
+} = require('./order-email');
 require('dotenv').config();
 
 const app = express();
@@ -206,16 +209,18 @@ app.post('/api/yoco/webhook', async (req, res) => {
   }
 
   const event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-  const checkoutId = event?.payload?.metadata?.checkoutId;
-  const orderId = event?.payload?.metadata?.orderId;
-  const paymentId = event?.payload?.id;
-  const paymentStatus = event?.payload?.status;
+  const webhookData = getWebhookData(event);
+  const { checkoutId, orderId, paymentId, paymentStatus } = webhookData;
+
+  console.log('Yoco webhook received:', {
+    type: event?.type,
+    checkoutId,
+    orderId,
+    paymentStatus,
+  });
 
   try {
-    if (
-      (event?.type === 'payment.succeeded' || paymentStatus === 'succeeded') &&
-      (checkoutId || orderId)
-    ) {
+    if (isSuccessfulPaymentEvent(event, paymentStatus) && (checkoutId || orderId)) {
       const orderResult = await pool.query(
         `
           UPDATE orders
@@ -233,19 +238,50 @@ app.post('/api/yoco/webhook', async (req, res) => {
       const order = orderResult.rows[0];
 
       if (order && !order.confirmation_email_sent_at) {
-        const emailResult = await sendOrderConfirmationEmail(order);
+        try {
+          const emailResult = await sendOrderConfirmationEmail(order);
 
-        if (!emailResult.skipped) {
-          await pool.query(
-            `
-              UPDATE orders
-              SET confirmation_email_sent_at = now(), updated_at = now()
-              WHERE id = $1
-            `,
-            [order.id],
-          );
+          if (!emailResult.skipped) {
+            await pool.query(
+              `
+                UPDATE orders
+                SET confirmation_email_sent_at = now(), updated_at = now()
+                WHERE id = $1
+              `,
+              [order.id],
+            );
+
+            console.log('Customer order confirmation sent:', emailResult.id);
+          }
+        } catch (error) {
+          console.error('Customer order confirmation failed:', error);
         }
       }
+
+      if (order && !order.business_notification_sent_at) {
+        try {
+          const businessEmailResult = await sendBusinessOrderNotificationEmail(order);
+          if (!businessEmailResult.skipped) {
+            await pool.query(
+              `
+                UPDATE orders
+                SET business_notification_sent_at = now(), updated_at = now()
+                WHERE id = $1
+              `,
+              [order.id],
+            );
+
+            console.log('Business order notification sent:', businessEmailResult.id);
+          }
+        } catch (error) {
+          console.error('Business order notification failed:', error);
+        }
+      }
+    } else if (isSuccessfulPaymentEvent(event, paymentStatus)) {
+      console.error('Paid Yoco webhook did not include an order reference:', {
+        type: event?.type,
+        payloadKeys: Object.keys(event?.payload ?? event?.data ?? {}),
+      });
     } else if ((checkoutId || orderId) && paymentStatus) {
       await pool.query(
         `
@@ -266,8 +302,19 @@ app.post('/api/yoco/webhook', async (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, '127.0.0.1', (error) => {
+  if (error) {
+    console.error('API failed to start:', error.message);
+    process.exitCode = 1;
+    return;
+  }
+
   console.log(`API running on http://localhost:${PORT}`);
+});
+
+server.on('error', (error) => {
+  console.error('API server error:', error.message);
+  process.exitCode = 1;
 });
 
 async function resolveCart(client, cart) {
@@ -360,6 +407,41 @@ function userError(message) {
 
 function getSiteUrl(origin) {
   return (process.env.SITE_URL || origin || 'http://localhost:8080').replace(/\/$/, '');
+}
+
+function getWebhookData(event) {
+  const payload = event?.payload ?? event?.data ?? {};
+  const metadata =
+    payload?.metadata ??
+    payload?.checkout?.metadata ??
+    payload?.checkoutSession?.metadata ??
+    payload?.payment?.metadata ??
+    {};
+
+  return {
+    checkoutId:
+      metadata.checkoutId ??
+      metadata.checkout_id ??
+      payload.checkoutId ??
+      payload.checkout_id ??
+      payload.checkout?.id ??
+      payload.checkoutSession?.id ??
+      payload.payment?.checkoutId ??
+      payload.payment?.checkout_id,
+    orderId:
+      metadata.orderId ??
+      metadata.order_id ??
+      payload.externalId ??
+      payload.external_id ??
+      payload.clientReferenceId ??
+      payload.client_reference_id,
+    paymentId: payload.id ?? payload.payment?.id,
+    paymentStatus: payload.status ?? payload.payment?.status,
+  };
+}
+
+function isSuccessfulPaymentEvent(event, paymentStatus) {
+  return event?.type === 'payment.succeeded' || paymentStatus === 'succeeded';
 }
 
 function verifyWebhook(headers, rawBody) {

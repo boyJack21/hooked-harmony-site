@@ -40,6 +40,43 @@ export async function sendOrderConfirmationEmail(order) {
   return response.json();
 }
 
+export async function sendBusinessOrderNotificationEmail(order) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.ORDER_EMAIL_FROM;
+  const to = process.env.ORDER_NOTIFICATION_EMAIL || process.env.ORDER_EMAIL_REPLY_TO;
+
+  if (!apiKey || !from || !to || apiKey === "re_your_resend_api_key") {
+    console.warn(
+      "Business order notification skipped: RESEND_API_KEY, ORDER_EMAIL_FROM, or ORDER_NOTIFICATION_EMAIL is missing.",
+    );
+    return { skipped: true };
+  }
+
+  const email = buildBusinessOrderNotificationEmail(order);
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: [to],
+      reply_to: order.customer_email,
+      subject: email.subject,
+      html: email.html,
+      text: email.text,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Resend business email failed with ${response.status}: ${body}`);
+  }
+
+  return response.json();
+}
+
 export function buildOrderConfirmationEmail(order) {
   const items = Array.isArray(order.cart_data) ? order.cart_data : [];
   const orderNumber = shortOrderId(order.id);
@@ -48,7 +85,7 @@ export function buildOrderConfirmationEmail(order) {
   const firstName = firstNameOnly(order.customer_name);
   const assetBaseUrl = getAssetBaseUrl();
 
-  const itemRows = items.map((item) => buildItemRow(item, assetBaseUrl)).join("");
+  const itemRows = items.map((item) => buildItemRow(item, assetBaseUrl)).join('');
   const textItems = items
     .map(
       (item) =>
@@ -56,7 +93,7 @@ export function buildOrderConfirmationEmail(order) {
           Number(item.totalAmount ?? 0) / 100,
         )}`,
     )
-    .join("\n");
+    .join('\n');
 
   return {
     subject: `EverythingHooked order ${orderNumber} confirmed`,
@@ -318,6 +355,64 @@ Total paid: ${currency.format(total / 100)}
 Estimated dispatch: 5 - 7 business days
 
 Questions about your order? Reply to this email and we'll be happy to help.
+`,
+  };
+}
+
+export function buildBusinessOrderNotificationEmail(order) {
+  const items = Array.isArray(order.cart_data) ? order.cart_data : [];
+  const orderNumber = shortOrderId(order.id);
+  const subtotal = items.reduce((total, item) => total + Number(item.totalAmount ?? 0), 0);
+  const total = Number(order.total_amount ?? subtotal);
+  const textItems = items
+    .map(
+      (item) =>
+        `- ${item.name} (${item.color} / ${item.size}) x ${item.qty}: ${currency.format(
+          Number(item.totalAmount ?? 0) / 100,
+        )}`,
+    )
+    .join("\n");
+  const baseEmail = buildOrderConfirmationEmail(order);
+  const firstName = firstNameOnly(order.customer_name);
+  const customerDetailsHtml = `
+                      <div style="font-weight:800;font-size:17px;color:#09090b!important;">Customer details</div>
+                      <div style="font-size:15px;color:#09090b!important;margin-top:4px;">
+                        <strong>Name:</strong> ${escapeHtml(order.customer_name)}<br />
+                        <strong>Email:</strong> ${escapeHtml(order.customer_email)}<br />
+                        <strong>Phone:</strong> ${escapeHtml(order.customer_phone || "Not provided")}<br />
+                        <strong>Delivery address:</strong><br />${escapeHtml(order.delivery_address || "Not provided").replace(/\n/g, "<br />")}
+                      </div>`;
+  const html = baseEmail.html
+    .replace("EverythingHooked order confirmed", "EverythingHooked new paid order")
+    .replace("Your order is confirmed", "New paid order")
+    .replace(
+      `Hi ${escapeHtml(firstName)},<br />
+                  Thank you for your order! Your payment has been received and we'll start preparing your handmade piece with love.`,
+      "Yoco confirmed payment. Reply to this email to contact the customer directly.",
+    )
+    .replace(
+      `<div style="font-weight:800;font-size:17px;color:#09090b!important;">Questions about your order?</div>
+                      <div style="font-size:15px;color:#09090b!important;margin-top:4px;">Reply to this email and we'll be happy to help.</div>`,
+      customerDetailsHtml,
+    );
+
+  return {
+    subject: `New paid order ${orderNumber}`,
+    html,
+    text: `New paid order ${orderNumber}
+
+Customer:
+Name: ${order.customer_name}
+Email: ${order.customer_email}
+Phone: ${order.customer_phone || "Not provided"}
+Delivery address:
+${order.delivery_address || "Not provided"}
+
+Items:
+${textItems}
+
+Subtotal: ${currency.format(subtotal / 100)}
+Total paid: ${currency.format(total / 100)}
 `,
   };
 }

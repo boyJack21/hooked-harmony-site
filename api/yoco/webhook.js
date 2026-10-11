@@ -1,6 +1,9 @@
 import crypto from "node:crypto";
 import pg from "pg";
-import { sendOrderConfirmationEmail } from "../_lib/order-email.js";
+import {
+  sendBusinessOrderNotificationEmail,
+  sendOrderConfirmationEmail,
+} from "../_lib/order-email.js";
 
 const { Pool } = pg;
 
@@ -38,15 +41,17 @@ export default async function handler(request, response) {
   }
 
   const event = JSON.parse(rawBody);
-  const checkoutId = event?.payload?.metadata?.checkoutId;
-  const orderId = event?.payload?.metadata?.orderId;
-  const paymentId = event?.payload?.id;
-  const paymentStatus = event?.payload?.status;
+  const webhookData = getWebhookData(event);
+  const { checkoutId, orderId, paymentId, paymentStatus } = webhookData;
 
-  if (
-    (event?.type === "payment.succeeded" || paymentStatus === "succeeded") &&
-    (checkoutId || orderId)
-  ) {
+  console.log("Yoco webhook received:", {
+    type: event?.type,
+    checkoutId,
+    orderId,
+    paymentStatus,
+  });
+
+  if (isSuccessfulPaymentEvent(event, paymentStatus) && (checkoutId || orderId)) {
     const orderResult = await pool.query(
       `
         UPDATE orders
@@ -64,19 +69,50 @@ export default async function handler(request, response) {
     const order = orderResult.rows[0];
 
     if (order && !order.confirmation_email_sent_at) {
-      const emailResult = await sendOrderConfirmationEmail(order);
+      try {
+        const emailResult = await sendOrderConfirmationEmail(order);
 
-      if (!emailResult.skipped) {
-        await pool.query(
-          `
-            UPDATE orders
-            SET confirmation_email_sent_at = now(), updated_at = now()
-            WHERE id = $1
-          `,
-          [order.id],
-        );
+        if (!emailResult.skipped) {
+          await pool.query(
+            `
+              UPDATE orders
+              SET confirmation_email_sent_at = now(), updated_at = now()
+              WHERE id = $1
+            `,
+            [order.id],
+          );
+
+          console.log("Customer order confirmation sent:", emailResult.id);
+        }
+      } catch (error) {
+        console.error("Customer order confirmation failed:", error);
       }
     }
+
+    if (order && !order.business_notification_sent_at) {
+      try {
+        const businessEmailResult = await sendBusinessOrderNotificationEmail(order);
+        if (!businessEmailResult.skipped) {
+          await pool.query(
+            `
+              UPDATE orders
+              SET business_notification_sent_at = now(), updated_at = now()
+              WHERE id = $1
+            `,
+            [order.id],
+          );
+
+          console.log("Business order notification sent:", businessEmailResult.id);
+        }
+      } catch (error) {
+        console.error("Business order notification failed:", error);
+      }
+    }
+  } else if (isSuccessfulPaymentEvent(event, paymentStatus)) {
+    console.error("Paid Yoco webhook did not include an order reference:", {
+      type: event?.type,
+      payloadKeys: Object.keys(event?.payload ?? event?.data ?? {}),
+    });
   } else if ((checkoutId || orderId) && paymentStatus) {
     await pool.query(
       `
@@ -89,6 +125,41 @@ export default async function handler(request, response) {
   }
 
   response.status(200).json({ received: true });
+}
+
+function getWebhookData(event) {
+  const payload = event?.payload ?? event?.data ?? {};
+  const metadata =
+    payload?.metadata ??
+    payload?.checkout?.metadata ??
+    payload?.checkoutSession?.metadata ??
+    payload?.payment?.metadata ??
+    {};
+
+  return {
+    checkoutId:
+      metadata.checkoutId ??
+      metadata.checkout_id ??
+      payload.checkoutId ??
+      payload.checkout_id ??
+      payload.checkout?.id ??
+      payload.checkoutSession?.id ??
+      payload.payment?.checkoutId ??
+      payload.payment?.checkout_id,
+    orderId:
+      metadata.orderId ??
+      metadata.order_id ??
+      payload.externalId ??
+      payload.external_id ??
+      payload.clientReferenceId ??
+      payload.client_reference_id,
+    paymentId: payload.id ?? payload.payment?.id,
+    paymentStatus: payload.status ?? payload.payment?.status,
+  };
+}
+
+function isSuccessfulPaymentEvent(event, paymentStatus) {
+  return event?.type === "payment.succeeded" || paymentStatus === "succeeded";
 }
 
 function verifyWebhook(headers, rawBody) {

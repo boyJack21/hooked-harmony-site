@@ -68,6 +68,7 @@ create table if not exists orders (
   yoco_payment_id text,
   paid_at timestamptz,
   confirmation_email_sent_at timestamptz,
+  business_notification_sent_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -77,3 +78,4 @@ alter table orders add column if not exists yoco_checkout_id text unique;
 alter table orders add column if not exists yoco_payment_id text;
 alter table orders add column if not exists paid_at timestamptz;
 alter table orders add column if not exists confirmation_email_sent_at timestamptz;
+alter table orders add column if not exists business_notification_sent_at timestamptz;
